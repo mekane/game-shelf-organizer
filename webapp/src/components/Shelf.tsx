@@ -20,7 +20,8 @@ export const Shelf = (props: ShelfProps) => {
     const rows = [];
     for ( let r = 0 ; r < numberOfRows ; r++ ) {
         for ( let c = 0 ; c < numberOfColumns ; c++ ) {
-            rows.push(<div className="box">{ `${r}.${c}` }</div> )
+            const boxId = `${r}.${c}`;
+            rows.push(<div className="box" key={boxId}>{ boxId }</div> )
         }
     }
 
