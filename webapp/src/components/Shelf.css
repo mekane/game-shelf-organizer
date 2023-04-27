@@ -1,0 +1,15 @@
+.shelf {
+    border: 6px solid #666;
+    display: grid;
+
+    margin: 12px;
+}
+
+.box {
+    align-self: center; /* end; */
+    background: #333;
+    height: 100%;
+    width: 100%;
+}
+
+
