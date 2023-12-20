@@ -1,0 +1,16 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "env": {
+        "node": true,
+        "jest": true,
+        "browser": false,
+        "es2021": true
+    },
+    "plugins": ["@typescript-eslint/eslint-plugin"],
+    "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
+    ],
+
+}
