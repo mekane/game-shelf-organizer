@@ -1,16 +1,6 @@
-export interface ShelfConfig {
-  name?: string;
-  width?: number; //inches
-  height?: number; //inches
-  rows?: number;
-  columns?: number;
-}
+import { Shelf } from "../../types";
 
-export interface ShelfProps {
-  config: ShelfConfig;
-}
-
-const Cube = ({ id }: { id: string }) => {
+const CubeDisplay = ({ id }: { id: string }) => {
   return (
     <div
       style={{
@@ -25,20 +15,24 @@ const Cube = ({ id }: { id: string }) => {
   );
 };
 
-export const Shelf = ({ config }: ShelfProps) => {
-  const numberOfRows = config.rows ?? 1;
-  const numberOfColumns = config.columns ?? 1;
+export interface ShelfDisplayProps {
+  shelf: Shelf;
+}
+
+export const ShelfDisplay = ({ shelf }: ShelfDisplayProps) => {
+  const numberOfRows = shelf.rows ?? 1;
+  const numberOfColumns = shelf.columns ?? 1;
 
   const rows = [];
   for (let r = 0; r < numberOfRows; r++) {
     for (let c = 0; c < numberOfColumns; c++) {
-      const boxId = `${r}.${c}`;
-      rows.push(<Cube key={boxId} id={boxId} />);
+      const cubeId = `${shelf.id}.${r}.${c}`;
+      rows.push(<CubeDisplay key={cubeId} id={cubeId} />);
     }
   }
 
-  const width = config.width ?? 12 * numberOfColumns; // default one foot per row
-  const height = config.height ?? 12 * numberOfRows; // default one foot per column
+  const width = shelf.width ?? 12 * numberOfColumns; // default one foot per row
+  const height = shelf.height ?? 12 * numberOfRows; // default one foot per column
 
   const borderColor = "#666";
   const outerBorderThickness = "8px";
