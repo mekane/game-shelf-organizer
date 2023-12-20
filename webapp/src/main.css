@@ -1,0 +1,14 @@
+html,
+body,
+:root {
+    height: 100%;
+}
+
+:root,
+#root {
+    font-weight: 400;
+}
+
+:root body {
+    background: #112;
+}
