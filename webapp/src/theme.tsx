@@ -12,6 +12,11 @@ const theme = createTheme({
     error: {
       main: red.A400,
     },
+    text: {
+      primary: "#ccc",
+      secondary: "#aaa",
+      disabled: "#999",
+    },
   },
   breakpoints: {
     values: {
