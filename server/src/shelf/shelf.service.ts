@@ -1,38 +1,57 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateShelfDto } from './dto/create-shelf.dto';
-import { GetShelfDto } from './dto/get-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
+import { Shelf } from './entities';
+
+export enum Result {
+  NOT_FOUND,
+}
 
 @Injectable()
 export class ShelfService {
-  create(createShelfDto: CreateShelfDto) {
-    console.log(`create shelf `, createShelfDto);
-    return 'This action adds a new shelf';
+  constructor(
+    @InjectRepository(Shelf)
+    private repository: Repository<Shelf>,
+  ) {}
+
+  async create(createDto: CreateShelfDto) {
+    return this.repository.save(createDto);
   }
 
-  findAll(): GetShelfDto[] {
-    return [];
+  async findAll() {
+    return this.repository.find();
   }
 
-  findOne(id: string): GetShelfDto {
-    console.log(`find shelf by id(${id})`);
-    return {
-      id: 'test',
-      name: 'test',
-      width: 2,
-      height: 4,
-      rows: 4,
-      columns: 2,
+  async findOne(id: string) {
+    const found = await this.repository.findOneBy({ id: +id });
+
+    return found ? found : Result.NOT_FOUND;
+  }
+
+  async update(id: string, updateDto: UpdateShelfDto) {
+    const existing = await this.findOne(id);
+
+    if (!existing) {
+      return Result.NOT_FOUND;
+    }
+
+    const updated = {
+      ...existing,
+      ...updateDto,
     };
+
+    return this.repository.save(updated);
   }
 
-  update(id: string, updateShelfDto: UpdateShelfDto) {
-    console.log(`update shelf ${id}`, updateShelfDto);
+  async remove(id: string) {
+    const existing = await this.findOne(id);
 
-    return `This action updates a #${id} shelf`;
-  }
+    if (!existing) {
+      return Result.NOT_FOUND;
+    }
 
-  remove(id: string) {
-    return `This action removes a #${id} shelf`;
+    return this.repository.delete(id);
   }
 }

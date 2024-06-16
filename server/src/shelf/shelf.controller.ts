@@ -3,41 +3,62 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
 import { CreateShelfDto } from './dto/create-shelf.dto';
-import { GetShelfDto } from './dto/get-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
-import { ShelfService } from './shelf.service';
+import { Result, ShelfService } from './shelf.service';
 
 @Controller('shelf')
 export class ShelfController {
   constructor(private readonly shelfService: ShelfService) {}
 
   @Post()
-  create(@Body() createShelfDto: CreateShelfDto) {
+  async create(@Body() createShelfDto: CreateShelfDto) {
     return this.shelfService.create(createShelfDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.shelfService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): GetShelfDto {
-    return this.shelfService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const result = await this.shelfService.findOne(id);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShelfDto: UpdateShelfDto) {
-    return this.shelfService.update(id, updateShelfDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateShelfDto: UpdateShelfDto,
+  ) {
+    const result = await this.shelfService.update(id, updateShelfDto);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shelfService.remove(id);
+  async remove(@Param('id') id: string) {
+    const result = await this.shelfService.remove(id);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 }

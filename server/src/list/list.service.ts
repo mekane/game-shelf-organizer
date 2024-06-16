@@ -13,45 +13,45 @@ export enum Result {
 export class ListService {
   constructor(
     @InjectRepository(List)
-    private listRepository: Repository<List>,
+    private repository: Repository<List>,
   ) {}
 
   async create(createListDto: CreateListDto) {
-    return this.listRepository.save(createListDto);
+    return this.repository.save(createListDto);
   }
 
   async findAll() {
-    return this.listRepository.find();
+    return this.repository.find();
   }
 
   async findOne(id: string) {
-    const found = await this.listRepository.findOneBy({ id: +id });
+    const found = await this.repository.findOneBy({ id: +id });
 
     return found ? found : Result.NOT_FOUND;
   }
 
   async update(id: string, updateListDto: UpdateListDto) {
-    const existingList = await this.findOne(id);
+    const existing = await this.findOne(id);
 
-    if (!existingList) {
+    if (!existing) {
       return Result.NOT_FOUND;
     }
 
     const updated = {
-      ...existingList,
+      ...existing,
       ...updateListDto,
     };
 
-    return this.listRepository.save(updated);
+    return this.repository.save(updated);
   }
 
   async remove(id: string) {
-    const existingList = await this.findOne(id);
+    const existing = await this.findOne(id);
 
-    if (!existingList) {
+    if (!existing) {
       return Result.NOT_FOUND;
     }
 
-    return this.listRepository.delete(id);
+    return this.repository.delete(id);
   }
 }

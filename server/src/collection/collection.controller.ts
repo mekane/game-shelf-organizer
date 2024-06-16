@@ -3,11 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { CollectionService } from './collection.service';
+import { CollectionService, Result } from './collection.service';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 
@@ -16,30 +17,48 @@ export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Post()
-  create(@Body() createCollectionDto: CreateCollectionDto) {
+  async create(@Body() createCollectionDto: CreateCollectionDto) {
     return this.collectionService.create(createCollectionDto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.collectionService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.collectionService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    const result = await this.collectionService.findOne(id);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
-    return this.collectionService.update(id, updateCollectionDto);
+    const result = await this.collectionService.update(id, updateCollectionDto);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.collectionService.remove(id);
+  async remove(@Param('id') id: string) {
+    const result = await this.collectionService.remove(id);
+
+    if (result === Result.NOT_FOUND) {
+      throw new NotFoundException();
+    }
+
+    return result;
   }
 }
