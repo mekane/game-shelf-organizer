@@ -28,7 +28,7 @@ export class ShelfController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const result = await this.shelfService.findOne(id);
+    const result = await this.shelfService.findOne(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -42,7 +42,7 @@ export class ShelfController {
     @Param('id') id: string,
     @Body() updateShelfDto: UpdateShelfDto,
   ) {
-    const result = await this.shelfService.update(id, updateShelfDto);
+    const result = await this.shelfService.update(+id, updateShelfDto);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -53,7 +53,7 @@ export class ShelfController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const result = await this.shelfService.remove(id);
+    const result = await this.shelfService.remove(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();

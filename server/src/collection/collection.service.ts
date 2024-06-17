@@ -24,13 +24,13 @@ export class CollectionService {
     return this.repository.find();
   }
 
-  async findOne(id: string) {
-    const found = await this.repository.findOneBy({ id: +id });
+  async findOne(id: number) {
+    const found = await this.repository.findOneBy({ id });
 
     return found ? found : Result.NOT_FOUND;
   }
 
-  async update(id: string, updateCollectionDto: UpdateCollectionDto) {
+  async update(id: number, updateCollectionDto: UpdateCollectionDto) {
     const existing = await this.findOne(id);
 
     if (!existing) {
@@ -45,7 +45,7 @@ export class CollectionService {
     return this.repository.save(updated);
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     const existing = await this.findOne(id);
 
     if (!existing) {

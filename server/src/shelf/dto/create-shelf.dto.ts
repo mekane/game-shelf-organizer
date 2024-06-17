@@ -5,14 +5,14 @@ export class CreateShelfDto {
   name: string;
 
   @IsOptional()
-  width: number;
+  width?: number;
 
   @IsOptional()
-  height: number;
+  height?: number;
 
   @IsOptional()
-  rows: number;
+  rows?: number;
 
   @IsOptional()
-  columns: number;
+  columns?: number;
 }

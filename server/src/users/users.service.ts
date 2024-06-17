@@ -11,17 +11,18 @@ import { User } from './entities/user.entity';
 
 export enum Result {
   EMAIL_IN_USE,
-  NOT_FOUND,
   INVALID_CREDENTIALS,
+  NOT_FOUND,
+  OWN_USER,
 }
 
 @Injectable()
 export class UsersService {
   constructor(
-    private configService: ConfigService,
-    private jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
     @InjectRepository(User)
-    private repository: Repository<User>,
+    private readonly repository: Repository<User>,
   ) {}
 
   async create(createDto: CreateUserDto) {
@@ -41,7 +42,7 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const found = await this.repository.findOneBy({ id: +id });
+    const found = await this.repository.findOneBy({ id });
 
     return found ? found : Result.NOT_FOUND;
   }
@@ -71,11 +72,15 @@ export class UsersService {
     return this.repository.save(updated);
   }
 
-  async remove(id: number) {
+  async remove(currentUser: UserAuthRecord, id: number) {
     const existing = await this.findOne(id);
 
     if (!existing || existing === Result.NOT_FOUND) {
       return Result.NOT_FOUND;
+    }
+
+    if (currentUser.sub === existing.id) {
+      return Result.OWN_USER;
     }
 
     return this.repository.delete(id);

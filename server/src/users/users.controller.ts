@@ -12,9 +12,7 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthUser, UserAuthRecord } from 'src/auth';
-import { Public } from 'src/auth/public.decorator';
-import { RequireAdmin } from 'src/auth/requireAdmin.decorator';
+import { AuthUser, Public, RequireAdmin, UserAuthRecord } from '../auth';
 import { UserLoginDto } from './dto/auth';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -86,13 +84,13 @@ export class UsersController {
   @RequireAdmin()
   @Delete(':id')
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
-    const result = await this.usersService.remove(+id);
+    const result = await this.usersService.remove(user, +id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
     }
 
-    if (user.sub === +id) {
+    if (result === Result.OWN_USER) {
       throw new BadRequestException('You cannot delete your own user');
     }
 

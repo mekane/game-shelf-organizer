@@ -28,7 +28,7 @@ export class ListController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const result = await this.listService.findOne(id);
+    const result = await this.listService.findOne(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -39,7 +39,7 @@ export class ListController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateListDto: UpdateListDto) {
-    const result = await this.listService.update(id, updateListDto);
+    const result = await this.listService.update(+id, updateListDto);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -50,7 +50,7 @@ export class ListController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const result = await this.listService.remove(id);
+    const result = await this.listService.remove(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();

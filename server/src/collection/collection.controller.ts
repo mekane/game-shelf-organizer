@@ -28,7 +28,7 @@ export class CollectionController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const result = await this.collectionService.findOne(id);
+    const result = await this.collectionService.findOne(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -42,7 +42,10 @@ export class CollectionController {
     @Param('id') id: string,
     @Body() updateCollectionDto: UpdateCollectionDto,
   ) {
-    const result = await this.collectionService.update(id, updateCollectionDto);
+    const result = await this.collectionService.update(
+      +id,
+      updateCollectionDto,
+    );
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -53,7 +56,7 @@ export class CollectionController {
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    const result = await this.collectionService.remove(id);
+    const result = await this.collectionService.remove(+id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
