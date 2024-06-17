@@ -24,6 +24,8 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 
+  //const configService = app.get(ConfigService);
+
   console.log(`Game Shelf Organizer app listening on ${port}`);
   await app.listen(port);
 }

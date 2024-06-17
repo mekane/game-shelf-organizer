@@ -21,4 +21,10 @@ export class User {
   @Exclude()
   @Column()
   password: string;
+
+  @Column({
+    nullable: true,
+    default: false,
+  })
+  isAdmin: boolean;
 }
