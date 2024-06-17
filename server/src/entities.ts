@@ -1,5 +1,11 @@
-import { Collection } from './collection';
-import { List } from './list';
-import { Shelf } from './shelf';
+import { allCollectionEntities } from './collection';
+import { allListEntities } from './list';
+import { allShelfEntities } from './shelf';
+import { allUserEntities } from './users';
 
-export const allEntities = [Collection, List, Shelf];
+export const allEntities = [
+  ...allCollectionEntities,
+  ...allListEntities,
+  ...allShelfEntities,
+  ...allUserEntities,
+];
