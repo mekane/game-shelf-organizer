@@ -5,7 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserAuthRecord } from 'src/auth';
 import { Repository } from 'typeorm';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, UpdateUserDto, UserLoginDto } from './dto';
 import { User } from './entities';
 import { Result, UsersService } from './users.service';
 
@@ -34,6 +34,8 @@ const user: UserAuthRecord = {
   isAdmin: false,
 };
 
+const mockJwtService = createMock<JwtService>();
+
 describe('UsersService', () => {
   let service: UsersService;
 
@@ -51,7 +53,7 @@ describe('UsersService', () => {
         },
         {
           provide: JwtService,
-          useValue: createMock<JwtService>(),
+          useValue: mockJwtService,
         },
       ],
     }).compile();
@@ -168,6 +170,52 @@ describe('UsersService', () => {
 
       const result = await service.remove(user, 99);
       expect(result).toEqual(Result.OWN_USER);
+    });
+  });
+
+  describe('login', () => {
+    it('returns error if no user found with the given email', async () => {
+      const loginNoUser: UserLoginDto = {
+        email: 'not-found@email.com',
+        password: 'any',
+      };
+      mockRepository.findOneBy.mockResolvedValueOnce(null);
+
+      const result = await service.login(loginNoUser);
+      expect(result).toEqual(Result.INVALID_CREDENTIALS);
+    });
+
+    it('returns error if password does not match', async () => {
+      const loginBadPass: UserLoginDto = {
+        email: 'user@email.com',
+        password: 'bad',
+      };
+      mockRepository.findOneBy.mockResolvedValueOnce(existingUser);
+
+      const result = await service.login(loginBadPass);
+      expect(result).toEqual(Result.INVALID_CREDENTIALS);
+    });
+
+    it('returns jwt access token', async () => {
+      const existingUser = {
+        ...createDto,
+        id: 1,
+        email: 'user@rmail.com',
+        password: 'ok',
+        isAdmin: false,
+      };
+      mockRepository.findOneBy.mockResolvedValueOnce(existingUser);
+
+      const loginOk: UserLoginDto = {
+        email: existingUser.email,
+        password: existingUser.password,
+      };
+
+      const token = 'akasjhdaksdjaksjdh';
+      mockJwtService.signAsync.mockResolvedValueOnce(token);
+
+      const result = await service.login(loginOk);
+      expect(result).toEqual({ access_token: token });
     });
   });
 });

@@ -93,7 +93,7 @@ export class UsersService {
       return Result.INVALID_CREDENTIALS;
     }
 
-    console.log('got user', user);
+    console.log('LOGIN: got user', user);
 
     //TODO: hash password
     if (user?.password !== data.password) {
