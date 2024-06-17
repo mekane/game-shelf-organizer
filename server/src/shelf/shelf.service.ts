@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UserAuthRecord } from 'src/auth';
 import { Repository } from 'typeorm';
+import { AuthUser } from '../auth/user.decorator';
+import { Shelf } from '../entities';
 import { CreateShelfDto } from './dto/create-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
-import { Shelf } from './entities';
 
 export enum Result {
   NOT_FOUND,
@@ -16,22 +18,26 @@ export class ShelfService {
     private repository: Repository<Shelf>,
   ) {}
 
-  async create(createDto: CreateShelfDto) {
+  async create(@AuthUser() user: UserAuthRecord, createDto: CreateShelfDto) {
     return this.repository.save(createDto);
   }
 
-  async findAll() {
+  async findAll(@AuthUser() user: UserAuthRecord) {
     return this.repository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(@AuthUser() user: UserAuthRecord, id: number) {
     const found = await this.repository.findOneBy({ id });
 
     return found ? found : Result.NOT_FOUND;
   }
 
-  async update(id: number, updateDto: UpdateShelfDto) {
-    const existing = await this.findOne(id);
+  async update(
+    @AuthUser() user: UserAuthRecord,
+    id: number,
+    updateDto: UpdateShelfDto,
+  ) {
+    const existing = await this.findOne(user, id);
 
     if (!existing) {
       return Result.NOT_FOUND;
@@ -45,8 +51,8 @@ export class ShelfService {
     return this.repository.save(updated);
   }
 
-  async remove(id: number) {
-    const existing = await this.findOne(id);
+  async remove(@AuthUser() user: UserAuthRecord, id: number) {
+    const existing = await this.findOne(user, id);
 
     if (!existing) {
       return Result.NOT_FOUND;

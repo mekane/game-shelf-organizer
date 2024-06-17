@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserAuthRecord } from 'src/auth';
 import { Repository } from 'typeorm';
+import { mockAuthUser } from '../../test/utils';
+import { User } from '../entities';
 import { CreateUserDto, UpdateUserDto, UserLoginDto } from './dto';
-import { User } from './entities';
 import { Result, UsersService } from './users.service';
 
 const repositoryKey = getRepositoryToken(User);
@@ -28,11 +28,7 @@ const updateDto: UpdateUserDto = {
   firstName: 'Test Updated',
 };
 
-const user: UserAuthRecord = {
-  sub: 1,
-  username: 'test',
-  isAdmin: false,
-};
+const user = mockAuthUser();
 
 const mockJwtService = createMock<JwtService>();
 
