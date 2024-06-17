@@ -4,3 +4,4 @@ node_modules/
 # sqlLite DB file
 server/database.sqlite
 
+.env
