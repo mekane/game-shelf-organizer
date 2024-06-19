@@ -90,6 +90,7 @@ export class UsersService {
     const user = await this.repository.findOneBy({ email: data.email });
 
     if (!user) {
+      console.log(`LOGIN: no user found for email ${data.email}`);
       return Result.INVALID_CREDENTIALS;
     }
 
@@ -101,6 +102,7 @@ export class UsersService {
     }
 
     const payload: UserAuthRecord = {
+      id: user.id,
       sub: user.id,
       username: user.email,
       isAdmin: user.isAdmin,

@@ -26,7 +26,10 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+
+    const route = `${context.getClass().name}.${context.getHandler().name}`;
     if (isPublic) {
+      console.log(`${route} (public)`);
       return true;
     }
 
@@ -57,12 +60,16 @@ export class AuthGuard implements CanActivate {
     );
 
     if (!isAdminRequired) {
+      console.log(`${route} (auth): ${authUser.username}`);
       return true;
     }
 
     if (!authUser.isAdmin) {
+      console.log(`${authUser.username} is not admin - rejecting`);
       throw new ForbiddenException();
     }
+
+    console.log(`${route} (admin): ${authUser.username}`);
 
     return true;
   }

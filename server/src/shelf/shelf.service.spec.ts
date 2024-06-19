@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
-import { Shelf } from '../entities';
+import { Shelf, User } from '../entities';
 import { CreateShelfDto, UpdateShelfDto } from './dto';
 import { Result, ShelfService } from './shelf.service';
 
@@ -40,7 +40,13 @@ describe('ShelfService', () => {
   describe('create', () => {
     it('should call the repository method', async () => {
       await service.create(user, createDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(createDto);
+
+      const expectedSave = {
+        ...createDto,
+        user: { id: user.sub },
+      };
+
+      expect(mockRepository.save).toHaveBeenCalledWith(expectedSave);
     });
   });
 
@@ -54,7 +60,10 @@ describe('ShelfService', () => {
   describe('findOne', () => {
     it('should call the repository method', async () => {
       await service.findOne(user, 1);
-      expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+        id: user.id,
+        user: { id: user.id },
+      });
     });
 
     it('should return NOT_FOUND result for non-existant ids', async () => {
@@ -66,7 +75,7 @@ describe('ShelfService', () => {
 
   describe('update', () => {
     it('should call the repository method', async () => {
-      const existingData = { id: 1, ...createDto };
+      const existingData = { id: 1, user: new User(), ...createDto };
       mockRepository.findOneBy.mockResolvedValueOnce(existingData);
 
       const expectedSave = {

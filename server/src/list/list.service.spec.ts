@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
-import { List } from '../entities';
+import { List, User } from '../entities';
 import { CreateListDto, UpdateListDto } from './dto';
 import { ListService, Result } from './list.service';
 
@@ -40,7 +40,13 @@ describe('ListService', () => {
   describe('create', () => {
     it('should call the repository method', async () => {
       await service.create(user, createDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(createDto);
+
+      const expectedSave = {
+        ...createDto,
+        user: { id: user.id },
+      };
+
+      expect(mockRepository.save).toHaveBeenCalledWith(expectedSave);
     });
   });
 
@@ -54,7 +60,10 @@ describe('ListService', () => {
   describe('findOne', () => {
     it('should call the repository method', async () => {
       await service.findOne(user, 1);
-      expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+        id: user.id,
+        user: { id: user.id },
+      });
     });
 
     it('should return NOT_FOUND result for non-existant ids', async () => {
@@ -66,7 +75,7 @@ describe('ListService', () => {
 
   describe('update', () => {
     it('should call the repository method', async () => {
-      const existingData = { id: 1, ...createDto };
+      const existingData = { id: 1, user: new User(), ...createDto };
       mockRepository.findOneBy.mockResolvedValueOnce(existingData);
 
       const expectedSave = {

@@ -8,6 +8,8 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { UserAuthRecord } from '../auth/index';
+import { AuthUser } from '../auth/user.decorator';
 import { CreateShelfDto } from './dto/create-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
 import { Result, ShelfService } from './shelf.service';
@@ -17,18 +19,21 @@ export class ShelfController {
   constructor(private readonly shelfService: ShelfService) {}
 
   @Post()
-  async create(@Body() createShelfDto: CreateShelfDto) {
-    return this.shelfService.create(createShelfDto);
+  async create(
+    @AuthUser() user: UserAuthRecord,
+    @Body() createShelfDto: CreateShelfDto,
+  ) {
+    return this.shelfService.create(user, createShelfDto);
   }
 
   @Get()
-  async findAll() {
-    return this.shelfService.findAll();
+  async findAll(@AuthUser() user: UserAuthRecord) {
+    return this.shelfService.findAll(user);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const result = await this.shelfService.findOne(+id);
+  async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+    const result = await this.shelfService.findOne(user, +id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -39,10 +44,11 @@ export class ShelfController {
 
   @Patch(':id')
   async update(
+    @AuthUser() user: UserAuthRecord,
     @Param('id') id: string,
     @Body() updateShelfDto: UpdateShelfDto,
   ) {
-    const result = await this.shelfService.update(+id, updateShelfDto);
+    const result = await this.shelfService.update(user, +id, updateShelfDto);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();
@@ -52,8 +58,8 @@ export class ShelfController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const result = await this.shelfService.remove(+id);
+  async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+    const result = await this.shelfService.remove(user, +id);
 
     if (result === Result.NOT_FOUND) {
       throw new NotFoundException();

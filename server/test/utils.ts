@@ -10,6 +10,7 @@ export function mockAuthUser({
   isAdmin?: boolean;
 } = {}): UserAuthRecord {
   return {
+    id: userId,
     sub: userId,
     username,
     isAdmin,

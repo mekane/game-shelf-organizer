@@ -2,6 +2,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserAuthRecord } from 'src/auth';
+import { mockAuthUser } from '../../test/utils';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UsersController } from './users.controller';
 import { Result, UsersService } from './users.service';
@@ -20,11 +21,7 @@ const updateDto: UpdateUserDto = {
   firstName: 'Test Updated',
 };
 
-const user: UserAuthRecord = {
-  sub: 1,
-  username: 'test',
-  isAdmin: false,
-};
+const user: UserAuthRecord = mockAuthUser();
 
 describe('UserController', () => {
   let controller: UsersController;

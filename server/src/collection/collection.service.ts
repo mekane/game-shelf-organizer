@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserAuthRecord } from '../../dist/auth/index';
-import { AuthUser } from '../auth/user.decorator';
+import { UserAuthRecord } from '../auth/index';
 import { Collection } from '../entities';
+import { forUser, idForUser } from '../util';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 
@@ -18,25 +18,24 @@ export class CollectionService {
     private repository: Repository<Collection>,
   ) {}
 
-  async create(
-    @AuthUser() user: UserAuthRecord,
-    createCollectionDto: CreateCollectionDto,
-  ) {
-    return this.repository.save(createCollectionDto);
+  async create(user: UserAuthRecord, createDto: CreateCollectionDto) {
+    return this.repository.save({
+      ...createDto,
+      user: { id: user.sub },
+    });
   }
 
-  async findAll(@AuthUser() user: UserAuthRecord) {
-    return this.repository.find();
+  async findAll(user: UserAuthRecord) {
+    return this.repository.find(forUser(user));
   }
 
-  async findOne(@AuthUser() user: UserAuthRecord, id: number) {
-    const found = await this.repository.findOneBy({ id });
-
+  async findOne(user: UserAuthRecord, id: number) {
+    const found = await this.repository.findOneBy(idForUser(id, user));
     return found ? found : Result.NOT_FOUND;
   }
 
   async update(
-    @AuthUser() user: UserAuthRecord,
+    user: UserAuthRecord,
     id: number,
     updateCollectionDto: UpdateCollectionDto,
   ) {
@@ -54,7 +53,7 @@ export class CollectionService {
     return this.repository.save(updated);
   }
 
-  async remove(@AuthUser() user: UserAuthRecord, id: number) {
+  async remove(user: UserAuthRecord, id: number) {
     const existing = await this.findOne(user, id);
 
     if (!existing) {

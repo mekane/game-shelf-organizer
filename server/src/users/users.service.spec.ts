@@ -93,7 +93,12 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should call the repository method', async () => {
-      const existingData = { id: 1, isAdmin: false, ...createDto };
+      const existingData = {
+        ...new User(),
+        id: 1,
+        isAdmin: false,
+        ...createDto,
+      };
       mockRepository.findOneBy.mockResolvedValueOnce(existingData);
 
       const expectedSave = {
@@ -194,6 +199,7 @@ describe('UsersService', () => {
 
     it('returns jwt access token', async () => {
       const existingUser = {
+        ...new User(),
         ...createDto,
         id: 1,
         email: 'user@rmail.com',

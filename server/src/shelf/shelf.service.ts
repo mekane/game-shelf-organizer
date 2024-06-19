@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserAuthRecord } from 'src/auth';
 import { Repository } from 'typeorm';
-import { AuthUser } from '../auth/user.decorator';
 import { Shelf } from '../entities';
+import { forUser, idForUser } from '../util';
 import { CreateShelfDto } from './dto/create-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
 
@@ -18,25 +18,24 @@ export class ShelfService {
     private repository: Repository<Shelf>,
   ) {}
 
-  async create(@AuthUser() user: UserAuthRecord, createDto: CreateShelfDto) {
-    return this.repository.save(createDto);
+  async create(user: UserAuthRecord, createDto: CreateShelfDto) {
+    return this.repository.save({
+      ...createDto,
+      user: { id: user.id },
+    });
   }
 
-  async findAll(@AuthUser() user: UserAuthRecord) {
-    return this.repository.find();
+  async findAll(user: UserAuthRecord) {
+    return this.repository.find(forUser(user));
   }
 
-  async findOne(@AuthUser() user: UserAuthRecord, id: number) {
-    const found = await this.repository.findOneBy({ id });
+  async findOne(user: UserAuthRecord, id: number) {
+    const found = await this.repository.findOneBy(idForUser(id, user));
 
     return found ? found : Result.NOT_FOUND;
   }
 
-  async update(
-    @AuthUser() user: UserAuthRecord,
-    id: number,
-    updateDto: UpdateShelfDto,
-  ) {
+  async update(user: UserAuthRecord, id: number, updateDto: UpdateShelfDto) {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
@@ -51,7 +50,7 @@ export class ShelfService {
     return this.repository.save(updated);
   }
 
-  async remove(@AuthUser() user: UserAuthRecord, id: number) {
+  async remove(user: UserAuthRecord, id: number) {
     const existing = await this.findOne(user, id);
 
     if (!existing) {

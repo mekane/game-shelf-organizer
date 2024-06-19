@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserAuthRecord } from '../../dist/auth/index';
-import { AuthUser } from '../auth/user.decorator';
+import { UserAuthRecord } from '../auth/index';
 import { List } from '../entities';
+import { forUser, idForUser } from '../util';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 
@@ -18,25 +18,24 @@ export class ListService {
     private repository: Repository<List>,
   ) {}
 
-  async create(@AuthUser() user: UserAuthRecord, createListDto: CreateListDto) {
-    return this.repository.save(createListDto);
+  async create(user: UserAuthRecord, createDto: CreateListDto) {
+    return this.repository.save({
+      ...createDto,
+      user: { id: user.sub },
+    });
   }
 
-  async findAll(@AuthUser() user: UserAuthRecord) {
-    return this.repository.find();
+  async findAll(user: UserAuthRecord) {
+    return this.repository.find(forUser(user));
   }
 
-  async findOne(@AuthUser() user: UserAuthRecord, id: number) {
-    const found = await this.repository.findOneBy({ id: +id });
+  async findOne(user: UserAuthRecord, id: number) {
+    const found = await this.repository.findOneBy(idForUser(id, user));
 
     return found ? found : Result.NOT_FOUND;
   }
 
-  async update(
-    @AuthUser() user: UserAuthRecord,
-    id: number,
-    updateListDto: UpdateListDto,
-  ) {
+  async update(user: UserAuthRecord, id: number, updateListDto: UpdateListDto) {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
@@ -51,7 +50,7 @@ export class ListService {
     return this.repository.save(updated);
   }
 
-  async remove(@AuthUser() user: UserAuthRecord, id: number) {
+  async remove(user: UserAuthRecord, id: number) {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
