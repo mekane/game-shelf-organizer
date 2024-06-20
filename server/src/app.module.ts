@@ -12,6 +12,7 @@ import { sqlLiteOptions } from './data.source';
 import { ListModule } from './list/list.module';
 import { ShelfModule } from './shelf/shelf.module';
 import { UsersModule } from './users/users.module';
+import { BggService } from './bgg/bgg.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
     },
     AppService,
     JwtService,
+    BggService,
   ],
 })
 export class AppModule {}
