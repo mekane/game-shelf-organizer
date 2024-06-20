@@ -8,5 +8,6 @@ export interface UserAuthRecord {
   id: number; // user.id
   sub: number; // user.id
   username: string; // user.email
+  bggUserName: string; // user.bggUsername
   isAdmin: boolean; // user.isAdmin
 }

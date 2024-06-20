@@ -7,6 +7,7 @@ export interface BggDataFetchResult {
 export interface BggGameData {
   bggId: string;
   bggRank: string;
+  bggRating: string;
   imageUrl: string;
   name: string;
   plays: string;
@@ -88,7 +89,7 @@ export interface BggXmlItem {
         };
       };
       ranks: {
-        rank: BggRank[];
+        rank: BggRank | BggRank[];
       };
     };
   };

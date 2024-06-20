@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { BggService } from 'src/bgg/bgg.service';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CollectionService, Result } from './collection.service';
@@ -16,7 +17,16 @@ import { UpdateCollectionDto } from './dto/update-collection.dto';
 
 @Controller('collection')
 export class CollectionController {
-  constructor(private readonly collectionService: CollectionService) {}
+  constructor(
+    private readonly bggService: BggService,
+    private readonly collectionService: CollectionService,
+  ) {}
+
+  @Get('bgg')
+  async bgg(@AuthUser() user: UserAuthRecord) {
+    const data = await this.bggService.getCollection(user.bggUserName);
+    return data;
+  }
 
   @Post()
   async create(

@@ -106,6 +106,7 @@ export class UsersService {
       sub: user.id,
       username: user.email,
       isAdmin: user.isAdmin,
+      bggUserName: user.bggUserName,
     };
     const key = this.configService.get('JWT_SECRET');
     const opts = { secret: key };

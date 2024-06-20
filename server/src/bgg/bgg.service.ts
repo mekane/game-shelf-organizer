@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ElementCompact, xml2js } from 'xml-js';
-import { BggDataFetchResult, BggGameData, BggXmlItem } from './types';
+import { BggDataFetchResult, BggGameData, BggRank, BggXmlItem } from './types';
 
 @Injectable()
 export class BggService {
@@ -64,7 +64,7 @@ export class BggService {
   }
 
   private getBggCollectionUrl(user: string): string {
-    return `https://boardgamegeek.com/xmlapi2/collection?excludesubtype=boardgameexpansion&played=1&username=${user}`;
+    return `https://boardgamegeek.com/xmlapi2/collection?excludesubtype=boardgameexpansion&played=1&stats=1&username=${user}`;
   }
 
   private parseError(xml: string): string {
@@ -86,15 +86,22 @@ export class BggService {
   }
 
   private xmlItemToBggGameData(obj: BggXmlItem): BggGameData {
-    const bggRank = obj.stats?.rating?.ranks?.rank?.find(
-      (r) => r._attributes.name === 'boardgame',
-    );
+    const rankData = obj.stats?.rating?.ranks?.rank;
+
+    let rank: BggRank | undefined;
+    if (Array.isArray(rankData)) {
+      rank = rankData.find((r) => r._attributes.name === 'boardgame');
+    } else {
+      rank = rankData;
+    }
+
     return {
       name: obj.name?._text,
       rating: obj.stats?.rating?._attributes?.value,
       plays: obj.numplays?._text,
       bggId: obj._attributes?.objectid,
-      bggRank: bggRank?._attributes?.bayesaverage ?? 'unknown',
+      bggRank: rank?._attributes?.value ?? 'unknown',
+      bggRating: rank?._attributes?.bayesaverage ?? 'unknown',
       imageUrl: obj.image?._text,
       thumbnailUrl: obj.thumbnail?._text,
       yearPublished: obj.yearpublished?._text,

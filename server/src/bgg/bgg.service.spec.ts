@@ -60,7 +60,6 @@ const successfulXml = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
                 <median value="0" />
                 <ranks>
                     <rank type="subtype" id="1" name="boardgame" friendlyname="Board Game Rank" value="25792" bayesaverage="5.45672" />
-                    <rank type="family" id="4665" name="childrensgames" friendlyname="Children&#039;s Game Rank" value="963" bayesaverage="4.95477" />
                 </ranks>
             </rating>
         </stats>
@@ -148,7 +147,8 @@ describe('BggService', () => {
       expect(result).toEqual([
         {
           bggId: '373167',
-          bggRank: '6.2738',
+          bggRank: '1776',
+          bggRating: '6.2738',
           imageUrl: 'https://images.com/original/img/pic7720772.png',
           name: '20 Strong',
           owned: true,
@@ -160,7 +160,8 @@ describe('BggService', () => {
         },
         {
           bggId: '2094',
-          bggRank: '5.45672',
+          bggRank: '25792',
+          bggRating: '5.45672',
           imageUrl: 'https://images.com/original/img/pic2601726.jpg',
           name: '4 First Games',
           owned: false,
