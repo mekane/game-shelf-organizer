@@ -64,7 +64,7 @@ export class BggService {
   }
 
   private getBggCollectionUrl(user: string): string {
-    return `https://boardgamegeek.com/xmlapi2/collection?excludesubtype=boardgameexpansion&played=1&stats=1&username=${user}`;
+    return `https://boardgamegeek.com/xmlapi2/collection?excludesubtype=boardgameexpansion&played=1&stats=1&version=1&username=${user}`;
   }
 
   private parseError(xml: string): string {
@@ -95,6 +95,13 @@ export class BggService {
       rank = rankData;
     }
 
+    const version = obj.version?.item ?? {};
+
+    let yearPublished = obj.yearpublished?._text;
+    if (!yearPublished) {
+      yearPublished = version.yearpublished?._attributes?.value ?? 'unknown';
+    }
+
     return {
       name: obj.name?._text,
       rating: obj.stats?.rating?._attributes?.value,
@@ -104,9 +111,13 @@ export class BggService {
       bggRating: rank?._attributes?.bayesaverage ?? 'unknown',
       imageUrl: obj.image?._text,
       thumbnailUrl: obj.thumbnail?._text,
-      yearPublished: obj.yearpublished?._text,
+      yearPublished,
       owned: obj.status._attributes.own === '1',
       previouslyOwned: obj.status._attributes.prevowned === '1',
+      versionName: version.name?._attributes?.value ?? '',
+      width: version.width?._attributes?.value ?? 'unknown',
+      length: version.length?._attributes?.value ?? 'unknown',
+      depth: version.depth?._attributes?.value ?? 'unknown',
     };
   }
 }

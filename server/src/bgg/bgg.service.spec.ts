@@ -65,6 +65,20 @@ const successfulXml = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
         </stats>
         <status own="0" prevowned="1" fortrade="0" want="0" wanttoplay="0" wanttobuy="0" wishlist="0"  preordered="0" lastmodified="2022-04-01 12:03:58" />
         <numplays>19</numplays>
+        <version>
+            <item type="boardgameversion" id="179671">
+                <link type="boardgameversion" id="2094" value="4 First Games" inbound="true"/>
+                <name type="primary" sortindex="1" value="English-only edition" />
+                <link type="boardgamepublisher" id="34" value="Ravensburger" />
+                <yearpublished value="2000" />
+                <productcode value="22185" />
+                <width value="9" />
+                <length value="13.25" />
+                <depth value="2.25" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+            </item>
+        </version>
         <comment>Comment 2</comment>
     </item>
 </items>`;
@@ -157,6 +171,10 @@ describe('BggService', () => {
           rating: 'N/A',
           thumbnailUrl: 'https://images.com/thumb/img/pic7720772.png',
           yearPublished: '2023',
+          versionName: '',
+          length: 'unknown',
+          width: 'unknown',
+          depth: 'unknown',
         },
         {
           bggId: '2094',
@@ -169,7 +187,11 @@ describe('BggService', () => {
           previouslyOwned: true,
           rating: '5',
           thumbnailUrl: 'https://images.com/thumb/img/pic2601726.jpg',
-          yearPublished: undefined,
+          yearPublished: '2000',
+          versionName: 'English-only edition',
+          length: '13.25',
+          width: '9',
+          depth: '2.25',
         },
       ]);
     });

@@ -16,6 +16,10 @@ export interface BggGameData {
   yearPublished: string;
   owned: boolean;
   previouslyOwned: boolean;
+  versionName: string;
+  length: string;
+  width: string;
+  depth: string;
 }
 
 export type BggXmlBoolean = '0' | '1';
@@ -28,6 +32,14 @@ export interface BggRank {
     friendlyname: string;
     value: string;
     bayesaverage: string;
+  };
+}
+
+export interface BggVersionLink {
+  _attributes: {
+    type: string;
+    id: string;
+    value: string;
   };
 }
 
@@ -108,6 +120,52 @@ export interface BggXmlItem {
   };
   thumbnail: {
     _text: string;
+  };
+  version: {
+    item: {
+      _attributes: {
+        type: string;
+        id: string;
+      };
+      link: BggVersionLink | BggVersionLink[];
+      name: {
+        _attributes: {
+          type: string;
+          sortindex: string;
+          value: string;
+        };
+      };
+      yearpublished: {
+        _attributes: {
+          value: string;
+        };
+      };
+      productcode: {
+        _attributes: {
+          value: string;
+        };
+      };
+      width: {
+        _attributes: {
+          value: string;
+        };
+      };
+      length: {
+        _attributes: {
+          value: string;
+        };
+      };
+      depth: {
+        _attributes: {
+          value: string;
+        };
+      };
+      weight: {
+        _attributes: {
+          value: string;
+        };
+      };
+    };
   };
   yearpublished: {
     _text: string;
