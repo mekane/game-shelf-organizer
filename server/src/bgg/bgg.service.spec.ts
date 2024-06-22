@@ -196,4 +196,8 @@ describe('BggService', () => {
       ]);
     });
   });
+
+  describe('sync collections', () => {
+    it('fetches collections for user and updates with game data', async () => {});
+  });
 });

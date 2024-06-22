@@ -1,6 +1,15 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 
+export enum CollectionType {
+  Owned = 'Owned',
+  PreviouslyOwned = 'Previously Owned',
+  WishList = 'Wish List',
+  Played = 'Played',
+  Other = 'Other',
+  Custom = 'Custom',
+}
+
 @Entity()
 export class Collection {
   @PrimaryGeneratedColumn()
@@ -11,4 +20,7 @@ export class Collection {
 
   @Column()
   name: string;
+
+  @Column()
+  type: CollectionType;
 }

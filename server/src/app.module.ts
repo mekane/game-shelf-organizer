@@ -7,15 +7,16 @@ import 'reflect-metadata';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
+import { BggModule } from './bgg';
 import { CollectionModule } from './collection/collection.module';
 import { sqlLiteOptions } from './data.source';
 import { ListModule } from './list/list.module';
 import { ShelfModule } from './shelf/shelf.module';
 import { UsersModule } from './users/users.module';
-import { BggService } from './bgg/bgg.service';
 
 @Module({
   imports: [
+    BggModule,
     CollectionModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ListModule,
@@ -31,7 +32,6 @@ import { BggService } from './bgg/bgg.service';
     },
     AppService,
     JwtService,
-    BggService,
   ],
 })
 export class AppModule {}

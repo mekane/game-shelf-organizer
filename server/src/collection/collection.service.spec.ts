@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
-import { Collection, User } from '../entities';
+import { Collection, CollectionType, User } from '../entities';
 import { CollectionService, Result } from './collection.service';
 import { CreateCollectionDto, UpdateCollectionDto } from './dto';
 
@@ -12,13 +12,14 @@ const mockRepository = createMock<Repository<Collection>>();
 
 const createDto: CreateCollectionDto = {
   name: 'Test',
+  type: CollectionType.Other,
 };
 
 const updateDto: UpdateCollectionDto = {
   name: 'Test Updated',
 };
 
-const user = mockAuthUser();
+const authUser = mockAuthUser();
 
 describe('CollectionService', () => {
   let service: CollectionService;
@@ -39,11 +40,11 @@ describe('CollectionService', () => {
 
   describe('create', () => {
     it('should call the repository method', async () => {
-      await service.create(user, createDto);
+      await service.create(authUser, createDto);
 
       const expectedSave = {
         ...createDto,
-        user: { id: user.sub },
+        user: { id: authUser.sub },
       };
 
       expect(mockRepository.save).toHaveBeenCalledWith(expectedSave);
@@ -52,27 +53,52 @@ describe('CollectionService', () => {
 
   describe('findAll', () => {
     it('should call the repository method', async () => {
-      await service.findAll(user);
+      await service.findAll(authUser);
       expect(mockRepository.find).toHaveBeenCalledWith({
         where: {
-          user: { id: user.id },
+          user: { id: authUser.id },
         },
+      });
+    });
+  });
+
+  describe('getStandardSet', () => {
+    const user = { id: authUser.id } as User;
+    const allCollections: Collection[] = [
+      { id: 0, name: 'Owned 0', user, type: CollectionType.Owned },
+      { id: 1, name: 'Owned 1', user, type: CollectionType.Owned },
+      { id: 2, name: 'Prev 2', user, type: CollectionType.PreviouslyOwned },
+      { id: 3, name: 'Other 3', user, type: CollectionType.Other },
+      { id: 4, name: 'Wish 4', user, type: CollectionType.WishList },
+      { id: 5, name: 'Played 5', user, type: CollectionType.Played },
+      { id: 6, name: 'Other 6', user, type: CollectionType.Other },
+    ];
+
+    it('finds a collection of each type for the user', async () => {
+      mockRepository.find.mockResolvedValueOnce(allCollections);
+      const result = await service.getStandardSet(authUser);
+
+      expect(result).toEqual({
+        [CollectionType.Owned]: allCollections[0],
+        [CollectionType.PreviouslyOwned]: allCollections[2],
+        [CollectionType.WishList]: allCollections[4],
+        [CollectionType.Played]: allCollections[5],
       });
     });
   });
 
   describe('findOne', () => {
     it('should call the repository method', async () => {
-      await service.findOne(user, 1);
+      await service.findOne(authUser, 1);
       expect(mockRepository.findOneBy).toHaveBeenCalledWith({
-        id: user.id,
-        user: { id: user.id },
+        id: authUser.id,
+        user: { id: authUser.id },
       });
     });
 
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
-      const result = await service.findOne(user, 99);
+      const result = await service.findOne(authUser, 99);
       expect(result).toEqual(Result.NOT_FOUND);
     });
   });
@@ -87,26 +113,26 @@ describe('CollectionService', () => {
         ...updateDto,
       };
 
-      await service.update(user, 1, updateDto);
+      await service.update(authUser, 1, updateDto);
       expect(mockRepository.save).toHaveBeenCalledWith(expectedSave);
     });
 
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
-      const result = await service.update(user, 99, updateDto);
+      const result = await service.update(authUser, 99, updateDto);
       expect(result).toEqual(Result.NOT_FOUND);
     });
   });
 
   describe('remove', () => {
     it('should call the repository method', async () => {
-      await service.remove(user, 1);
+      await service.remove(authUser, 1);
       expect(mockRepository.delete).toHaveBeenCalledWith(1);
     });
 
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
-      const result = await service.remove(user, 99);
+      const result = await service.remove(authUser, 99);
       expect(result).toEqual(Result.NOT_FOUND);
     });
   });

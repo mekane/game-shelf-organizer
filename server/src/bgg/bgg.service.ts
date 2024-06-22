@@ -1,9 +1,56 @@
 import { Injectable } from '@nestjs/common';
+import { CollectionType } from 'src/entities';
 import { ElementCompact, xml2js } from 'xml-js';
+import { UserAuthRecord } from '../auth';
+import { CollectionService } from '../collection/collection.service';
 import { BggDataFetchResult, BggGameData, BggRank, BggXmlItem } from './types';
+
+export enum Result {
+  INVALID_BGG_USER,
+}
+
+export interface BggSyncResult {
+  owned: number;
+  previouslyOwned: number;
+  played: number;
+}
 
 @Injectable()
 export class BggService {
+  constructor(private readonly collectionService: CollectionService) {}
+
+  public async syncCollections(
+    user: UserAuthRecord,
+  ): Promise<BggSyncResult | BggDataFetchResult> {
+    console.log('sync collections for ' + user.bggUserName);
+
+    const fetchResult = await this.getCollection(user.bggUserName);
+
+    if ((fetchResult as BggDataFetchResult).status >= 400) {
+      return fetchResult as BggDataFetchResult;
+    }
+
+    console.log('COLLECTION result', fetchResult);
+    const collection = fetchResult as BggGameData[];
+
+    const userCollections = await this.collectionService.getStandardSet(user);
+    const owned = userCollections[CollectionType.Owned];
+    const previous = userCollections[CollectionType.PreviouslyOwned];
+    const wishList = userCollections[CollectionType.WishList];
+    const played = userCollections[CollectionType.Played];
+    console.log('Before sync:');
+    console.log(`  owned: ${owned?.name}`);
+    console.log(`  previous: ${previous?.name}`);
+    console.log(`  wishList: ${wishList?.name}`);
+    console.log(`  played: ${played?.name}`);
+
+    return {
+      owned: collection.length,
+      previouslyOwned: 0,
+      played: 0,
+    };
+  }
+
   public async getCollection(
     bggUsername: string,
     retries: number = 3,
@@ -13,6 +60,10 @@ export class BggService {
 
     let result = await this.fetchCollectionData(bggUsername);
     console.log(`Fetch BGG Collection attempt ${attempt}: ${result.message}`);
+
+    if (result.status >= 400) {
+      return result;
+    }
 
     while (result.status === 202 && attempt <= retries) {
       attempt++;
