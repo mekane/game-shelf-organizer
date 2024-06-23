@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CollectionType } from 'src/entities';
+import { Game } from 'src/entities/Game.entity';
 import { ElementCompact, xml2js } from 'xml-js';
 import { UserAuthRecord } from '../auth';
 import { CollectionService } from '../collection/collection.service';
 import { BggDataFetchResult, BggGameData, BggRank, BggXmlItem } from './types';
+import { fetchCollectionData } from './util/fetch';
 
 export enum Result {
   INVALID_BGG_USER,
 }
 
 export interface BggSyncResult {
-  owned: number;
-  previouslyOwned: number;
-  played: number;
+  collectionId: number;
+  new: number;
+  updated: number;
+  removed: number;
 }
 
 @Injectable()
@@ -30,24 +32,58 @@ export class BggService {
       return fetchResult as BggDataFetchResult;
     }
 
-    console.log('COLLECTION result', fetchResult);
-    const collection = fetchResult as BggGameData[];
+    //console.log('BGG collection result', fetchResult);
+    const newBggData = fetchResult as BggGameData[];
 
-    const userCollections = await this.collectionService.getStandardSet(user);
-    const owned = userCollections[CollectionType.Owned];
-    const previous = userCollections[CollectionType.PreviouslyOwned];
-    const wishList = userCollections[CollectionType.WishList];
-    const played = userCollections[CollectionType.Played];
-    console.log('Before sync:');
-    console.log(`  owned: ${owned?.name}`);
-    console.log(`  previous: ${previous?.name}`);
-    console.log(`  wishList: ${wishList?.name}`);
-    console.log(`  played: ${played?.name}`);
+    const userCollections = await this.collectionService.findAll(user);
+    const userCollection = userCollections[0];
+    const userGames = userCollection?.games ?? [];
+
+    //console.log('user games', userGames);
+
+    const gamesByBggId: Record<string, Game> = {};
+    userGames.forEach((g) => {
+      gamesByBggId[g.bggId] = g;
+    });
+
+    const newGames: Partial<Game>[] = [];
+    const updateGames: Partial<Game>[] = [];
+    newBggData.forEach((data: BggGameData) => {
+      const game = this.bggDataToGame(data);
+      game.collection = userCollection;
+      if (gamesByBggId[data.bggId]) {
+        updateGames.push({
+          ...gamesByBggId[data.bggId],
+          ...game,
+        });
+      } else {
+        newGames.push(game);
+      }
+    });
+
+    const originalLength = userGames.length;
+    const updatedGames = [...newGames, ...updateGames];
+
+    const updateDto = {
+      ...userCollection,
+      games: updatedGames,
+    };
+
+    let removed = 0;
+    console.log(
+      `Updated ${updatedGames.length}, previously had ${originalLength}`,
+    );
+    if (updatedGames.length < originalLength) {
+      removed = originalLength - updatedGames.length;
+      // console.log(`${removed} games removed`);
+    }
+    await this.collectionService.update(user, userCollection.id, updateDto);
 
     return {
-      owned: collection.length,
-      previouslyOwned: 0,
-      played: 0,
+      collectionId: userCollection.id,
+      new: newGames.length,
+      updated: updateGames.length,
+      removed,
     };
   }
 
@@ -58,7 +94,7 @@ export class BggService {
   ) {
     let attempt = 1;
 
-    let result = await this.fetchCollectionData(bggUsername);
+    let result = await fetchCollectionData(bggUsername);
     console.log(`Fetch BGG Collection attempt ${attempt}: ${result.message}`);
 
     if (result.status >= 400) {
@@ -68,59 +104,11 @@ export class BggService {
     while (result.status === 202 && attempt <= retries) {
       attempt++;
       await new Promise((r) => setTimeout(r, delay));
-      result = await this.fetchCollectionData(bggUsername);
+      result = await fetchCollectionData(bggUsername);
       console.log(`Fetch BGG Collection attempt ${attempt}: ${result.message}`);
     }
 
     return this.parseCollectionData(result.data);
-  }
-
-  /**
-   * Makes initial API call, which can queue up and return a 202
-   * In this case the system needs to pause and try again in a little while
-   * at which point the status should be a 200 and data will be available.
-   * Note that the BGG api returns status 200 with an error message in case
-   * something went wrong, so we have to check for that and parse it specially.
-   * @param bggUsername required
-   */
-  public async fetchCollectionData(
-    bggUsername: string,
-  ): Promise<BggDataFetchResult> {
-    const response = await fetch(this.getBggCollectionUrl(bggUsername));
-
-    if (response.status === 200) {
-      const xml = await response.text();
-
-      if (xml.match('<errors>')) {
-        const error = this.parseError(xml);
-        return {
-          status: 400,
-          message: error,
-          data: '',
-        };
-      }
-
-      return {
-        status: 200,
-        message: 'Success',
-        data: xml,
-      };
-    } else {
-      return {
-        status: response.status,
-        message: response.statusText,
-        data: '',
-      };
-    }
-  }
-
-  private getBggCollectionUrl(user: string): string {
-    return `https://boardgamegeek.com/xmlapi2/collection?excludesubtype=boardgameexpansion&played=1&stats=1&version=1&username=${user}`;
-  }
-
-  private parseError(xml: string): string {
-    const json: ElementCompact = xml2js(xml, { compact: true, trim: true });
-    return json['errors']?.error?.message?._text;
   }
 
   public parseCollectionData(xml: string): BggGameData[] {
@@ -129,7 +117,7 @@ export class BggService {
       //   const totalItems = root.items._attributes?.totalitems;
       //   console.log(`Root list says ${totalItems} total items`);
 
-      return root.items?.item.map(this.xmlItemToBggGameData);
+      return root.items?.item.map(this.xmlItemToBggGameData) ?? [];
     } catch (e) {
       console.error('Error parsing collection XML', e);
       return [];
@@ -170,5 +158,71 @@ export class BggService {
       length: version.length?._attributes?.value ?? 'unknown',
       depth: version.depth?._attributes?.value ?? 'unknown',
     };
+  }
+
+  public bggDataToGame(data: BggGameData): Partial<Game> {
+    const {
+      bggId,
+      name,
+      yearPublished,
+      bggRank,
+      bggRating,
+      plays,
+      rating,
+      imageUrl,
+      thumbnailUrl,
+      versionName,
+      length,
+      width,
+      depth,
+      owned,
+      previouslyOwned,
+    } = data;
+
+    const game = {
+      bggId: numeric(bggId),
+      name,
+      imageUrl,
+      thumbnailUrl,
+      owned: !!+owned,
+      previouslyOwned: !!+previouslyOwned,
+    };
+
+    addIfDefined(game, versionName, 'versionName');
+    addIfNumeric(game, yearPublished, 'yearPublished');
+    addIfNumeric(game, bggRank, 'bggRank');
+    addIfNumeric(game, bggRating, 'bggRating');
+    addIfNumeric(game, plays, 'plays');
+    addIfNumeric(game, rating, 'rating');
+    addIfNumeric(game, length, 'length');
+    addIfNumeric(game, width, 'width');
+    addIfNumeric(game, depth, 'depth');
+
+    return game;
+  }
+}
+
+function addIfNumeric(obj: any, value: string, key: string) {
+  const isEmptyString = typeof value === 'string' && value.trim() === '';
+  const isNull = value === null;
+
+  if (isEmptyString || isNull) {
+    return obj;
+  }
+  return addIfDefined(obj, numeric(value), key);
+}
+
+function addIfDefined(obj: any, value: any, key: string) {
+  if (typeof value !== 'undefined') {
+    obj[key] = value;
+  }
+  return obj;
+}
+
+function numeric(value: string) {
+  if (typeof value === 'undefined' || isNaN(+value)) {
+    return undefined;
+  } else {
+    return +value;
   }
 }

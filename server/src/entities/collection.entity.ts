@@ -1,14 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Game } from './Game.entity';
 import { User } from './user.entity';
-
-export enum CollectionType {
-  Owned = 'Owned',
-  PreviouslyOwned = 'Previously Owned',
-  WishList = 'Wish List',
-  Played = 'Played',
-  Other = 'Other',
-  Custom = 'Custom',
-}
 
 @Entity()
 export class Collection {
@@ -21,6 +19,9 @@ export class Collection {
   @Column()
   name: string;
 
-  @Column()
-  type: CollectionType;
+  @OneToMany(() => Game, (game) => game.collection, {
+    cascade: true,
+    eager: true,
+  })
+  games: Game[];
 }

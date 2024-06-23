@@ -1,146 +1,25 @@
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CollectionService } from '../collection/collection.service';
 import { BggService } from './bgg.service';
-
-const acceptedXml = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<message>
-	Your request for this collection has been accepted and will be processed.  Please try again later for access.
-</message>`;
-const acceptedResponse: Response = {
-  status: 202,
-  statusText: 'Accepted',
-  text: () => Promise.resolve(acceptedXml),
-} as Response;
-
-const invalidUserMessage = 'Invalid username specified';
-const invalidUsernameXml = `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<errors>
-    <error>
-        <message>${invalidUserMessage}</message>
-    </error>
-</errors>`;
-const invalidUsernameResponse: Response = {
-  status: 200,
-  statusText: 'OK',
-  text: () => Promise.resolve(invalidUsernameXml),
-} as Response;
-
-const successfulXml = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<items totalitems="2" termsofuse="https://boardgamegeek.com/xmlapi/termsofuse" pubdate="Wed, 19 Jun 2024 22:00:24 0000">
-    <item objecttype="thing" objectid="373167" subtype="boardgame" collid="119697058">
-        <name sortindex="1">20 Strong</name>
-        <yearpublished>2023</yearpublished>
-        <image>https://images.com/original/img/pic7720772.png</image>
-        <thumbnail>https://images.com/thumb/img/pic7720772.png</thumbnail>
-        <stats minplayers="1"																	maxplayers="1"																	minplaytime="30"																	maxplaytime="40"																	playingtime="40"																	numowned="4823" >
-            <rating value="N/A">
-                <usersrated value="1378" />
-                <average value="7.56821" />
-                <bayesaverage value="6.2738" />
-                <stddev value="1.47153" />
-                <median value="0" />
-                <ranks>
-                    <rank type="subtype" id="1" name="boardgame" friendlyname="Board Game Rank" value="1776" bayesaverage="6.2738" />
-                    <rank type="family" id="5497" name="strategygames" friendlyname="Strategy Game Rank" value="909" bayesaverage="6.41036" />
-                </ranks>
-            </rating>
-        </stats>
-        <status own="1" prevowned="0" fortrade="0" want="0" wanttoplay="0" wanttobuy="0" wishlist="0"  preordered="0" lastmodified="2024-05-28 17:01:33" />
-        <numplays>7</numplays>
-    </item>
-    <item objecttype="thing" objectid="2094" subtype="boardgame" collid="18569655">
-        <name sortindex="1">4 First Games</name>
-        <image>https://images.com/original/img/pic2601726.jpg</image>
-        <thumbnail>https://images.com/thumb/img/pic2601726.jpg</thumbnail>
-        <stats minplayers="2"																	maxplayers="6"																	minplaytime="10"																	maxplaytime="15"																	playingtime="15"																	numowned="277" >
-            <rating value="5">
-                <usersrated value="127" />
-                <average value="4.84882" />
-                <bayesaverage value="5.45672" />
-                <stddev value="1.80318" />
-                <median value="0" />
-                <ranks>
-                    <rank type="subtype" id="1" name="boardgame" friendlyname="Board Game Rank" value="25792" bayesaverage="5.45672" />
-                </ranks>
-            </rating>
-        </stats>
-        <status own="0" prevowned="1" fortrade="0" want="0" wanttoplay="0" wanttobuy="0" wishlist="0"  preordered="0" lastmodified="2022-04-01 12:03:58" />
-        <numplays>19</numplays>
-        <version>
-            <item type="boardgameversion" id="179671">
-                <link type="boardgameversion" id="2094" value="4 First Games" inbound="true"/>
-                <name type="primary" sortindex="1" value="English-only edition" />
-                <link type="boardgamepublisher" id="34" value="Ravensburger" />
-                <yearpublished value="2000" />
-                <productcode value="22185" />
-                <width value="9" />
-                <length value="13.25" />
-                <depth value="2.25" />
-                <weight value="0" />
-                <link type="language" id="2184" value="English" />
-            </item>
-        </version>
-        <comment>Comment 2</comment>
-    </item>
-</items>`;
-const successfulResponse = {
-  status: 200,
-  statusText: 'OK',
-  text: () => Promise.resolve(successfulXml),
-} as unknown as Response;
+import { BggGameData } from './types';
+import { successfulXml } from './util/test.xml';
 
 describe('BggService', () => {
   let service: BggService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BggService],
+      providers: [
+        BggService,
+        {
+          provide: CollectionService,
+          useValue: createMock<CollectionService>(),
+        },
+      ],
     }).compile();
 
     service = module.get<BggService>(BggService);
-  });
-
-  describe('fetch bgg xml data', () => {
-    const mockFetch = jest.fn();
-    global.fetch = mockFetch;
-
-    it('calls the bgg api and a status if accepted', async () => {
-      mockFetch.mockResolvedValueOnce(acceptedResponse);
-
-      const result = await service.fetchCollectionData('testBggName');
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('testBggName'),
-      );
-      expect(result).toEqual({
-        status: 202,
-        message: 'Accepted',
-        data: '',
-      });
-    });
-
-    it('calls the bgg api and returns the xml results as text', async () => {
-      mockFetch.mockResolvedValueOnce(successfulResponse);
-
-      const result = await service.fetchCollectionData('testBggName');
-
-      expect(result).toEqual({
-        status: 200,
-        message: 'Success',
-        data: successfulXml,
-      });
-    });
-
-    it('returns error results if the request was invalid', async () => {
-      mockFetch.mockResolvedValueOnce(invalidUsernameResponse);
-
-      const result = await service.fetchCollectionData('invalid');
-
-      expect(result).toEqual({
-        status: 400,
-        message: invalidUserMessage,
-        data: '',
-      });
-    });
   });
 
   describe('parse bgg xml data', () => {
@@ -199,5 +78,134 @@ describe('BggService', () => {
 
   describe('sync collections', () => {
     it('fetches collections for user and updates with game data', async () => {});
+  });
+
+  describe('bggDataToGame', () => {
+    it('always includes bggId, name, image urls, and owned', () => {
+      expect(service.bggDataToGame({} as BggGameData)).toEqual({
+        bggId: undefined,
+        name: undefined,
+        imageUrl: undefined,
+        thumbnailUrl: undefined,
+        owned: false,
+        previouslyOwned: false,
+      });
+    });
+
+    it('adds string values if defined', () => {
+      const data = {
+        name: 'name',
+        imageUrl: 'imageUrl',
+        thumbnailUrl: 'thumbnailUrl',
+        versionName: 'version',
+      } as BggGameData;
+
+      expect(service.bggDataToGame(data)).toEqual({
+        bggId: undefined,
+        name: data.name,
+        imageUrl: data.imageUrl,
+        thumbnailUrl: data.thumbnailUrl,
+        versionName: data.versionName,
+        owned: false,
+        previouslyOwned: false,
+      });
+    });
+
+    it('adds converted numeric values if defined', () => {
+      const data = {
+        name: 'name',
+        imageUrl: 'imageUrl',
+        thumbnailUrl: 'thumbnailUrl',
+        versionName: 'version',
+        yearPublished: '1',
+        bggRank: '2',
+        bggRating: '3.5',
+        plays: '4',
+        rating: '5.6',
+        length: '12.1',
+        width: '6.0',
+        depth: '12',
+      } as BggGameData;
+
+      expect(service.bggDataToGame(data)).toEqual({
+        bggId: undefined,
+        name: data.name,
+        imageUrl: data.imageUrl,
+        thumbnailUrl: data.thumbnailUrl,
+        versionName: data.versionName,
+        owned: false,
+        previouslyOwned: false,
+        yearPublished: 1,
+        bggRank: 2,
+        bggRating: 3.5,
+        plays: 4,
+        rating: 5.6,
+        length: 12.1,
+        width: 6,
+        depth: 12,
+      });
+    });
+
+    it('skips converted numeric values if invalid', () => {
+      const data = {
+        name: 'name',
+        versionName: 'version',
+        yearPublished: '1996',
+        bggRank: '',
+        bggRating: undefined,
+        rating: null,
+        length: '     ',
+        depth: '123foo',
+      } as unknown as BggGameData;
+
+      expect(service.bggDataToGame(data)).toEqual({
+        bggId: undefined,
+        name: data.name,
+        imageUrl: undefined,
+        thumbnailUrl: undefined,
+        versionName: data.versionName,
+        yearPublished: 1996,
+        owned: false,
+        previouslyOwned: false,
+      });
+    });
+
+    it('converts a good example', () => {
+      const data = {
+        bggId: '3750',
+        name: 'Test Game',
+        imageUrl: 'http://test.com/img/7',
+        thumbnailUrl: 'http://test.com/t/7',
+        versionName: 'Old Printing',
+        owned: '1',
+        previouslyOwned: '0',
+        yearPublished: '2007',
+        bggRank: '2',
+        bggRating: '6.5',
+        plays: '6',
+        rating: '8.5',
+        length: '12.1',
+        width: '6.25',
+        depth: '12',
+      } as unknown as BggGameData;
+
+      expect(service.bggDataToGame(data)).toEqual({
+        bggId: 3750,
+        name: data.name,
+        imageUrl: data.imageUrl,
+        thumbnailUrl: data.thumbnailUrl,
+        versionName: data.versionName,
+        owned: true,
+        previouslyOwned: false,
+        yearPublished: 2007,
+        bggRank: 2,
+        bggRating: 6.5,
+        plays: 6,
+        rating: 8.5,
+        length: 12.1,
+        width: 6.25,
+        depth: 12,
+      });
+    });
   });
 });

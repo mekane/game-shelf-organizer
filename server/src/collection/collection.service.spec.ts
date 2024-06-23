@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
-import { Collection, CollectionType, User } from '../entities';
+import { Collection, User } from '../entities';
 import { CollectionService, Result } from './collection.service';
 import { CreateCollectionDto, UpdateCollectionDto } from './dto';
 
@@ -12,7 +12,6 @@ const mockRepository = createMock<Repository<Collection>>();
 
 const createDto: CreateCollectionDto = {
   name: 'Test',
-  type: CollectionType.Other,
 };
 
 const updateDto: UpdateCollectionDto = {
@@ -62,31 +61,6 @@ describe('CollectionService', () => {
     });
   });
 
-  describe('getStandardSet', () => {
-    const user = { id: authUser.id } as User;
-    const allCollections: Collection[] = [
-      { id: 0, name: 'Owned 0', user, type: CollectionType.Owned },
-      { id: 1, name: 'Owned 1', user, type: CollectionType.Owned },
-      { id: 2, name: 'Prev 2', user, type: CollectionType.PreviouslyOwned },
-      { id: 3, name: 'Other 3', user, type: CollectionType.Other },
-      { id: 4, name: 'Wish 4', user, type: CollectionType.WishList },
-      { id: 5, name: 'Played 5', user, type: CollectionType.Played },
-      { id: 6, name: 'Other 6', user, type: CollectionType.Other },
-    ];
-
-    it('finds a collection of each type for the user', async () => {
-      mockRepository.find.mockResolvedValueOnce(allCollections);
-      const result = await service.getStandardSet(authUser);
-
-      expect(result).toEqual({
-        [CollectionType.Owned]: allCollections[0],
-        [CollectionType.PreviouslyOwned]: allCollections[2],
-        [CollectionType.WishList]: allCollections[4],
-        [CollectionType.Played]: allCollections[5],
-      });
-    });
-  });
-
   describe('findOne', () => {
     it('should call the repository method', async () => {
       await service.findOne(authUser, 1);
@@ -105,7 +79,7 @@ describe('CollectionService', () => {
 
   describe('update', () => {
     it('should call the repository method', async () => {
-      const existingData = { id: 1, user: new User(), ...createDto };
+      const existingData = { id: 1, user: new User(), ...createDto, games: [] };
       mockRepository.findOneBy.mockResolvedValueOnce(existingData);
 
       const expectedSave = {

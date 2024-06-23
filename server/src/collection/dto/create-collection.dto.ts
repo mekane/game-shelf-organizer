@@ -1,10 +1,10 @@
-import { IsNotEmpty } from 'class-validator';
-import { CollectionType } from 'src/entities';
+import { IsNotEmpty, IsOptional } from 'class-validator';
+import { Game } from 'src/entities/Game.entity';
 
 export class CreateCollectionDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNotEmpty()
-  type: CollectionType;
+  @IsOptional()
+  games?: Partial<Game>[];
 }
