@@ -16,6 +16,7 @@ export interface BggGameData {
   yearPublished: string;
   owned: boolean;
   previouslyOwned: boolean;
+  versionId: string;
   versionName: string;
   length: string;
   width: string;
