@@ -26,6 +26,9 @@ export function sync(
   //console.log('existingGames[0]', existingGames[key0]);
   //console.log('newBggData[0]', newBggData[0]);
 
+  // keeps track of how many copies of each game exist (should be 1)
+  const bggDuplicateCopyTracker: Record<string, number> = {};
+
   const newGames: Partial<Game>[] = [];
   const updatedGames: Partial<Game>[] = [];
   newBggData.forEach((data: BggGameData) => {
@@ -35,14 +38,26 @@ export function sync(
     const id = getPrimaryId(game);
 
     if (existingGames[id]) {
+      if (bggDuplicateCopyTracker[id]) {
+        console.log(`*** duplicate bgg game data`, data);
+      }
+
+      bggDuplicateCopyTracker[id] = bggDuplicateCopyTracker[id]
+        ? bggDuplicateCopyTracker[id] + 1
+        : 1;
+
       updatedGames.push({
-        ...existingGames[data.bggId],
+        ...existingGames[id],
         ...game,
       });
     } else {
       newGames.push(game);
     }
   });
+
+  const dupCounts = Object.values(bggDuplicateCopyTracker).filter((v) => v > 1);
+  const duplicates = dupCounts.reduce((a, b) => a + b, 0) - dupCounts.length;
+  console.log(`Total duplicates: ${duplicates}`);
 
   const removedGames: Partial<Game>[] = [];
   const allGamesAccountedFor = newBggData.length >= userGames.length;
