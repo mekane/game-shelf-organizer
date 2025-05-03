@@ -17,6 +17,14 @@ export interface BggSyncResult {
   removed: number;
 }
 
+/**
+ * removeMissing: if true, will scan the collection and remove any items that are not in the BGG results.
+ *                Otherwise items removed from BGG will remain in this collection. Defaults to false.
+ */
+export interface SyncOptions {
+  removeMissing: boolean;
+}
+
 @Injectable()
 export class BggService {
   constructor(private readonly collectionService: CollectionService) {}
@@ -47,8 +55,9 @@ export class BggService {
 
   public async syncCollections(
     user: UserAuthRecord,
+    options: SyncOptions = { removeMissing: false },
   ): Promise<BggSyncResult | BggDataFetchResult> {
-    console.log('sync collections for ' + user.bggUserName);
+    console.log('sync collections for ' + user.bggUserName, options);
 
     const fetchResult = await this.getCollection(user.bggUserName);
 
@@ -59,6 +68,7 @@ export class BggService {
     //console.log('BGG collection result', fetchResult);
     const newBggData = fetchResult as BggGameData[];
 
+    // default to first collection
     const userCollections = await this.collectionService.findAll(user);
     const userCollection = userCollections[0];
 
@@ -69,7 +79,7 @@ export class BggService {
 
     const updateDto = {
       ...userCollection,
-      games: updatedGames,
+      games: [...newGames, ...updatedGames],
     };
 
     if (removedGames.length) {

@@ -50,6 +50,10 @@ export class CollectionService {
       ...updateCollectionDto,
     };
 
+    console.log(
+      `[CollectionService] update collection ${updated.id}: ${updated.games.length} games`,
+    );
+
     return this.repository.save(updated);
   }
 

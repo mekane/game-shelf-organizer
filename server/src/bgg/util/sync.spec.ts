@@ -69,10 +69,11 @@ describe('syncing fetched bgg data with an existing Collection', () => {
       expect(result.removedGames.map((g) => g.bggId)).toEqual([8, 9]);
     });
 
-    it('keeps the newer version of duplicate games by default', () => {
+    // Note: remove duplicates before calling sync to avoid this
+    it('makes entries for duplicate games by default', () => {
       const dataWithDupes = parsedDuplicateData;
       const result = sync(dataWithDupes, emptyCollection);
-      expect(result.newGames).toHaveLength(1);
+      expect(result.newGames).toHaveLength(2);
       expect(result.updatedGames).toHaveLength(0);
       expect(result.removedGames).toHaveLength(0);
     });

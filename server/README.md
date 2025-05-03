@@ -29,3 +29,20 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## Authorization
+
+Uses bearer token auth (postman collection has this - inherit from parent)
+
+## Database
+
+Using a local SqlLite flat file DB.
+
+### Update DB from Entities:
+
+The schema is automatically updated whenever the server starts.
+
+### Manually Browse Data
+
+Use the "DB Browser" for SQL Lite tool and "Open Database" on the .sqlite file in this directory.
+

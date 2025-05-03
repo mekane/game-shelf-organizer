@@ -2,16 +2,6 @@ import { Collection } from '../../entities';
 import { Game } from '../../entities/';
 import { BggGameData } from '../types';
 
-export enum DuplicateMode {
-  Include, // include multiple copies using an extended bggId
-  Newest, // only include the newest instance of the duplicate game
-  Oldest, // only include the oldest instance of the duplicate game
-}
-
-export interface SyncOptions {
-  duplicate: DuplicateMode;
-}
-
 export interface SyncResult {
   newGames: Partial<Game>[];
   updatedGames: Partial<Game>[];
@@ -21,29 +11,32 @@ export interface SyncResult {
 export function sync(
   newBggData: BggGameData[],
   userCollection: Collection,
-  options: SyncOptions = { duplicate: DuplicateMode.Newest },
 ): SyncResult {
-  console.log(options);
-
   const userGames = userCollection?.games ?? [];
 
   //console.log('user games', userGames);
 
-  const existingGamesByBggId: Record<string, Game> = {};
+  const existingGames: Record<string, Game> = {};
   userGames.forEach((g) => {
-    existingGamesByBggId[g.bggId] = g;
+    const id = getPrimaryId(g);
+    existingGames[id] = g;
   });
 
-  console.log('gamesByBggId', existingGamesByBggId);
+  //const key0 = Object.keys(existingGames)[0];
+  //console.log('existingGames[0]', existingGames[key0]);
+  //console.log('newBggData[0]', newBggData[0]);
 
   const newGames: Partial<Game>[] = [];
   const updatedGames: Partial<Game>[] = [];
   newBggData.forEach((data: BggGameData) => {
     const game = bggDataToGame(data);
     game.collection = userCollection;
-    if (existingGamesByBggId[data.bggId]) {
+
+    const id = getPrimaryId(game);
+
+    if (existingGames[id]) {
       updatedGames.push({
-        ...existingGamesByBggId[data.bggId],
+        ...existingGames[data.bggId],
         ...game,
       });
     } else {
@@ -52,7 +45,13 @@ export function sync(
   });
 
   const removedGames: Partial<Game>[] = [];
-  if ([...newGames, ...updatedGames].length < userGames.length) {
+  const allGamesAccountedFor = newBggData.length >= userGames.length;
+
+  console.log(
+    `Sync: remove check all games accounted for: ${allGamesAccountedFor} (${newBggData.length} >= ${userGames.length})`,
+  );
+
+  if (!allGamesAccountedFor) {
     userGames.forEach((ug) => {
       if (!newBggData.some((g) => g.bggId === `${ug.bggId}`)) {
         removedGames.push(ug);
@@ -78,6 +77,7 @@ export function bggDataToGame(data: BggGameData): Partial<Game> {
     rating,
     imageUrl,
     thumbnailUrl,
+    versionId,
     versionName,
     length,
     width,
@@ -95,6 +95,7 @@ export function bggDataToGame(data: BggGameData): Partial<Game> {
     previouslyOwned: !!+previouslyOwned,
   };
 
+  addNumberWithDefault(game, versionId, 'versionId');
   addIfDefined(game, versionName, 'versionName');
   addIfNumeric(game, yearPublished, 'yearPublished');
   addIfNumeric(game, bggRank, 'bggRank');
@@ -106,6 +107,10 @@ export function bggDataToGame(data: BggGameData): Partial<Game> {
   addIfNumeric(game, depth, 'depth');
 
   return game;
+}
+
+function getPrimaryId(game: Partial<Game>) {
+  return `${game.bggId}_${game.versionId ?? 0}`;
 }
 
 function addIfNumeric(obj: any, value: string, key: string) {
@@ -123,6 +128,15 @@ function addIfDefined(obj: any, value: any, key: string) {
     obj[key] = value;
   }
   return obj;
+}
+
+function addNumberWithDefault(obj: any, value: string, key: string) {
+  const num = numeric(value);
+  if (num) {
+    obj[key] = num;
+  } else {
+    obj[key] = 0;
+  }
 }
 
 function numeric(value: string) {

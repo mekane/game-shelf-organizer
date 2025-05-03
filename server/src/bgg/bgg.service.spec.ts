@@ -94,5 +94,7 @@ describe('BggService', () => {
 
   describe('syncCollections', () => {
     it('plumbing', async () => {});
+
+    //TODO: test duplicate removal options
   });
 });

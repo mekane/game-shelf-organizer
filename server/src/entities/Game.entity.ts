@@ -1,13 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Collection } from './Collection.entity';
 
 @Entity()
 export class Game {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @PrimaryColumn()
   bggId: number;
+
+  @PrimaryColumn()
+  versionId: number;
 
   @ManyToOne(() => Collection, (collection) => collection.games)
   collection: Collection;
