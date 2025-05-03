@@ -4,6 +4,7 @@ import { PageContainer } from "./pages/PageContainer";
 import { CollectionPage } from "./pages/collection/CollectionPage";
 import { HomePage } from "./pages/home/HomePage";
 import { ListsPage } from "./pages/lists/ListsPage";
+import { EditListView } from "./pages/lists/id";
 import { ShelvesPage } from "./pages/shelves/ShelvesPage";
 
 const routes: RouteObject[] = [
@@ -27,6 +28,10 @@ const routes: RouteObject[] = [
       {
         path: "/lists",
         element: <ListsPage />,
+      },
+      {
+        path: "/lists/:id",
+        element: <EditListView />,
       },
       {
         path: "/shelves",
