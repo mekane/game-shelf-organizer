@@ -10,6 +10,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { BggModule } from './bgg';
 import { CollectionModule } from './collection/collection.module';
 import { sqlLiteOptions } from './data.source';
+import { GamesModule } from './games/games.module';
 import { ListModule } from './list/list.module';
 import { ShelfModule } from './shelf/shelf.module';
 import { UsersModule } from './users/users.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     ShelfModule,
     TypeOrmModule.forRoot(sqlLiteOptions),
     UsersModule,
+    GamesModule,
   ],
   controllers: [AppController],
   providers: [

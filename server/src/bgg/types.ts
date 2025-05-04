@@ -8,19 +8,19 @@ export interface BggGameData {
   bggId: string;
   bggRank: string;
   bggRating: string;
-  imageUrl: string;
+  imageUrl?: string;
   name: string;
-  plays: string;
-  rating: string;
-  thumbnailUrl: string;
-  yearPublished: string;
-  owned: boolean;
-  previouslyOwned: boolean;
-  versionId: string;
-  versionName: string;
-  length: string;
-  width: string;
-  depth: string;
+  plays?: string;
+  rating?: string;
+  thumbnailUrl?: string;
+  yearPublished?: string;
+  owned?: boolean;
+  previouslyOwned?: boolean;
+  versionId?: string;
+  versionName?: string;
+  length?: string;
+  width?: string;
+  depth?: string;
 }
 
 export type BggXmlBoolean = '0' | '1';

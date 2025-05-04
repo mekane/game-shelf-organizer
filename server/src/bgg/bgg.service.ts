@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { GamesService } from 'src/games/games.service';
 import { UserAuthRecord } from '../auth';
 import { CollectionService } from '../collection/collection.service';
 import { BggDataFetchResult, BggGameData } from './types';
@@ -17,17 +18,12 @@ export interface BggSyncResult {
   removed: number;
 }
 
-/**
- * removeMissing: if true, will scan the collection and remove any items that are not in the BGG results.
- *                Otherwise items removed from BGG will remain in this collection. Defaults to false.
- */
-export interface SyncOptions {
-  removeMissing: boolean;
-}
-
 @Injectable()
 export class BggService {
-  constructor(private readonly collectionService: CollectionService) {}
+  constructor(
+    private readonly collectionService: CollectionService,
+    private readonly gamesService: GamesService,
+  ) {}
 
   public async getCollection(
     bggUsername: string,
@@ -55,9 +51,8 @@ export class BggService {
 
   public async syncCollections(
     user: UserAuthRecord,
-    options: SyncOptions = { removeMissing: false },
   ): Promise<BggSyncResult | BggDataFetchResult> {
-    console.log('sync collections for ' + user.bggUserName, options);
+    console.log('sync collection for ' + user.bggUserName);
 
     const fetchResult = await this.getCollection(user.bggUserName);
 
@@ -73,6 +68,7 @@ export class BggService {
     const userCollection = userCollections[0];
 
     const { newGames, updatedGames, removedGames } = sync(
+      user.id,
       newBggData,
       userCollection,
     );
@@ -83,8 +79,8 @@ export class BggService {
     };
 
     if (removedGames.length) {
+      await this.gamesService.remove(removedGames);
       console.log(`${removedGames.length} games removed`);
-      // could delete them now since they'll be orphaned and not in a collection
     }
 
     await this.collectionService.update(user, userCollection.id, updateDto);

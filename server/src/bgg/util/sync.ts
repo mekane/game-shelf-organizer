@@ -3,12 +3,13 @@ import { Game } from '../../entities/';
 import { BggGameData } from '../types';
 
 export interface SyncResult {
-  newGames: Partial<Game>[];
-  updatedGames: Partial<Game>[];
-  removedGames: Partial<Game>[];
+  newGames: Game[];
+  updatedGames: Game[];
+  removedGames: Game[];
 }
 
 export function sync(
+  userId: number,
   newBggData: BggGameData[],
   userCollection: Collection,
 ): SyncResult {
@@ -18,7 +19,7 @@ export function sync(
 
   const existingGames: Record<string, Game> = {};
   userGames.forEach((g) => {
-    const id = getPrimaryId(g);
+    const id = getUniqueId(g);
     existingGames[id] = g;
   });
 
@@ -29,13 +30,12 @@ export function sync(
   // keeps track of how many copies of each game exist (should be 1)
   const bggDuplicateCopyTracker: Record<string, number> = {};
 
-  const newGames: Partial<Game>[] = [];
-  const updatedGames: Partial<Game>[] = [];
+  const newGames: Game[] = [];
+  const updatedGames: Game[] = [];
   newBggData.forEach((data: BggGameData) => {
-    const game = bggDataToGame(data);
-    game.collection = userCollection;
+    const game = bggDataToGame(data, userId, userCollection);
 
-    const id = getPrimaryId(game);
+    const id = getUniqueId(game);
 
     if (existingGames[id]) {
       if (bggDuplicateCopyTracker[id]) {
@@ -59,7 +59,7 @@ export function sync(
   const duplicates = dupCounts.reduce((a, b) => a + b, 0) - dupCounts.length;
   console.log(`Total duplicates: ${duplicates}`);
 
-  const removedGames: Partial<Game>[] = [];
+  const removedGames: Game[] = [];
   const allGamesAccountedFor = newBggData.length >= userGames.length;
 
   console.log(
@@ -81,80 +81,42 @@ export function sync(
   };
 }
 
-export function bggDataToGame(data: BggGameData): Partial<Game> {
-  const {
-    bggId,
-    name,
-    yearPublished,
-    bggRank,
-    bggRating,
-    plays,
-    rating,
-    imageUrl,
-    thumbnailUrl,
-    versionId,
-    versionName,
-    length,
-    width,
-    depth,
-    owned,
-    previouslyOwned,
-  } = data;
+export function bggDataToGame(
+  data: BggGameData,
+  userId: number,
+  collection: Collection,
+): Game {
+  const { bggId, name, versionId, owned, previouslyOwned } = data;
 
-  const game = {
-    bggId: numeric(bggId),
+  const game: Game = {
+    userId,
+    bggId: numeric(bggId) ?? 0,
+    versionId: numeric(versionId) ?? 0,
     name,
-    imageUrl,
-    thumbnailUrl,
-    owned: !!+owned,
-    previouslyOwned: !!+previouslyOwned,
+    versionName: data.versionName ?? null,
+    collection,
+    yearPublished: numeric(data.yearPublished) ?? null,
+    bggRank: numeric(data.bggRank) ?? null,
+    bggRating: numeric(data.bggRating) ?? null,
+    imageUrl: data.imageUrl ?? null,
+    thumbnailUrl: data.thumbnailUrl ?? null,
+    length: numeric(data.length) ?? null,
+    width: numeric(data.width) ?? null,
+    depth: numeric(data.depth) ?? null,
+    owned: Boolean(owned),
+    previouslyOwned: Boolean(previouslyOwned),
+    plays: numeric(data.plays) ?? 0,
+    rating: numeric(data.rating) ?? 0,
   };
-
-  addNumberWithDefault(game, versionId, 'versionId');
-  addIfDefined(game, versionName, 'versionName');
-  addIfNumeric(game, yearPublished, 'yearPublished');
-  addIfNumeric(game, bggRank, 'bggRank');
-  addIfNumeric(game, bggRating, 'bggRating');
-  addIfNumeric(game, plays, 'plays');
-  addIfNumeric(game, rating, 'rating');
-  addIfNumeric(game, length, 'length');
-  addIfNumeric(game, width, 'width');
-  addIfNumeric(game, depth, 'depth');
 
   return game;
 }
 
-function getPrimaryId(game: Partial<Game>) {
+function getUniqueId(game: Partial<Game>) {
   return `${game.bggId}_${game.versionId ?? 0}`;
 }
 
-function addIfNumeric(obj: any, value: string, key: string) {
-  const isEmptyString = typeof value === 'string' && value.trim() === '';
-  const isNull = value === null;
-
-  if (isEmptyString || isNull) {
-    return obj;
-  }
-  return addIfDefined(obj, numeric(value), key);
-}
-
-function addIfDefined(obj: any, value: any, key: string) {
-  if (typeof value !== 'undefined') {
-    obj[key] = value;
-  }
-  return obj;
-}
-
-function addNumberWithDefault(obj: any, value: string, key: string) {
-  const num = numeric(value);
-  if (num) {
-    obj[key] = num;
-  } else {
-    obj[key] = 0;
-  }
-}
-
-function numeric(value: string) {
+function numeric(value?: string) {
   if (typeof value === 'undefined' || isNaN(+value)) {
     return undefined;
   } else {
