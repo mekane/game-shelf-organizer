@@ -1,21 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { GamesService } from 'src/games/games.service';
+import { ServiceResult } from '@src/common';
+import { GamesService } from '@src/games/games.service';
 import { UserAuthRecord } from '../auth';
 import { CollectionService } from '../collection/collection.service';
-import { BggDataFetchResult, BggGameData } from './types';
+import { BggGameData } from './types';
 import { fetchCollectionData } from './util/fetch';
 import { parseCollectionData } from './util/parse';
 import { sync } from './util/sync';
 
-export enum Result {
-  INVALID_BGG_USER,
+export interface BggResult {
+  result: ServiceResult;
+  content?: BggGameData[];
+  message?: string;
 }
 
-export interface BggSyncResult {
-  collectionId: number;
-  new: number;
-  updated: number;
-  removed: number;
+export interface SyncResult {
+  result: ServiceResult;
+  content?: {
+    new: number;
+    updated: number;
+    removed: number;
+  };
+  message?: string;
 }
 
 @Injectable()
@@ -29,43 +35,48 @@ export class BggService {
     bggUsername: string,
     retries: number = 3,
     delay: number = 2000,
-  ) {
+  ): Promise<BggResult> {
     let attempt = 1;
 
-    let result = await fetchCollectionData(bggUsername);
-    console.log(`Fetch BGG Collection attempt ${attempt}: ${result.message}`);
+    let bggRes = await fetchCollectionData(bggUsername);
+    console.log(`Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`);
 
-    if (result.status >= 400) {
-      return result;
+    if (bggRes.status >= 400) {
+      return {
+        result: ServiceResult.InvalidBggUser,
+        message: bggRes.message,
+      };
     }
 
-    while (result.status === 202 && attempt <= retries) {
+    while (bggRes.status === 202 && attempt <= retries) {
       attempt++;
       await new Promise((r) => setTimeout(r, delay));
-      result = await fetchCollectionData(bggUsername);
-      console.log(`Fetch BGG Collection attempt ${attempt}: ${result.message}`);
+      bggRes = await fetchCollectionData(bggUsername);
+      console.log(`Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`);
     }
 
-    return parseCollectionData(result.data);
+    return {
+      result: ServiceResult.Success,
+      content: parseCollectionData(bggRes.data),
+    };
   }
 
-  public async syncCollections(
-    user: UserAuthRecord,
-  ): Promise<BggSyncResult | BggDataFetchResult> {
+  public async syncCollections(user: UserAuthRecord): Promise<SyncResult> {
     console.log('sync collection for ' + user.bggUserName);
 
     const fetchResult = await this.getCollection(user.bggUserName);
 
-    if ((fetchResult as BggDataFetchResult).status >= 400) {
-      return fetchResult as BggDataFetchResult;
+    if (fetchResult.result !== ServiceResult.Success) {
+      return {
+        result: fetchResult.result,
+      };
     }
 
     //console.log('BGG collection result', fetchResult);
-    const newBggData = fetchResult as BggGameData[];
+    const newBggData = fetchResult.content ?? [];
 
     // default to first collection
-    const userCollections = await this.collectionService.findAll(user);
-    const userCollection = userCollections[0];
+    const userCollection = await this.collectionService.defaultCollection(user);
 
     const { newGames, updatedGames, removedGames } = sync(
       user.id,
@@ -86,10 +97,12 @@ export class BggService {
     await this.collectionService.update(user, userCollection.id, updateDto);
 
     return {
-      collectionId: userCollection.id,
-      new: newGames.length,
-      updated: updatedGames.length,
-      removed: removedGames.length,
+      result: ServiceResult.Success,
+      content: {
+        new: newGames.length,
+        updated: updatedGames.length,
+        removed: removedGames.length,
+      },
     };
   }
 }

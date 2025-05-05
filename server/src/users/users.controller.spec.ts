@@ -1,7 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserAuthRecord } from 'src/auth';
+import { UserAuthRecord } from '@src/auth';
 import { mockAuthUser } from '../../test/utils';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { UsersController } from './users.controller';

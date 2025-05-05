@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserAuthRecord } from 'src/auth';
+import { UserAuthRecord } from '@src/auth';
 import { Repository } from 'typeorm';
 import { Shelf } from '../entities';
 import { forUser, idForUser } from '../util';

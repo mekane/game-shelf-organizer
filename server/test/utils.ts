@@ -1,4 +1,4 @@
-import { UserAuthRecord } from 'src/auth';
+import { UserAuthRecord } from '@src/auth';
 
 export function mockAuthUser({
   userId = 1,

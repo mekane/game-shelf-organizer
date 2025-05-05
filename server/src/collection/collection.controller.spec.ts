@@ -1,21 +1,15 @@
 import { createMock } from '@golevelup/ts-jest';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { BggService } from '@src/bgg';
+import { ServiceResult } from '@src/common';
+import { Collection } from '@src/entities';
 import { mockAuthUser } from '../../test/utils';
 import { CollectionController } from './collection.controller';
-import { CollectionService, Result } from './collection.service';
-import { CreateCollectionDto } from './dto/create-collection.dto';
-import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { CollectionService } from './collection.service';
 
+const mockBggService = createMock<BggService>();
 const mockService = createMock<CollectionService>();
-
-const createDto: CreateCollectionDto = {
-  name: 'Test',
-};
-
-const updateDto: UpdateCollectionDto = {
-  name: 'Test Updated',
-};
 
 const user = mockAuthUser();
 
@@ -25,66 +19,59 @@ describe('CollectionController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CollectionController],
-      providers: [{ provide: CollectionService, useValue: mockService }],
+      providers: [
+        { provide: BggService, useValue: mockBggService },
+        { provide: CollectionService, useValue: mockService },
+      ],
     }).compile();
 
     controller = module.get<CollectionController>(CollectionController);
   });
 
-  describe('create', () => {
+  describe('get', () => {
     it('should call the service method', async () => {
-      await controller.create(user, createDto);
-      expect(mockService.create).toHaveBeenCalledWith(user, createDto);
+      await controller.get(user);
+      expect(mockService.defaultCollection).toHaveBeenCalled();
+    });
+
+    it('returns the first collection found', async () => {
+      const collections = [
+        { id: 0, name: 'test0', games: [] },
+        { id: 1, name: 'test1', games: [] },
+      ] as unknown as Collection[];
+
+      mockService.defaultCollection.mockResolvedValueOnce(collections[0]);
+
+      const result = await controller.get(user);
+
+      expect(result).toEqual(collections[0]);
     });
   });
 
-  describe('findAll', () => {
-    it('should call the service method', async () => {
-      await controller.findAll(user);
-      expect(mockService.findAll).toHaveBeenCalled();
-    });
-  });
+  describe('sync collection', () => {
+    it('should call the service method and return sync results', async () => {
+      const content = {
+        new: 1,
+        updated: 2,
+        removed: 3,
+      };
+      mockBggService.syncCollections.mockResolvedValueOnce({
+        result: ServiceResult.Success,
+        content,
+      });
 
-  describe('findOne', () => {
-    it('should call the service method', async () => {
-      await controller.findOne(user, '1');
-      expect(mockService.findOne).toHaveBeenCalledWith(user, 1);
-    });
+      const result = await controller.sync(user);
 
-    it('returns a 404 if the specified id is not found', async () => {
-      mockService.findOne.mockResolvedValueOnce(Result.NOT_FOUND);
-
-      const findOneNotFound = () => controller.findOne(user, 'not found');
-      expect(findOneNotFound).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('update', () => {
-    it('should call the service method', async () => {
-      await controller.update(user, '1', updateDto);
-      expect(mockService.update).toHaveBeenCalledWith(user, 1, updateDto);
+      expect(mockBggService.syncCollections).toHaveBeenCalledWith(user);
+      expect(result).toEqual(content);
     });
 
-    it('returns a 404 if the specified id is not found', async () => {
-      mockService.update.mockResolvedValueOnce(Result.NOT_FOUND);
+    it('returns a error status and message from the bgg service if error', async () => {
+      mockBggService.syncCollections.mockResolvedValueOnce({
+        result: ServiceResult.InvalidBggUser,
+      });
 
-      const updateNotFound = () =>
-        controller.update(user, 'not found', updateDto);
-      expect(updateNotFound).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('remove', () => {
-    it('should call the service method', async () => {
-      await controller.remove(user, '1');
-      expect(mockService.remove).toHaveBeenCalledWith(user, 1);
-    });
-
-    it('returns a 404 if the specified id is not found', async () => {
-      mockService.remove.mockResolvedValueOnce(Result.NOT_FOUND);
-
-      const removeNotFound = () => controller.remove(user, 'not found');
-      expect(removeNotFound).rejects.toThrow(NotFoundException);
+      await expect(controller.sync(user)).rejects.toThrow(BadRequestException);
     });
   });
 });

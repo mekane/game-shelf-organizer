@@ -4,4 +4,5 @@ export enum ServiceResult {
   NotFound = 'not-found',
   NotAllowed = 'not-allowed',
   DatabaseError = 'db-error',
+  InvalidBggUser = 'invalid-bgg-user',
 }

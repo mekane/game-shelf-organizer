@@ -4,8 +4,7 @@ import { Repository } from 'typeorm';
 import { UserAuthRecord } from '../auth/index';
 import { Collection } from '../entities';
 import { forUser, idForUser } from '../util';
-import { CreateCollectionDto } from './dto/create-collection.dto';
-import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { CreateCollectionDto, UpdateCollectionDto } from './dto';
 
 export enum Result {
   NOT_FOUND,
@@ -32,6 +31,22 @@ export class CollectionService {
   async findOne(user: UserAuthRecord, id: number) {
     const found = await this.repository.findOneBy(idForUser(id, user));
     return found ? found : Result.NOT_FOUND;
+  }
+
+  /**
+   * Returns the default collection for the user.
+   * Creates one if it doesn't exist
+   * @param user
+   */
+  async defaultCollection(user: UserAuthRecord) {
+    const userCollections = await this.findAll(user);
+
+    if (!userCollections || !userCollections.length) {
+      const collection = await this.create(user, { name: 'Default' });
+      return collection;
+    }
+
+    return userCollections[0];
   }
 
   async update(

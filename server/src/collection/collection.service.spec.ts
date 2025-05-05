@@ -77,6 +77,12 @@ describe('CollectionService', () => {
     });
   });
 
+  describe('defaultCollection', () => {
+    it('returns the first result from the list of findAll', async () => {});
+
+    it('creates one if none are found', async () => {});
+  });
+
   describe('update', () => {
     it('should call the repository method', async () => {
       const existingData = { id: 1, user: new User(), ...createDto, games: [] };
