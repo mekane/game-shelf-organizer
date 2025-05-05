@@ -1,4 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Game } from './Game.entity';
 import { User } from './user.entity';
 
 @Entity()
@@ -11,4 +19,8 @@ export class List {
 
   @Column()
   name: string;
+
+  @ManyToMany(() => Game, { cascade: true, eager: true })
+  @JoinTable()
+  games: Game[];
 }
