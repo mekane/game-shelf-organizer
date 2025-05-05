@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Collection } from './Collection.entity';
-import { List } from './list.entity';
+import { List } from './List.entity';
 import { Shelf } from './shelf.entity';
 
 @Entity()

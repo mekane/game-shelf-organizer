@@ -66,6 +66,9 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleNameMapper": {
+      "^@src/(.*)": "<rootDir>/$1"
+    },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -74,6 +77,16 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
+    "coveragePathIgnorePatterns": [
+      "index.ts",
+      "main.ts",
+      "\\.dto\\.ts"
+    ],
+    "coverageReporters": [
+      "html",
+      "text",
+      "lcov"
+    ],
     "testEnvironment": "node"
   }
 }

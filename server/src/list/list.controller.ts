@@ -8,11 +8,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ServiceResult } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-import { ListService, Result } from './list.service';
+import { ListService } from './list.service';
 
 @Controller('list')
 export class ListController {
@@ -33,13 +34,13 @@ export class ListController {
 
   @Get(':id')
   async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
-    const result = await this.listService.findOne(user, +id);
+    const ser = await this.listService.findOne(user, +id);
 
-    if (result === Result.NOT_FOUND) {
+    if (ser.result === ServiceResult.NotFound) {
       throw new NotFoundException();
     }
 
-    return result;
+    return ser.content;
   }
 
   @Patch(':id')
@@ -48,23 +49,23 @@ export class ListController {
     @Param('id') id: string,
     @Body() updateListDto: UpdateListDto,
   ) {
-    const result = await this.listService.update(user, +id, updateListDto);
+    const ser = await this.listService.update(user, +id, updateListDto);
 
-    if (result === Result.NOT_FOUND) {
+    if (ser.result === ServiceResult.NotFound) {
       throw new NotFoundException();
     }
 
-    return result;
+    return ser.content;
   }
 
   @Delete(':id')
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
-    const result = await this.listService.remove(user, +id);
+    const ser = await this.listService.remove(user, +id);
 
-    if (result === Result.NOT_FOUND) {
+    if (ser.result === ServiceResult.NotFound) {
       throw new NotFoundException();
     }
 
-    return result;
+    return ser.content;
   }
 }

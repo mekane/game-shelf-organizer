@@ -1,12 +1,12 @@
 import { Collection } from './Collection.entity';
 import { Game } from './Game.entity';
-import { List } from './list.entity';
+import { List } from './List.entity';
 import { Shelf } from './shelf.entity';
 import { User } from './user.entity';
 
 export * from './Collection.entity';
 export * from './Game.entity';
-export * from './list.entity';
+export * from './List.entity';
 export * from './shelf.entity';
 export * from './user.entity';
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ServiceResult } from '@src/common';
 import { Repository } from 'typeorm';
 import { UserAuthRecord } from '../auth/index';
 import { List } from '../entities';
@@ -7,8 +8,9 @@ import { forUser, idForUser } from '../util';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 
-export enum Result {
-  NOT_FOUND,
+export interface ListResult<T> {
+  result: ServiceResult;
+  content?: T;
 }
 
 @Injectable()
@@ -29,17 +31,32 @@ export class ListService {
     return this.repository.find(forUser(user));
   }
 
-  async findOne(user: UserAuthRecord, id: number) {
+  async findOne(user: UserAuthRecord, id: number): Promise<ListResult<List>> {
     const found = await this.repository.findOneBy(idForUser(id, user));
 
-    return found ? found : Result.NOT_FOUND;
+    if (found) {
+      return {
+        result: ServiceResult.Success,
+        content: found,
+      };
+    }
+
+    return {
+      result: ServiceResult.NotFound,
+    };
   }
 
-  async update(user: UserAuthRecord, id: number, updateListDto: UpdateListDto) {
+  async update(
+    user: UserAuthRecord,
+    id: number,
+    updateListDto: UpdateListDto,
+  ): Promise<ListResult<List>> {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
-      return Result.NOT_FOUND;
+      return {
+        result: ServiceResult.NotFound,
+      };
     }
 
     const updated = {
@@ -47,16 +64,38 @@ export class ListService {
       ...updateListDto,
     };
 
-    return this.repository.save(updated);
+    try {
+      const result = await this.repository.save(updated);
+      return {
+        result: ServiceResult.Success,
+        content: result,
+      };
+    } catch (e) {
+      return {
+        result: ServiceResult.DatabaseError,
+      };
+    }
   }
 
-  async remove(user: UserAuthRecord, id: number) {
+  async remove(user: UserAuthRecord, id: number): Promise<ListResult<number>> {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
-      return Result.NOT_FOUND;
+      return {
+        result: ServiceResult.NotFound,
+      };
     }
 
-    return this.repository.delete(id);
+    try {
+      const result = await this.repository.delete(id);
+      return {
+        result: ServiceResult.Success,
+        content: result.affected ?? 0,
+      };
+    } catch (e) {
+      return {
+        result: ServiceResult.DatabaseError,
+      };
+    }
   }
 }
