@@ -1,7 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
 import { mockAuthUser } from '../../test/utils';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
@@ -55,7 +55,7 @@ describe('ListController', () => {
 
     it('returns a 404 if the specified id is not found', async () => {
       mockService.findOne.mockResolvedValueOnce({
-        result: ServiceResult.NotFound,
+        status: ServiceStatus.NotFound,
       });
 
       const findOneNotFound = () => controller.findOne(user, 'not found');
@@ -71,7 +71,7 @@ describe('ListController', () => {
 
     it('returns a 404 if the specified id is not found', async () => {
       mockService.update.mockResolvedValueOnce({
-        result: ServiceResult.NotFound,
+        status: ServiceStatus.NotFound,
       });
 
       const updateNotFound = () =>
@@ -88,7 +88,7 @@ describe('ListController', () => {
 
     it('returns a 404 if the specified id is not found', async () => {
       mockService.remove.mockResolvedValueOnce({
-        result: ServiceResult.NotFound,
+        status: ServiceStatus.NotFound,
       });
 
       const removeNotFound = () => controller.remove(user, 'not found');

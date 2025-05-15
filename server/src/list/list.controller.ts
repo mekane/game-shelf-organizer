@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CreateListDto } from './dto/create-list.dto';
@@ -36,7 +36,7 @@ export class ListController {
   async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const ser = await this.listService.findOne(user, +id);
 
-    if (ser.result === ServiceResult.NotFound) {
+    if (ser.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
@@ -51,7 +51,7 @@ export class ListController {
   ) {
     const ser = await this.listService.update(user, +id, updateListDto);
 
-    if (ser.result === ServiceResult.NotFound) {
+    if (ser.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
@@ -62,7 +62,7 @@ export class ListController {
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const ser = await this.listService.remove(user, +id);
 
-    if (ser.result === ServiceResult.NotFound) {
+    if (ser.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 

@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { BggService } from '@src/bgg';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
 import { AuthUser, UserAuthRecord } from '../auth';
 import { CollectionService } from './collection.service';
 
@@ -28,7 +28,7 @@ export class CollectionController {
   async sync(@AuthUser() user: UserAuthRecord) {
     const result = await this.bggService.syncCollections(user);
 
-    if (result.result !== ServiceResult.Success) {
+    if (result.result !== ServiceStatus.Success) {
       throw new BadRequestException(result.message);
     }
 

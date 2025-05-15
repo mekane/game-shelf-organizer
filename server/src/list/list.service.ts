@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
+import { ServiceResult } from '@src/common/ServiceResult';
 import { Repository } from 'typeorm';
 import { UserAuthRecord } from '../auth/index';
 import { List } from '../entities';
 import { forUser, idForUser } from '../util';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
-
-export interface ListResult<T> {
-  result: ServiceResult;
-  content?: T;
-}
 
 @Injectable()
 export class ListService {
@@ -31,18 +27,21 @@ export class ListService {
     return this.repository.find(forUser(user));
   }
 
-  async findOne(user: UserAuthRecord, id: number): Promise<ListResult<List>> {
+  async findOne(
+    user: UserAuthRecord,
+    id: number,
+  ): Promise<ServiceResult<List>> {
     const found = await this.repository.findOneBy(idForUser(id, user));
 
     if (found) {
       return {
-        result: ServiceResult.Success,
+        status: ServiceStatus.Success,
         content: found,
       };
     }
 
     return {
-      result: ServiceResult.NotFound,
+      status: ServiceStatus.NotFound,
     };
   }
 
@@ -50,12 +49,12 @@ export class ListService {
     user: UserAuthRecord,
     id: number,
     updateListDto: UpdateListDto,
-  ): Promise<ListResult<List>> {
+  ): Promise<ServiceResult<List>> {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
       return {
-        result: ServiceResult.NotFound,
+        status: ServiceStatus.NotFound,
       };
     }
 
@@ -67,34 +66,37 @@ export class ListService {
     try {
       const result = await this.repository.save(updated);
       return {
-        result: ServiceResult.Success,
+        status: ServiceStatus.Success,
         content: result,
       };
     } catch (e) {
       return {
-        result: ServiceResult.DatabaseError,
+        status: ServiceStatus.DatabaseError,
       };
     }
   }
 
-  async remove(user: UserAuthRecord, id: number): Promise<ListResult<number>> {
+  async remove(
+    user: UserAuthRecord,
+    id: number,
+  ): Promise<ServiceResult<number>> {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
       return {
-        result: ServiceResult.NotFound,
+        status: ServiceStatus.NotFound,
       };
     }
 
     try {
       const result = await this.repository.delete(id);
       return {
-        result: ServiceResult.Success,
+        status: ServiceStatus.Success,
         content: result.affected ?? 0,
       };
     } catch (e) {
       return {
-        result: ServiceResult.DatabaseError,
+        status: ServiceStatus.DatabaseError,
       };
     }
   }

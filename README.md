@@ -7,6 +7,11 @@ Using Material UI for theme and NestJS for the back end.
 
 ## Setup
 
+### Install Sqlite
+
+Also recommend the "DB Browser for Sqlite" tool.
+
+### Environment Variables
 Create a file called `.env` in the server/ directory.
 
 It needs to define this property:
@@ -14,6 +19,10 @@ It needs to define this property:
 ```
 JWT_SECRET=<value>
 ```
+
+## Run the Application
+
+In the server/ directory run `npm start`
 
 ## Testing API With Postman
 

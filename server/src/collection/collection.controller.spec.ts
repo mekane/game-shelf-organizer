@@ -2,7 +2,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BggService } from '@src/bgg';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
 import { Collection } from '@src/entities';
 import { mockAuthUser } from '../../test/utils';
 import { CollectionController } from './collection.controller';
@@ -56,7 +56,7 @@ describe('CollectionController', () => {
         removed: 3,
       };
       mockBggService.syncCollections.mockResolvedValueOnce({
-        result: ServiceResult.Success,
+        result: ServiceStatus.Success,
         content,
       });
 
@@ -68,7 +68,7 @@ describe('CollectionController', () => {
 
     it('returns a error status and message from the bgg service if error', async () => {
       mockBggService.syncCollections.mockResolvedValueOnce({
-        result: ServiceResult.InvalidBggUser,
+        result: ServiceStatus.InvalidBggUser,
       });
 
       await expect(controller.sync(user)).rejects.toThrow(BadRequestException);

@@ -14,6 +14,7 @@ import { GamesModule } from './games/games.module';
 import { ListModule } from './list/list.module';
 import { ShelfModule } from './shelf/shelf.module';
 import { UsersModule } from './users/users.module';
+import { AnylistModule } from './anylist/anylist.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     TypeOrmModule.forRoot(sqlLiteOptions),
     UsersModule,
     GamesModule,
+    AnylistModule,
   ],
   controllers: [AppController],
   providers: [

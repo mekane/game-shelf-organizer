@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ServiceResult } from '@src/common';
+import { ServiceStatus } from '@src/common';
 import { GamesService } from '@src/games/games.service';
 import { UserAuthRecord } from '../auth';
 import { CollectionService } from '../collection/collection.service';
@@ -9,13 +9,13 @@ import { parseCollectionData } from './util/parse';
 import { sync } from './util/sync';
 
 export interface BggResult {
-  result: ServiceResult;
+  result: ServiceStatus;
   content?: BggGameData[];
   message?: string;
 }
 
 export interface SyncResult {
-  result: ServiceResult;
+  result: ServiceStatus;
   content?: {
     new: number;
     updated: number;
@@ -43,7 +43,7 @@ export class BggService {
 
     if (bggRes.status >= 400) {
       return {
-        result: ServiceResult.InvalidBggUser,
+        result: ServiceStatus.InvalidBggUser,
         message: bggRes.message,
       };
     }
@@ -56,7 +56,7 @@ export class BggService {
     }
 
     return {
-      result: ServiceResult.Success,
+      result: ServiceStatus.Success,
       content: parseCollectionData(bggRes.data),
     };
   }
@@ -66,7 +66,7 @@ export class BggService {
 
     const fetchResult = await this.getCollection(user.bggUserName);
 
-    if (fetchResult.result !== ServiceResult.Success) {
+    if (fetchResult.result !== ServiceStatus.Success) {
       return {
         result: fetchResult.result,
       };
@@ -97,7 +97,7 @@ export class BggService {
     await this.collectionService.update(user, userCollection.id, updateDto);
 
     return {
-      result: ServiceResult.Success,
+      result: ServiceStatus.Success,
       content: {
         new: newGames.length,
         updated: updatedGames.length,

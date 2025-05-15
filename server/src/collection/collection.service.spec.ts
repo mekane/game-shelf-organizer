@@ -1,10 +1,11 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ServiceStatus } from '@src/common';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
 import { Collection, User } from '../entities';
-import { CollectionService, Result } from './collection.service';
+import { CollectionService } from './collection.service';
 import { CreateCollectionDto, UpdateCollectionDto } from './dto';
 
 const repositoryKey = getRepositoryToken(Collection);
@@ -73,7 +74,7 @@ describe('CollectionService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.findOne(authUser, 99);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result).toEqual(ServiceStatus.NotFound);
     });
   });
 
@@ -100,7 +101,7 @@ describe('CollectionService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.update(authUser, 99, updateDto);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result).toEqual(ServiceStatus.NotFound);
     });
   });
 
@@ -113,7 +114,7 @@ describe('CollectionService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.remove(authUser, 99);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result).toEqual(ServiceStatus.NotFound);
     });
   });
 });

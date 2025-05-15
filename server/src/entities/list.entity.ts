@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Game } from './Game.entity';
-import { User } from './user.entity';
+import { User } from './User.entity';
 
 @Entity()
 export class List {

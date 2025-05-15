@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ServiceStatus } from '@src/common';
 import { Repository } from 'typeorm';
 import { UserAuthRecord } from '../auth/index';
 import { Collection } from '../entities';
 import { forUser, idForUser } from '../util';
 import { CreateCollectionDto, UpdateCollectionDto } from './dto';
-
-export enum Result {
-  NOT_FOUND,
-}
 
 @Injectable()
 export class CollectionService {
@@ -30,7 +27,7 @@ export class CollectionService {
 
   async findOne(user: UserAuthRecord, id: number) {
     const found = await this.repository.findOneBy(idForUser(id, user));
-    return found ? found : Result.NOT_FOUND;
+    return found ? found : ServiceStatus.NotFound;
   }
 
   /**
@@ -57,11 +54,11 @@ export class CollectionService {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
-      return Result.NOT_FOUND;
+      return ServiceStatus.NotFound;
     }
 
     const updated = {
-      ...existing,
+      ...(existing as Collection),
       ...updateCollectionDto,
     };
 
@@ -76,7 +73,7 @@ export class CollectionService {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
-      return Result.NOT_FOUND;
+      return ServiceStatus.NotFound;
     }
 
     return this.repository.delete(id);
