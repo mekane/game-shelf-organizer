@@ -8,11 +8,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ServiceStatus } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CreateShelfDto } from './dto/create-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
-import { Result, ShelfService } from './shelf.service';
+import { ShelfService } from './shelf.service';
 
 @Controller('shelf')
 export class ShelfController {
@@ -35,7 +36,7 @@ export class ShelfController {
   async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const result = await this.shelfService.findOne(user, +id);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
@@ -50,7 +51,7 @@ export class ShelfController {
   ) {
     const result = await this.shelfService.update(user, +id, updateShelfDto);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
@@ -61,7 +62,7 @@ export class ShelfController {
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const result = await this.shelfService.remove(user, +id);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 

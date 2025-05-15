@@ -12,11 +12,12 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ServiceStatus } from '@src/common';
 import { AuthUser, Public, RequireAdmin, UserAuthRecord } from '../auth';
 import { UserLoginDto } from './dto/auth';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Result, UsersService } from './users.service';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -28,11 +29,11 @@ export class UsersController {
   async login(@Body() userLoginDto: UserLoginDto) {
     const result = await this.usersService.login(userLoginDto);
 
-    if (result === Result.INVALID_CREDENTIALS) {
+    if (result.status === ServiceStatus.InvalidCredentials) {
       throw new UnauthorizedException();
     }
 
-    return result;
+    return result.content;
   }
 
   @RequireAdmin()
@@ -40,7 +41,7 @@ export class UsersController {
   async create(@Body() createDto: CreateUserDto) {
     const result = await this.usersService.create(createDto);
 
-    if (result === Result.EMAIL_IN_USE) {
+    if (result.status === ServiceStatus.EmailInUse) {
       throw new BadRequestException('That email is already in use');
     }
 
@@ -58,7 +59,7 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     const result = await this.usersService.findOne(+id);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
@@ -70,11 +71,11 @@ export class UsersController {
   async update(@Param('id') id: string, @Body() updateDto: UpdateUserDto) {
     const result = await this.usersService.update(+id, updateDto);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
-    if (result === Result.EMAIL_IN_USE) {
+    if (result.status === ServiceStatus.EmailInUse) {
       throw new BadRequestException('That email is already in use');
     }
 
@@ -86,11 +87,11 @@ export class UsersController {
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const result = await this.usersService.remove(user, +id);
 
-    if (result === Result.NOT_FOUND) {
+    if (result.status === ServiceStatus.NotFound) {
       throw new NotFoundException();
     }
 
-    if (result === Result.OWN_USER) {
+    if (result.status === ServiceStatus.OwnUser) {
       throw new BadRequestException('You cannot delete your own user');
     }
 

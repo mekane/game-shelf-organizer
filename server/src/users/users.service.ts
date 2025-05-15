@@ -1,58 +1,84 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserAuthRecord } from '@src/auth';
+import { RequireAdmin, UserAuthRecord } from '@src/auth';
+import { ServiceResult, ServiceStatus } from '@src/common';
 import { Repository } from 'typeorm';
 import { User } from '../entities/User.entity';
 import { UserLoginDto } from './dto/auth';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-export enum Result {
-  EMAIL_IN_USE,
-  INVALID_CREDENTIALS,
-  NOT_FOUND,
-  OWN_USER,
-}
-
 @Injectable()
 export class UsersService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly logger: Logger,
     @InjectRepository(User)
     private readonly repository: Repository<User>,
   ) {}
 
-  async create(createDto: CreateUserDto) {
+  async create(createDto: CreateUserDto): Promise<ServiceResult<User>> {
     const conflicting = await this.repository.findOneBy({
       email: createDto.email,
     });
 
     if (conflicting) {
-      return Result.EMAIL_IN_USE;
+      return { status: ServiceStatus.EmailInUse };
     }
 
-    return this.repository.save(createDto);
+    try {
+      const repoResult = await this.repository.save(createDto);
+
+      return {
+        status: ServiceStatus.Success,
+        content: repoResult,
+      };
+    } catch (err) {
+      this.logger.error('[UsersService] create', err);
+      return {
+        status: ServiceStatus.DatabaseError,
+      };
+    }
   }
 
-  async findAll() {
-    return this.repository.find();
+  @RequireAdmin()
+  async findAll(): Promise<ServiceResult<User[]>> {
+    return {
+      status: ServiceStatus.Success,
+      content: await this.repository.find(),
+    };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<ServiceResult<User>> {
     const found = await this.repository.findOneBy({ id });
 
-    return found ? found : Result.NOT_FOUND;
+    if (!found) {
+      return {
+        status: ServiceStatus.NotFound,
+      };
+    }
+    return {
+      status: ServiceStatus.Success,
+      content: found,
+    };
   }
 
-  async update(id: number, updateDto: UpdateUserDto) {
-    const existing = await this.findOne(id);
+  async update(
+    id: number,
+    updateDto: UpdateUserDto,
+  ): Promise<ServiceResult<User>> {
+    const found = await this.findOne(id);
 
-    if (!existing || existing === Result.NOT_FOUND) {
-      return Result.NOT_FOUND;
+    if (found.status === ServiceStatus.NotFound) {
+      return {
+        status: ServiceStatus.NotFound,
+      };
     }
+
+    const existing = found.content as User;
 
     if (updateDto.email && updateDto.email !== existing.email) {
       const conflicting = await this.repository.findOneBy({
@@ -60,7 +86,9 @@ export class UsersService {
       });
 
       if (conflicting) {
-        return Result.EMAIL_IN_USE;
+        return {
+          status: ServiceStatus.EmailInUse,
+        };
       }
     }
 
@@ -69,36 +97,64 @@ export class UsersService {
       ...updateDto,
     };
 
-    return this.repository.save(updated);
+    try {
+      const repoResult = await this.repository.save(updated);
+
+      return {
+        status: ServiceStatus.Success,
+        content: repoResult,
+      };
+    } catch (err) {
+      return { status: ServiceStatus.DatabaseError };
+    }
   }
 
-  async remove(currentUser: UserAuthRecord, id: number) {
-    const existing = await this.findOne(id);
+  async remove(
+    currentUser: UserAuthRecord,
+    id: number,
+  ): Promise<ServiceResult<string>> {
+    const found = await this.findOne(id);
 
-    if (!existing || existing === Result.NOT_FOUND) {
-      return Result.NOT_FOUND;
+    if (found.status === ServiceStatus.NotFound) {
+      return {
+        status: ServiceStatus.NotFound,
+      };
     }
+
+    const existing = found.content as User;
 
     if (currentUser.sub === existing.id) {
-      return Result.OWN_USER;
+      return { status: ServiceStatus.OwnUser };
     }
 
-    return this.repository.delete(id);
+    try {
+      await this.repository.delete(id);
+
+      return { status: ServiceStatus.Success };
+    } catch (err) {
+      this.logger.error('[UsersService] delete', err);
+      return { status: ServiceStatus.DatabaseError };
+    }
   }
 
-  async login(data: UserLoginDto) {
+  async login(data: UserLoginDto): Promise<ServiceResult<string>> {
     const user = await this.repository.findOneBy({ email: data.email });
 
     if (!user) {
-      console.log(`LOGIN: no user found for email ${data.email}`);
-      return Result.INVALID_CREDENTIALS;
-    }
+      this.logger.warn(`LOGIN: no user found for email ${data.email}`);
 
-    console.log('LOGIN: got user', user);
+      return {
+        status: ServiceStatus.InvalidCredentials,
+      };
+    }
 
     //TODO: hash password
     if (user?.password !== data.password) {
-      return Result.INVALID_CREDENTIALS;
+      this.logger.warn(`LOGIN: password does not match for user ${data.email}`);
+
+      return {
+        status: ServiceStatus.InvalidCredentials,
+      };
     }
 
     const payload: UserAuthRecord = {
@@ -108,12 +164,15 @@ export class UsersService {
       isAdmin: user.isAdmin,
       bggUserName: user.bggUserName,
     };
+
+    // TODO: put this in onModuleInit
     const key = this.configService.get('JWT_SECRET');
     const opts = { secret: key };
     const access_token = await this.jwtService.signAsync(payload, opts);
 
     return {
-      access_token,
+      status: ServiceStatus.Success,
+      content: access_token,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceStatus } from '@src/common';
 import { ServiceResult } from '@src/common/ServiceResult';
@@ -12,19 +12,39 @@ import { UpdateListDto } from './dto/update-list.dto';
 @Injectable()
 export class ListService {
   constructor(
+    private readonly logger: Logger,
     @InjectRepository(List)
     private repository: Repository<List>,
   ) {}
 
-  async create(user: UserAuthRecord, createDto: CreateListDto) {
-    return this.repository.save({
-      ...createDto,
-      user: { id: user.sub },
-    });
+  async create(
+    user: UserAuthRecord,
+    createDto: CreateListDto,
+  ): Promise<ServiceResult<List>> {
+    this.logger.log('[ListService] create', createDto);
+
+    try {
+      const repoResult = await this.repository.save({
+        ...createDto,
+        user: { id: user.sub },
+      });
+
+      return {
+        status: ServiceStatus.Success,
+        content: repoResult,
+      };
+    } catch (err) {
+      return {
+        status: ServiceStatus.DatabaseError,
+      };
+    }
   }
 
-  async findAll(user: UserAuthRecord) {
-    return this.repository.find(forUser(user));
+  async findAll(user: UserAuthRecord): Promise<ServiceResult<List[]>> {
+    return {
+      status: ServiceStatus.Success,
+      content: await this.repository.find(forUser(user)),
+    };
   }
 
   async findOne(
@@ -50,16 +70,16 @@ export class ListService {
     id: number,
     updateListDto: UpdateListDto,
   ): Promise<ServiceResult<List>> {
-    const existing = await this.findOne(user, id);
+    const found = await this.findOne(user, id);
 
-    if (!existing) {
+    if (found.status !== ServiceStatus.Success) {
       return {
         status: ServiceStatus.NotFound,
       };
     }
 
     const updated = {
-      ...existing,
+      ...found.content,
       ...updateListDto,
     };
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ServiceStatus } from '@src/common';
 import { GamesService } from '@src/games/games.service';
 import { UserAuthRecord } from '../auth';
@@ -29,6 +29,7 @@ export class BggService {
   constructor(
     private readonly collectionService: CollectionService,
     private readonly gamesService: GamesService,
+    private readonly logger: Logger,
   ) {}
 
   public async getCollection(
@@ -39,7 +40,9 @@ export class BggService {
     let attempt = 1;
 
     let bggRes = await fetchCollectionData(bggUsername);
-    console.log(`Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`);
+    this.logger.log(
+      `Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`,
+    );
 
     if (bggRes.status >= 400) {
       return {
@@ -52,7 +55,9 @@ export class BggService {
       attempt++;
       await new Promise((r) => setTimeout(r, delay));
       bggRes = await fetchCollectionData(bggUsername);
-      console.log(`Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`);
+      this.logger.log(
+        `Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`,
+      );
     }
 
     return {
@@ -62,7 +67,7 @@ export class BggService {
   }
 
   public async syncCollections(user: UserAuthRecord): Promise<SyncResult> {
-    console.log('sync collection for ' + user.bggUserName);
+    this.logger.log('sync collection for ' + user.bggUserName);
 
     const fetchResult = await this.getCollection(user.bggUserName);
 
@@ -72,7 +77,7 @@ export class BggService {
       };
     }
 
-    //console.log('BGG collection result', fetchResult);
+    //this.logger.log('BGG collection result', fetchResult);
     const newBggData = fetchResult.content ?? [];
 
     // default to first collection
@@ -91,7 +96,7 @@ export class BggService {
 
     if (removedGames.length) {
       await this.gamesService.remove(removedGames);
-      console.log(`${removedGames.length} games removed`);
+      this.logger.log(`${removedGames.length} games removed`);
     }
 
     await this.collectionService.update(user, userCollection.id, updateDto);

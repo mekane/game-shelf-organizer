@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -16,9 +17,10 @@ import { REQUIRE_ADMIN_KEY } from './requireAdmin.decorator';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private configService: ConfigService,
-    private jwtService: JwtService,
-    private reflector: Reflector,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+    private readonly logger: Logger,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,14 +31,14 @@ export class AuthGuard implements CanActivate {
 
     const route = `${context.getClass().name}.${context.getHandler().name}`;
     if (isPublic) {
-      console.log(`${route} (public)`);
+      this.logger.log(`${route} (public)`);
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      console.log('Auth Guard: no token in header');
+      this.logger.warn('Auth Guard: no token in header');
       throw new UnauthorizedException();
     }
 
@@ -60,16 +62,16 @@ export class AuthGuard implements CanActivate {
     );
 
     if (!isAdminRequired) {
-      console.log(`${route} (auth): ${authUser.username}`);
+      this.logger.log(`${route} (auth): ${authUser.username}`);
       return true;
     }
 
     if (!authUser.isAdmin) {
-      console.log(`${authUser.username} is not admin - rejecting`);
+      this.logger.warn(`${authUser.username} is not admin - rejecting`);
       throw new ForbiddenException();
     }
 
-    console.log(`${route} (admin): ${authUser.username}`);
+    this.logger.log(`${route} (admin): ${authUser.username}`);
 
     return true;
   }

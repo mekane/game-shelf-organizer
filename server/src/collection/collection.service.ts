@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceStatus } from '@src/common';
 import { Repository } from 'typeorm';
@@ -10,8 +10,9 @@ import { CreateCollectionDto, UpdateCollectionDto } from './dto';
 @Injectable()
 export class CollectionService {
   constructor(
+    private readonly logger: Logger,
     @InjectRepository(Collection)
-    private repository: Repository<Collection>,
+    private readonly repository: Repository<Collection>,
   ) {}
 
   async create(user: UserAuthRecord, createDto: CreateCollectionDto) {
@@ -35,7 +36,7 @@ export class CollectionService {
    * Creates one if it doesn't exist
    * @param user
    */
-  async defaultCollection(user: UserAuthRecord) {
+  async defaultCollection(user: UserAuthRecord): Promise<Collection> {
     const userCollections = await this.findAll(user);
 
     if (!userCollections || !userCollections.length) {
@@ -62,7 +63,7 @@ export class CollectionService {
       ...updateCollectionDto,
     };
 
-    console.log(
+    this.logger.log(
       `[CollectionService] update collection ${updated.id}: ${updated.games.length} games`,
     );
 

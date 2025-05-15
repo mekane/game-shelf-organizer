@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import 'reflect-metadata';
+import { AnylistModule } from './anylist/anylist.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
@@ -14,7 +15,6 @@ import { GamesModule } from './games/games.module';
 import { ListModule } from './list/list.module';
 import { ShelfModule } from './shelf/shelf.module';
 import { UsersModule } from './users/users.module';
-import { AnylistModule } from './anylist/anylist.module';
 
 @Module({
   imports: [
@@ -36,6 +36,7 @@ import { AnylistModule } from './anylist/anylist.module';
     },
     AppService,
     JwtService,
+    Logger,
   ],
 })
 export class AppModule {}

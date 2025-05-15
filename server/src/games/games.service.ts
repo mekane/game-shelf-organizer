@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserAuthRecord } from '@src/auth';
+import { ServiceResult, ServiceStatus } from '@src/common';
 import { Game } from '@src/entities';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class GamesService {
   constructor(
+    private readonly logger: Logger,
     @InjectRepository(Game)
     private readonly repository: Repository<Game>,
   ) {}
@@ -19,7 +21,11 @@ export class GamesService {
     }
   }
 
-  async removeById(bggId: number, versionId: number, user: UserAuthRecord) {
+  async removeById(
+    bggId: number,
+    versionId: number,
+    user: UserAuthRecord,
+  ): Promise<ServiceResult<number>> {
     const existing = await this.repository.findOneBy({
       bggId,
       versionId,
@@ -27,9 +33,24 @@ export class GamesService {
     });
 
     if (!existing) {
-      return 'not found'; //replace with ServiceResult
+      return {
+        status: ServiceStatus.NotFound,
+      };
     }
 
-    return this.repository.remove(existing);
+    try {
+      await this.repository.remove(existing);
+
+      return {
+        status: ServiceStatus.Success,
+        content: 1,
+      };
+    } catch (err) {
+      this.logger.error('[GamesService] delete', err);
+
+      return {
+        status: ServiceStatus.DatabaseError,
+      };
+    }
   }
 }
