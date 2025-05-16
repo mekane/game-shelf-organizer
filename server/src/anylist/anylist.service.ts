@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserAuthRecord } from '@src/auth';
 import { ServiceResult, ServiceStatus } from '@src/common';
+import { hasDuplicateId } from '@src/common/util';
 import { Anylist } from '@src/entities/Anylist.entity';
 import { forUser, idForUser } from '@src/util';
 import { Repository } from 'typeorm';
@@ -22,6 +23,12 @@ export class AnylistService {
   ): Promise<ServiceResult<Anylist>> {
     this.logger.log(`[AnylistService] create`, createAnylistDto);
 
+    if (hasDuplicateId(createAnylistDto.data)) {
+      return {
+        status: ServiceStatus.DuplicateId,
+      };
+    }
+
     // Create the entity so the @BeforeInsert fires
     const newEntity = this.repository.create({
       ...createAnylistDto,
@@ -30,8 +37,6 @@ export class AnylistService {
     // Manually populate options and data since they're not column mapped
     newEntity.options = createAnylistDto.options;
     newEntity.data = createAnylistDto.data;
-
-    // TODO: check for duplicate ids in the data rows, return BAD_REQUEST if found
 
     try {
       const repoResult = await this.repository.save(newEntity);
@@ -85,7 +90,11 @@ export class AnylistService {
       };
     }
 
-    // TODO: check for duplicate ids in the data rows, return BAD_REQUEST if found
+    if (hasDuplicateId(updateAnylistDto.data)) {
+      return {
+        status: ServiceStatus.DuplicateId,
+      };
+    }
 
     this.logger.log(`[AnylistService] update`, updateAnylistDto);
 

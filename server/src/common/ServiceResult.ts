@@ -1,13 +1,14 @@
 export enum ServiceStatus {
-  Success = 'success',
   BadRequest = 'bad-request',
-  NotFound = 'not-found',
-  NotAllowed = 'not-allowed',
   DatabaseError = 'db-error',
+  DuplicateId = 'duplicate-id',
   EmailInUse = 'email-in-use',
   InvalidBggUser = 'invalid-bgg-user',
   InvalidCredentials = 'invalid-credentials',
+  NotAllowed = 'not-allowed',
+  NotFound = 'not-found',
   OwnUser = 'own-user',
+  Success = 'success',
 }
 
 export interface ServiceResult<T> {

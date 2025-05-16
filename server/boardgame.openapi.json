@@ -7,7 +7,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -21,7 +28,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Collection"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -94,7 +108,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -125,7 +146,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/List"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -146,7 +174,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -281,7 +316,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -416,9 +458,21 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnylistDto"
+                }
+              }
+            }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Anylist"
         ]
@@ -431,6 +485,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Anylist"
         ]
@@ -454,6 +513,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Anylist"
         ]
@@ -485,6 +549,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Anylist"
         ]
@@ -506,6 +575,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Anylist"
         ]
@@ -529,9 +603,325 @@
       }
     },
     "schemas": {
+      "Game": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number"
+          },
+          "bggId": {
+            "type": "number"
+          },
+          "versionId": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "versionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "collection": {
+            "$ref": "#/components/schemas/Collection"
+          },
+          "yearPublished": {
+            "type": "number",
+            "nullable": true
+          },
+          "bggRank": {
+            "type": "number",
+            "nullable": true
+          },
+          "bggRating": {
+            "type": "number",
+            "nullable": true
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "length": {
+            "type": "number",
+            "nullable": true
+          },
+          "width": {
+            "type": "number",
+            "nullable": true
+          },
+          "depth": {
+            "type": "number",
+            "nullable": true
+          },
+          "owned": {
+            "type": "boolean"
+          },
+          "previouslyOwned": {
+            "type": "boolean"
+          },
+          "plays": {
+            "type": "number"
+          },
+          "rating": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "userId",
+          "bggId",
+          "versionId",
+          "name",
+          "versionName",
+          "collection",
+          "yearPublished",
+          "bggRank",
+          "bggRating",
+          "imageUrl",
+          "thumbnailUrl",
+          "length",
+          "width",
+          "depth",
+          "owned",
+          "previouslyOwned",
+          "plays",
+          "rating"
+        ]
+      },
+      "Collection": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          },
+          "games": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Game"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "name",
+          "games"
+        ]
+      },
+      "List": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          },
+          "games": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Game"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "name",
+          "games"
+        ]
+      },
+      "Shelf": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "name"
+        ]
+      },
+      "AnylistOptions": {
+        "type": "object",
+        "properties": {
+          "hide": {
+            "type": "object"
+          },
+          "ratingMax": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "hide",
+          "ratingMax"
+        ]
+      },
+      "AnylistColumns": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "thumbnail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "rating",
+          "notes",
+          "thumbnail"
+        ]
+      },
+      "Anylist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "name": {
+            "type": "string"
+          },
+          "optionsSerialized": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/AnylistOptions"
+          },
+          "dataSerialized": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnylistColumns"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "name",
+          "optionsSerialized",
+          "options",
+          "dataSerialized",
+          "data"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "bggUserName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Collection"
+            }
+          },
+          "lists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/List"
+            }
+          },
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Shelf"
+            }
+          },
+          "anylists": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Anylist"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "bggUserName",
+          "password",
+          "isAdmin",
+          "collections",
+          "lists",
+          "shelves",
+          "anylists"
+        ]
+      },
       "CreateListDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "games": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "games"
+        ]
       },
       "UpdateListDto": {
         "type": "object",
@@ -539,7 +929,26 @@
       },
       "CreateShelfDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "rows": {
+            "type": "number"
+          },
+          "columns": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name"
+        ]
       },
       "UpdateShelfDto": {
         "type": "object",
@@ -551,7 +960,33 @@
       },
       "CreateUserDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "bggUserName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "isAdmin": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "bggUserName",
+          "password"
+        ]
       },
       "UpdateUserDto": {
         "type": "object",
@@ -559,11 +994,69 @@
       },
       "CreateAnylistDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/AnylistOptions"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnylistColumns"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "options",
+          "data"
+        ]
+      },
+      "AnylistDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/AnylistOptions"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnylistColumns"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "options",
+          "data"
+        ]
       },
       "UpdateAnylistDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/AnylistOptions"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnylistColumns"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "options",
+          "data"
+        ]
       }
     }
   }

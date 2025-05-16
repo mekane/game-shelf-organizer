@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,7 +11,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
+  private secret: string; // for signing JWT's issued by the API
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
@@ -19,6 +20,10 @@ export class UsersService {
     @InjectRepository(User)
     private readonly repository: Repository<User>,
   ) {}
+
+  async onModuleInit() {
+    this.secret = this.configService.get('JWT_SECRET') ?? 'default_secret';
+  }
 
   async create(createDto: CreateUserDto): Promise<ServiceResult<User>> {
     const conflicting = await this.repository.findOneBy({
@@ -165,9 +170,7 @@ export class UsersService {
       bggUserName: user.bggUserName,
     };
 
-    // TODO: put this in onModuleInit
-    const key = this.configService.get('JWT_SECRET');
-    const opts = { secret: key };
+    const opts = { secret: this.secret };
     const access_token = await this.jwtService.signAsync(payload, opts);
 
     return {

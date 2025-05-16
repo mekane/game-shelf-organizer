@@ -13,7 +13,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "swagger:generate": "swagger-typescript-api generate -p ./boardgame.openapi.json --name boardgame.api.client.ts",
+    "swagger:generate": "swagger-typescript-api generate -p ./boardgame.openapi.json --name boardgame.api.client.ts && mv boardgame.api.client.ts ../webapp/lib/.",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

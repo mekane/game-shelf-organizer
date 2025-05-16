@@ -1,20 +1,3 @@
-import { AnylistOptions } from '@src/entities/Anylist.entity';
-import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
-import { AnylistColumns } from './../../entities/Anylist.entity';
+import { AnylistDto } from './get-anylist.dto';
 
-export class CreateAnylistDto {
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
-  @Type(() => AnylistOptions)
-  @ValidateNested()
-  options: AnylistOptions;
-
-  @IsNotEmpty()
-  @IsArray()
-  @Type(() => AnylistColumns)
-  @ValidateNested()
-  data: AnylistColumns[];
-}
+export class CreateAnylistDto extends AnylistDto {}
