@@ -8,6 +8,7 @@ import {
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFileSync } from 'fs';
+import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
@@ -16,11 +17,13 @@ const devMode = true;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
+    cors: true,
     logger: new ConsoleLogger({
       json: true,
       colors: true,
     }),
   });
+  app.use(helmet());
 
   app.useGlobalPipes(
     new ValidationPipe({

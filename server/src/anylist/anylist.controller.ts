@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -37,26 +39,59 @@ export class AnylistController {
   }
 
   @Get()
-  findAll(@AuthUser() user: UserAuthRecord) {
-    return this.anylistService.findAll(user);
+  async findAll(@AuthUser() user: UserAuthRecord) {
+    const result = await this.anylistService.findAll(user);
+    return result.content as AnylistDto[];
   }
 
   @Get(':id')
-  findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
-    return this.anylistService.findOne(user, +id);
+  async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+    const result = await this.anylistService.findOne(user, +id);
+
+    if (result.status === ServiceStatus.NotFound) {
+      throw new NotFoundException();
+    }
+
+    return result.content as AnylistDto;
   }
 
   @Patch(':id')
-  update(
+  async update(
     @AuthUser() user: UserAuthRecord,
     @Param('id') id: string,
     @Body() updateAnylistDto: UpdateAnylistDto,
   ) {
-    return this.anylistService.update(user, +id, updateAnylistDto);
+    const result = await this.anylistService.update(
+      user,
+      +id,
+      updateAnylistDto,
+    );
+
+    if (result.status === ServiceStatus.NotFound) {
+      throw new NotFoundException();
+    }
+    if (result.status === ServiceStatus.DuplicateId) {
+      throw new BadRequestException('List items must have unique ids');
+    }
+    if (result.status === ServiceStatus.DatabaseError) {
+      throw new InternalServerErrorException();
+    }
+
+    return result.content as AnylistDto;
   }
 
   @Delete(':id')
-  remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
-    return this.anylistService.remove(user, +id);
+  async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+    const result = await this.anylistService.remove(user, +id);
+
+    if (result.status === ServiceStatus.NotFound) {
+      throw new NotFoundException();
+    }
+
+    if (result.status === ServiceStatus.DatabaseError) {
+      throw new InternalServerErrorException();
+    }
+
+    return result.content;
   }
 }

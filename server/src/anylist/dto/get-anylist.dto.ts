@@ -3,6 +3,8 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 
 export class AnylistDto {
+  id: number;
+
   @IsNotEmpty()
   name: string;
 
