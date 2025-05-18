@@ -1,3 +1,10 @@
+import { PageHeader } from "@components/PageHeader";
+import { Container } from "@mui/material";
+
 export const ListsPage = () => {
-  return <h1>Manage Lists</h1>;
+  return (
+    <Container>
+      <PageHeader>Manage Lists</PageHeader>
+    </Container>
+  );
 };

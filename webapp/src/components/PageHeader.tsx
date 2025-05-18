@@ -1,15 +1,5 @@
-import { Typography } from "@mui/material";
+import { FC } from "react";
 
-export const PageHeader = ({ text }: { text: string }) => {
-  return (
-    <Typography
-      component="h1"
-      variant="h3"
-      color="primary"
-      noWrap
-      paddingLeft="40px"
-    >
-      {text}
-    </Typography>
-  );
+export const PageHeader: FC<{ children: string }> = ({ children }) => {
+  return <h2>{children}</h2>;
 };

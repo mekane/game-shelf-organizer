@@ -48,6 +48,7 @@ export const TopBar = () => {
           <NavButton label="Collection" path="/collection" />
           <NavButton label="Lists" path="/lists" />
           <NavButton label="Shelves" path="/shelves" />
+          <NavButton label="Anylists" path="/anylists" />
         </Toolbar>
       </Container>
     </AppBar>

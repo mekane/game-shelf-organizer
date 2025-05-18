@@ -1,3 +1,10 @@
+import { PageHeader } from "@components/PageHeader";
+import { Container } from "@mui/material";
+
 export const HomePage = () => {
-  return <h1>Welcome to the Board Game organizer</h1>;
+  return (
+    <Container>
+      <PageHeader>Welcome to the Board Game organizer</PageHeader>
+    </Container>
+  );
 };

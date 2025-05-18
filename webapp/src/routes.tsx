@@ -1,3 +1,5 @@
+import { AnylistsPage } from "@pages/anylist/AnylistsPage";
+import { EditAnyListPage } from "@pages/anylist/id/";
 import { Navigate, RouteObject, createBrowserRouter } from "react-router-dom";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PageContainer } from "./pages/PageContainer";
@@ -37,8 +39,18 @@ const routes: RouteObject[] = [
         path: "/shelves",
         element: <ShelvesPage />,
       },
+      {
+        path: "/anylists",
+        element: <AnylistsPage />,
+      },
+      {
+        path: "/anylists/:id",
+        element: <EditAnyListPage />,
+      },
     ],
   },
 ];
+
+// TODO: set up public routes for login and protected routes for everything else
 
 export const router = createBrowserRouter(routes);

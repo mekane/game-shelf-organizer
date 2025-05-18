@@ -13,9 +13,9 @@ const theme = createTheme({
       main: red.A400,
     },
     text: {
-      primary: "#ccc",
-      secondary: "#aaa",
-      disabled: "#999",
+      // primary: "#ccc",
+      // secondary: "#aaa",
+      // disabled: "#999",
     },
   },
   breakpoints: {
