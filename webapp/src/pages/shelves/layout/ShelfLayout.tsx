@@ -4,6 +4,8 @@ import {
   LayoutWorkspaceInput,
   ShelfInput,
 } from "@components/shelf";
+import { useApi } from "@context/api";
+import { UpdateShelfDto } from "@lib/boardgame.api.client";
 import { Paper } from "@mui/material";
 import { useState } from "react";
 
@@ -116,21 +118,34 @@ const defaultRoom: LayoutWorkspaceInput = {
 };
 
 export const ShelfLayout = () => {
+  const api = useApi();
   const [shelves, setShelves] = useState<ShelfInput[]>(defaultShelves);
 
-  function handleShelvesChange(
+  const handleShelvesChange = async (
     nextShelves: ShelfInput[],
     meta: LayoutChangeMeta,
-  ) {
+  ) => {
     setShelves(nextShelves);
 
-    // push to history to enable undo
+    // TODO: push to a history array to enable undo
     console.log({
       action: meta.reason,
       payload: JSON.stringify(nextShelves),
     });
-  }
 
+    const updateShelfDto: UpdateShelfDto = {
+      name: "Game Room",
+      room: defaultRoom,
+      shelves: nextShelves,
+    };
+
+    const res = await api.shelf.shelfControllerUpdate("11", updateShelfDto);
+    console.log("updated shelves", res);
+    // TODO: debounce API requests in case user spams actions / undo
+  };
+
+  // TODO: get shelf id from URL path
+  // TODO: load workspace + shelves config from API via shelf id
   return (
     <Paper elevation={0} sx={{ p: 2 }}>
       <LayoutModeScreen

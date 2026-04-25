@@ -3,7 +3,7 @@ import { AuthContext } from "./AuthContext";
 
 // hard code this for now, later will need a login page to submit the user+pass form and store this result
 const hardCodedAuthToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3ViIjoxLCJ1c2VybmFtZSI6Im1hcnR5LmthbmVAZ21haWwuY29tIiwiaXNBZG1pbiI6ZmFsc2UsImJnZ1VzZXJOYW1lIjoibWVrYW5lIiwiaWF0IjoxNzQ3NDEzOTY2fQ.RjPZ2HEePE6DrIFp7zmb-CsAiTvT5ujgxJ_qDHQUiKg";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3ViIjoxLCJ1c2VybmFtZSI6Im1hcnR5LmthbmVAZ21haWwuY29tIiwiaXNBZG1pbiI6dHJ1ZSwiYmdnVXNlck5hbWUiOiJtZWthbmUiLCJpYXQiOjE3MTg4NTE5NDZ9.d1jcrkghLxrAEhkv8mR2pq3GoRS-zgBmxAYa9bG_FFg";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,

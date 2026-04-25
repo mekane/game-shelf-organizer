@@ -14,6 +14,15 @@ export const ShelvesPage = () => {
           Organize Games on Shelf
         </Button>
       </Stack>
+
+      {
+        //TODO: update the shelf DTO to contain the entire workspace config
+        //TODO: load shelf list from API
+        // Show list of nav links to /layout/:shelfId
+        // replaces the "Configure" link above
+        // also include a /organize/:shelfId link
+      }
+
       <Outlet />
     </>
   );

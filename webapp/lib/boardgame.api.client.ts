@@ -45,10 +45,48 @@ export interface List {
   games: Game[];
 }
 
+export interface SizeDto {
+  width: number;
+  height: number;
+}
+
+export interface RoomDto {
+  size: SizeDto;
+  snapIncrement?: number;
+}
+
+export interface PositionDto {
+  x: number;
+  y: number;
+}
+
+export interface GridDto {
+  rows: number;
+  columns: number;
+}
+
+export interface BorderSizeDto {
+  outer: number;
+  inner: number;
+}
+
+export interface ShelfDto {
+  id: number;
+  label?: string;
+  position: PositionDto;
+  grid: GridDto;
+  cellSize: SizeDto;
+  borders?: BorderSizeDto;
+}
+
 export interface Shelf {
   id: number;
   user: User;
   name: string;
+  roomSerialized: string;
+  room: RoomDto;
+  shelvesSerialized: string;
+  shelves: ShelfDto[];
 }
 
 export interface AnylistOptions {
@@ -97,10 +135,8 @@ export type UpdateListDto = object;
 
 export interface CreateShelfDto {
   name: string;
-  width?: number;
-  height?: number;
-  rows?: number;
-  columns?: number;
+  room: RoomDto;
+  shelves: ShelfDto[];
 }
 
 export type UpdateShelfDto = object;
@@ -415,11 +451,13 @@ export class Api<
      * @tags Collection
      * @name CollectionControllerGet
      * @request GET:/collection
+     * @secure
      */
     collectionControllerGet: (params: RequestParams = {}) =>
       this.request<Collection, any>({
         path: `/collection`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -430,11 +468,13 @@ export class Api<
      * @tags Collection
      * @name CollectionControllerSync
      * @request POST:/collection/sync
+     * @secure
      */
     collectionControllerSync: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/collection/sync`,
         method: "POST",
+        secure: true,
         ...params,
       }),
   };
@@ -527,12 +567,14 @@ export class Api<
      * @tags Shelf
      * @name ShelfControllerCreate
      * @request POST:/shelf
+     * @secure
      */
     shelfControllerCreate: (data: CreateShelfDto, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/shelf`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -543,11 +585,13 @@ export class Api<
      * @tags Shelf
      * @name ShelfControllerFindAll
      * @request GET:/shelf
+     * @secure
      */
     shelfControllerFindAll: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/shelf`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -557,11 +601,13 @@ export class Api<
      * @tags Shelf
      * @name ShelfControllerFindOne
      * @request GET:/shelf/{id}
+     * @secure
      */
     shelfControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/shelf/${id}`,
         method: "GET",
+        secure: true,
         ...params,
       }),
 
@@ -571,6 +617,7 @@ export class Api<
      * @tags Shelf
      * @name ShelfControllerUpdate
      * @request PATCH:/shelf/{id}
+     * @secure
      */
     shelfControllerUpdate: (
       id: string,
@@ -581,6 +628,7 @@ export class Api<
         path: `/shelf/${id}`,
         method: "PATCH",
         body: data,
+        secure: true,
         type: ContentType.Json,
         ...params,
       }),
@@ -591,11 +639,13 @@ export class Api<
      * @tags Shelf
      * @name ShelfControllerRemove
      * @request DELETE:/shelf/{id}
+     * @secure
      */
     shelfControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/shelf/${id}`,
         method: "DELETE",
+        secure: true,
         ...params,
       }),
   };
