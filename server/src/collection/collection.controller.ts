@@ -6,11 +6,14 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BggService } from '@src/bgg';
 import { ServiceStatus } from '@src/common';
 import { AuthUser, UserAuthRecord } from '../auth';
 import { CollectionService } from './collection.service';
 
+@ApiBearerAuth()
+@ApiTags('Collection')
 @Controller('collection')
 export class CollectionController {
   constructor(

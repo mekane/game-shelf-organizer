@@ -10,25 +10,43 @@ import { UpdateShelfDto } from './dto/update-shelf.dto';
 
 @Injectable()
 export class ShelfService {
+  private readonly logger: Logger;
+
   constructor(
-    private readonly logger: Logger,
     @InjectRepository(Shelf)
     private repository: Repository<Shelf>,
-  ) {}
+  ) {
+    this.logger = new Logger(ShelfService.name);
+  }
 
   async create(
     user: UserAuthRecord,
     createDto: CreateShelfDto,
   ): Promise<ServiceResult<Shelf>> {
-    const repoResult = await this.repository.save({
+    const createObj = {
       ...createDto,
       user: { id: user.id },
-    });
-
-    return {
-      status: ServiceStatus.Success,
-      content: repoResult,
     };
+
+    console.log('create shelf', createObj);
+
+    const newEntity = this.repository.create(createObj);
+    newEntity.room = createDto.room;
+    newEntity.shelves = createDto.shelves;
+
+    try {
+      const repoResult = await this.repository.save(newEntity);
+
+      return {
+        status: ServiceStatus.Success,
+        content: repoResult,
+      };
+    } catch (err) {
+      this.logger.error('[ShelfService] create', err);
+      return {
+        status: ServiceStatus.DatabaseError,
+      };
+    }
   }
 
   async findAll(user: UserAuthRecord): Promise<ServiceResult<Shelf[]>> {
@@ -59,8 +77,8 @@ export class ShelfService {
     user: UserAuthRecord,
     id: number,
     updateDto: UpdateShelfDto,
-  ): Promise<ServiceResult<Shelf>> {
-    const existing = await this.findOne(user, id);
+  ): Promise<ServiceResult<void>> {
+    const { content: existing } = await this.findOne(user, id);
 
     if (!existing) {
       return {
@@ -68,17 +86,18 @@ export class ShelfService {
       };
     }
 
-    const updated = {
+    const updated: UpdateShelfDto = {
       ...existing,
       ...updateDto,
     };
 
+    console.log('updated', updated);
+
     try {
-      const repoResult = await this.repository.save(updated);
+      await this.repository.save(updated);
 
       return {
         status: ServiceStatus.Success,
-        content: repoResult,
       };
     } catch (err) {
       this.logger.error('[ShelfService] update', err);
@@ -89,10 +108,7 @@ export class ShelfService {
     }
   }
 
-  async remove(
-    user: UserAuthRecord,
-    id: number,
-  ): Promise<ServiceResult<string>> {
+  async remove(user: UserAuthRecord, id: number): Promise<ServiceResult<void>> {
     const existing = await this.findOne(user, id);
 
     if (!existing) {
@@ -105,7 +121,6 @@ export class ShelfService {
       await this.repository.delete(id);
       return {
         status: ServiceStatus.Success,
-        content: 'OK',
       };
     } catch (err) {
       this.logger.error('[ShelfService] delete', err);

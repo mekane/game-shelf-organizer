@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ServiceStatus } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
@@ -15,6 +16,8 @@ import { CreateShelfDto } from './dto/create-shelf.dto';
 import { UpdateShelfDto } from './dto/update-shelf.dto';
 import { ShelfService } from './shelf.service';
 
+@ApiBearerAuth()
+@ApiTags('Shelf')
 @Controller('shelf')
 export class ShelfController {
   constructor(private readonly shelfService: ShelfService) {}

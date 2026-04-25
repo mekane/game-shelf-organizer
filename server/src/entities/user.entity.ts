@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Anylist } from './Anylist.entity';
 import { Collection } from './Collection.entity';
 import { List } from './List.entity';
-import { Shelf } from './shelf.entity';
+import { Shelf } from './Shelf.entity';
 
 @Entity()
 export class User {

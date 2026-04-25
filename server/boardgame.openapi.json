@@ -38,6 +38,11 @@
             }
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Collection"
         ]
@@ -52,6 +57,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Collection"
         ]
@@ -208,6 +218,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Shelf"
         ]
@@ -220,6 +235,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Shelf"
         ]
@@ -243,6 +263,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Shelf"
         ]
@@ -274,6 +299,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Shelf"
         ]
@@ -295,6 +325,11 @@
             "description": ""
           }
         },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
         "tags": [
           "Shelf"
         ]
@@ -774,6 +809,109 @@
           "games"
         ]
       },
+      "SizeDto": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ]
+      },
+      "RoomDto": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "$ref": "#/components/schemas/SizeDto"
+          },
+          "snapIncrement": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "size"
+        ]
+      },
+      "PositionDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "GridDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "number"
+          },
+          "columns": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "columns"
+        ]
+      },
+      "BorderSizeDto": {
+        "type": "object",
+        "properties": {
+          "outer": {
+            "type": "number"
+          },
+          "inner": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "outer",
+          "inner"
+        ]
+      },
+      "ShelfDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          },
+          "position": {
+            "$ref": "#/components/schemas/PositionDto"
+          },
+          "grid": {
+            "$ref": "#/components/schemas/GridDto"
+          },
+          "cellSize": {
+            "$ref": "#/components/schemas/SizeDto"
+          },
+          "borders": {
+            "$ref": "#/components/schemas/BorderSizeDto"
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "grid",
+          "cellSize"
+        ]
+      },
       "Shelf": {
         "type": "object",
         "properties": {
@@ -785,12 +923,31 @@
           },
           "name": {
             "type": "string"
+          },
+          "roomSerialized": {
+            "type": "string"
+          },
+          "room": {
+            "$ref": "#/components/schemas/RoomDto"
+          },
+          "shelvesSerialized": {
+            "type": "string"
+          },
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShelfDto"
+            }
           }
         },
         "required": [
           "id",
           "user",
-          "name"
+          "name",
+          "roomSerialized",
+          "room",
+          "shelvesSerialized",
+          "shelves"
         ]
       },
       "AnylistOptions": {
@@ -964,21 +1121,20 @@
           "name": {
             "type": "string"
           },
-          "width": {
-            "type": "number"
+          "room": {
+            "$ref": "#/components/schemas/RoomDto"
           },
-          "height": {
-            "type": "number"
-          },
-          "rows": {
-            "type": "number"
-          },
-          "columns": {
-            "type": "number"
+          "shelves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShelfDto"
+            }
           }
         },
         "required": [
-          "name"
+          "name",
+          "room",
+          "shelves"
         ]
       },
       "UpdateShelfDto": {
