@@ -1,5 +1,7 @@
 import { AnylistsPage } from "@pages/anylist/AnylistsPage";
 import { EditAnyListPage } from "@pages/anylist/id/";
+import { ShelfLayout } from "@pages/shelves/layout/ShelfLayout";
+import { Organize } from "@pages/shelves/organize/Organize";
 import { Navigate, RouteObject, createBrowserRouter } from "react-router-dom";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PageContainer } from "./pages/PageContainer";
@@ -38,6 +40,17 @@ const routes: RouteObject[] = [
       {
         path: "/shelves",
         element: <ShelvesPage />,
+        children: [
+          {
+            path: "layout",
+            element: <ShelfLayout />,
+            index: true,
+          },
+          {
+            path: "organize",
+            element: <Organize />,
+          },
+        ],
       },
       {
         path: "/anylists",

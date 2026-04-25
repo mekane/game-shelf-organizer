@@ -1,60 +1,20 @@
-import { Container, Stack } from "@mui/material";
-import { PageHeader } from "../../components/PageHeader";
-import { Shelf, ShelfDisplay } from "../../components/shelf/ShelfDisplay";
-
-const bigKallax = {
-  width: 24,
-  height: 48,
-  columns: 2,
-  rows: 4,
-};
-
-const smallKallax = {
-  width: 12,
-  height: 48,
-  columns: 1,
-  rows: 4,
-};
-
-const shelves: Shelf[] = [
-  {
-    id: "s0",
-    name: "TwoPlayer",
-    ...smallKallax,
-  },
-  {
-    id: "s1",
-    name: "Coop",
-    ...bigKallax,
-  },
-  {
-    id: "s2",
-    name: "Adventure",
-    ...bigKallax,
-  },
-  {
-    id: "s3",
-    name: "Drafting",
-    ...bigKallax,
-  },
-  {
-    id: "s4",
-    name: "DnD",
-    ...smallKallax,
-  },
-];
+import { PageHeader } from "@components/PageHeader";
+import { Button, Stack } from "@mui/material";
+import { Link, Outlet } from "react-router-dom";
 
 export const ShelvesPage = () => {
   return (
     <>
-      <PageHeader text="Shelves" />
-      <Container maxWidth="xl">
-        <Stack direction={"row"} spacing="0">
-          {shelves.map((config) => (
-            <ShelfDisplay shelf={config} key={config.name} />
-          ))}
-        </Stack>
-      </Container>
+      <PageHeader>Shelves</PageHeader>
+      <Stack direction="row" gap={2}>
+        <Button component={Link} to="layout" variant="outlined">
+          Go to Page Configure Shelf Layout for Room
+        </Button>
+        <Button component={Link} to="organize" variant="outlined">
+          Organize Games on Shelf
+        </Button>
+      </Stack>
+      <Outlet />
     </>
   );
 };
