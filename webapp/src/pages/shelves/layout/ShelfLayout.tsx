@@ -6,151 +6,88 @@ import {
 } from "@components/shelf";
 import { useApi } from "@context/api";
 import { UpdateShelfDto } from "@lib/boardgame.api.client";
-import { Paper } from "@mui/material";
-import { useState } from "react";
+import { CircularProgress, Paper } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const kallaxCells = { width: 13, height: 13 };
-
-const kallaxSingle = {
-  grid: { rows: 4, columns: 1 },
-  cellSize: kallaxCells,
-};
-
-const kallaxDouble = {
-  grid: { rows: 4, columns: 2 },
-  cellSize: kallaxCells,
-};
-
-const noBorders = { borders: { outer: 0, inner: 0 } };
-const topperBorders = { borders: { inner: 0, outer: 0.75 } };
-
-const defaultShelves: ShelfInput[] = [
-  {
-    id: 1,
-    label: "K1",
-    position: { x: 0, y: 0 },
-    ...kallaxSingle,
-  },
-  {
-    id: 2,
-    label: "K2",
-    position: { x: 16, y: 0 },
-    ...kallaxDouble,
-  },
-  {
-    id: 3,
-    label: "K3",
-    position: { x: 16 + 30, y: 0 },
-    ...kallaxDouble,
-  },
-  {
-    id: 4,
-    label: "K4",
-    position: { x: 16 + 30 + 30, y: 0 },
-    ...kallaxSingle,
-  },
-  {
-    id: 5,
-    label: "K5",
-    position: { x: 16 + 30 + 30 + 16, y: 0 },
-    ...kallaxDouble,
-  },
-  {
-    id: 6,
-    label: "K6",
-    position: { x: 16 + 30 + 30 + 16 + 30, y: 0 },
-    ...kallaxDouble,
-  },
-  {
-    id: 7,
-    label: "K7",
-    position: { x: 16 + 30 + 30 + 16 + 30 + 30, y: 0 },
-    ...kallaxSingle,
-  },
-  {
-    id: 8,
-    label: "Above L",
-    position: { x: 0, y: 57.5 },
-    grid: { columns: 1, rows: 1 },
-    cellSize: { width: 28, height: 18 },
-    ...noBorders,
-  },
-  {
-    id: 9,
-    label: "Topper L",
-    position: { x: 28, y: 57.5 },
-    grid: { columns: 1, rows: 1 },
-    cellSize: { width: 54.5, height: 16 },
-    ...topperBorders,
-  },
-  {
-    id: 10,
-    label: "Topper R",
-    position: { x: 84, y: 57.5 },
-    grid: { columns: 1, rows: 1 },
-    cellSize: { width: 54.5, height: 16 },
-    ...topperBorders,
-  },
-  {
-    id: 11,
-    label: "Above R",
-    position: { x: 140, y: 57.5 },
-    grid: { columns: 1, rows: 1 },
-    cellSize: { width: 28, height: 18 },
-    ...noBorders,
-  },
-  {
-    id: 12,
-    label: "Above Center",
-    position: { x: 28, y: 75 },
-    grid: { columns: 1, rows: 1 },
-    cellSize: { width: 112, height: 15 },
-    ...noBorders,
-  },
-];
-
-const defaultRoom: LayoutWorkspaceInput = {
-  size: {
-    width: 176,
-    height: 90,
-  },
-  snapIncrement: 2,
-};
+interface LayoutConfig {
+  name: string;
+  room: LayoutWorkspaceInput;
+  shelves: ShelfInput[];
+}
 
 export const ShelfLayout = () => {
+  const { id } = useParams();
   const api = useApi();
-  const [shelves, setShelves] = useState<ShelfInput[]>(defaultShelves);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    api.shelf
+      .shelfControllerFindOne(id)
+      .then((res) => {
+        console.log("api result for get " + id, res.data);
+        const config = res.data;
+
+        setLayoutConfig({
+          name: config.name,
+          room: {
+            size: {
+              height: config.room.size?.height ?? 96,
+              width: config.room.size?.width ?? 96,
+            },
+            snapIncrement: config.room.snapIncrement ?? 2,
+          },
+          shelves: config.shelves,
+        });
+
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        // TODO: show 404 error
+      });
+  }, [api, id]);
 
   const handleShelvesChange = async (
     nextShelves: ShelfInput[],
     meta: LayoutChangeMeta,
   ) => {
-    setShelves(nextShelves);
-
-    // TODO: push to a history array to enable undo
     console.log({
       action: meta.reason,
       payload: JSON.stringify(nextShelves),
     });
 
+    // TODO: push to a history array to enable undo
+
     const updateShelfDto: UpdateShelfDto = {
-      name: "Game Room",
-      room: defaultRoom,
+      name: layoutConfig.name,
+      room: layoutConfig.room,
       shelves: nextShelves,
     };
 
-    const res = await api.shelf.shelfControllerUpdate("11", updateShelfDto);
-    console.log("updated shelves", res);
     // TODO: debounce API requests in case user spams actions / undo
+    const res = await api.shelf.shelfControllerUpdate(id, updateShelfDto);
+    console.log("updated shelves", res);
+
+    setLayoutConfig((prev) => ({
+      name: prev.name,
+      room: prev.room,
+      shelves: nextShelves,
+    }));
   };
 
-  // TODO: get shelf id from URL path
-  // TODO: load workspace + shelves config from API via shelf id
-  return (
+  return isLoading ? (
+    <CircularProgress />
+  ) : (
     <Paper elevation={0} sx={{ p: 2 }}>
       <LayoutModeScreen
-        workspace={defaultRoom}
-        shelves={shelves}
+        name={layoutConfig.name}
+        workspace={layoutConfig.room}
+        shelves={layoutConfig.shelves}
         onShelvesChange={handleShelvesChange}
       />
     </Paper>

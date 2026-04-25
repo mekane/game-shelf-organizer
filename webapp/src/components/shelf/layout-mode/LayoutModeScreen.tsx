@@ -39,6 +39,7 @@ import { LayoutSidebar } from './components/LayoutSidebar';
 import { LayoutWorkspaceCanvas } from './components/LayoutWorkspaceCanvas';
 
 export function LayoutModeScreen({
+  name,
   workspace,
   shelves,
   onShelvesChange,
@@ -252,7 +253,7 @@ export function LayoutModeScreen({
     <>
       <ScreenLayout
         eyebrow="Layout Mode"
-        title="Shelf Arrangement"
+        title={name}
         subtitle="Configure and position shelves"
         headerSupplement={
           <Stack

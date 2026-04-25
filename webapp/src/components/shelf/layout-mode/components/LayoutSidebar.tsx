@@ -1,11 +1,15 @@
 import {
   Button,
   Divider,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
   Paper,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
+import { useId } from 'react';
 import type { ShelfInput } from '../../common/types';
 import { WarningNotice } from '../../common/components';
 import {
@@ -226,25 +230,29 @@ function NumericField({
   min,
   roundTo = 1,
 }: NumericFieldProps) {
+  const inputId = useId();
+
   return (
-    <TextField
-      label={label}
-      type="number"
-      value={value}
-      onChange={(event) => {
-        const nextValue = Number(event.target.value);
+    <FormControl fullWidth size="small">
+      <InputLabel htmlFor={inputId}>{label}</InputLabel>
+      <OutlinedInput
+        id={inputId}
+        label={label}
+        type="number"
+        value={value}
+        onChange={(event) => {
+          const nextValue = Number(event.target.value);
 
-        if (Number.isNaN(nextValue)) {
-          return;
-        }
+          if (Number.isNaN(nextValue)) {
+            return;
+          }
 
-        const roundedValue = roundToIncrement(nextValue, roundTo);
-        onChange(min === undefined ? roundedValue : Math.max(min, roundedValue));
-      }}
-      fullWidth
-      size="small"
-      slotProps={{ htmlInput: { step } }}
-    />
+          const roundedValue = roundToIncrement(nextValue, roundTo);
+          onChange(min === undefined ? roundedValue : Math.max(min, roundedValue));
+        }}
+        inputProps={{ step, min }}
+      />
+    </FormControl>
   );
 }
 

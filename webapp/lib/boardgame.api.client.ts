@@ -588,10 +588,11 @@ export class Api<
      * @secure
      */
     shelfControllerFindAll: (params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<Shelf[], any>({
         path: `/shelf`,
         method: "GET",
         secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -604,10 +605,11 @@ export class Api<
      * @secure
      */
     shelfControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<Shelf, any>({
         path: `/shelf/${id}`,
         method: "GET",
         secure: true,
+        format: "json",
         ...params,
       }),
 

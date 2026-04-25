@@ -102,12 +102,14 @@ export type OnPlacementsChange = (
 ) => void;
 
 export interface LayoutModeProps {
+  name: string;
   workspace: LayoutWorkspaceInput;
   shelves: ShelfInput[];
   onShelvesChange: OnShelvesChange;
 }
 
 export interface InventoryModeProps {
+  name: string;
   shelves: ShelfInput[];
   categories: CategoryMap;
   products: ProductInput[];

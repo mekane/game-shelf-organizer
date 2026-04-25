@@ -3,13 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ServiceStatus } from '@src/common';
+import { checkServiceResults } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CreateShelfDto } from './dto/create-shelf.dto';
@@ -32,18 +31,20 @@ export class ShelfController {
 
   @Get()
   async findAll(@AuthUser() user: UserAuthRecord) {
-    return this.shelfService.findAll(user);
+    const result = await this.shelfService.findAll(user);
+
+    checkServiceResults(result);
+
+    return result.content;
   }
 
   @Get(':id')
   async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const result = await this.shelfService.findOne(user, +id);
 
-    if (result.status === ServiceStatus.NotFound) {
-      throw new NotFoundException();
-    }
+    checkServiceResults(result);
 
-    return result;
+    return result.content;
   }
 
   @Patch(':id')
@@ -54,21 +55,17 @@ export class ShelfController {
   ) {
     const result = await this.shelfService.update(user, +id, updateShelfDto);
 
-    if (result.status === ServiceStatus.NotFound) {
-      throw new NotFoundException();
-    }
+    checkServiceResults(result);
 
-    return result;
+    return result.content;
   }
 
   @Delete(':id')
   async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
     const result = await this.shelfService.remove(user, +id);
 
-    if (result.status === ServiceStatus.NotFound) {
-      throw new NotFoundException();
-    }
+    checkServiceResults(result);
 
-    return result;
+    return result.content;
   }
 }

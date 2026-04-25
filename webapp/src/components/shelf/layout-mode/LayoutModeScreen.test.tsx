@@ -11,10 +11,15 @@ const workspace: LayoutWorkspaceInput = {
   snapIncrement: 2,
 };
 
-function renderLayoutScreen(shelves: ShelfInput[], onShelvesChange = vi.fn()) {
+function renderLayoutScreen(
+  shelves: ShelfInput[],
+  onShelvesChange = vi.fn(),
+  name = 'Shelf Arrangement'
+) {
   return render(
     <ThemeProvider theme={demoTheme}>
       <LayoutModeScreen
+        name={name}
         workspace={workspace}
         shelves={shelves}
         onShelvesChange={onShelvesChange}
@@ -24,6 +29,15 @@ function renderLayoutScreen(shelves: ShelfInput[], onShelvesChange = vi.fn()) {
 }
 
 describe('LayoutModeScreen', () => {
+  it('renders the screen title from the name prop', () => {
+    renderLayoutScreen([], vi.fn(), 'Front Room Shelves');
+
+    expect(
+      screen.getByRole('heading', { name: 'Front Room Shelves', level: 4 })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Shelf Arrangement', level: 4 })).toBeNull();
+  });
+
   it('adds a shelf using the documented defaults', async () => {
     const user = userEvent.setup();
     const onShelvesChange = vi.fn();

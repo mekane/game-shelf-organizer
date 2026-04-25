@@ -75,11 +75,13 @@ function renderInventoryScreen(
   nextProducts = products,
   nextPlacements = placements,
   onPlacementsChange = vi.fn(),
-  nextCategories = categories
+  nextCategories = categories,
+  name = 'Product Placement'
 ) {
   return render(
     <ThemeProvider theme={demoTheme}>
       <InventoryModeScreen
+        name={name}
         shelves={shelves}
         categories={nextCategories}
         products={nextProducts}
@@ -100,6 +102,15 @@ function hexToRgbString(hex: string): string {
 }
 
 describe('InventoryModeScreen', () => {
+  it('renders the screen title from the name prop', () => {
+    renderInventoryScreen(products, placements, vi.fn(), categories, 'Floor Inventory');
+
+    expect(
+      screen.getByRole('heading', { name: 'Floor Inventory', level: 4 })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Product Placement', level: 4 })).toBeNull();
+  });
+
   it('does not render shelf labels inside inventory shelves', () => {
     renderInventoryScreen();
 
@@ -276,6 +287,7 @@ describe('InventoryModeScreen', () => {
     rerender(
       <ThemeProvider theme={demoTheme}>
         <InventoryModeScreen
+          name="Product Placement"
           shelves={shelves}
           categories={categories}
           products={resizedProducts}

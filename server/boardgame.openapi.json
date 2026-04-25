@@ -232,7 +232,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Shelf"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -260,7 +270,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Shelf"
+                }
+              }
+            }
           }
         },
         "security": [

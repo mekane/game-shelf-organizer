@@ -57,6 +57,7 @@ interface PlacementPreviewState {
 }
 
 export function InventoryModeScreen({
+  name,
   shelves,
   categories,
   products,
@@ -399,7 +400,7 @@ export function InventoryModeScreen({
   return (
     <ScreenLayout
       eyebrow="Inventory Mode"
-      title="Product Placement"
+      title={name}
       subtitle="Drag boxes into shelf cells, snap them against cell or product edges, and persist the committed orientation and coordinates for each placement."
       sidebar={
         <InventorySidebar

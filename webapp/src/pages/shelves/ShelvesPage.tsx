@@ -1,27 +1,111 @@
 import { PageHeader } from "@components/PageHeader";
-import { Button, Stack } from "@mui/material";
-import { Link, Outlet } from "react-router-dom";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  InputAdornment,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 export const ShelvesPage = () => {
+  const [newDialogOpen, setNewDialogOpen] = useState(false);
+
+  const openNewDialog = () => {
+    setNewDialogOpen(true);
+  };
+
+  const handleClose = () => {
+    setNewDialogOpen(false);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries((formData as any).entries());
+    console.log("submit", formJson);
+    handleClose();
+  };
+
+  const addShelfButton = (
+    <Button variant="contained" onClick={openNewDialog}>
+      Add New Room
+    </Button>
+  );
+
   return (
     <>
-      <PageHeader>Shelves</PageHeader>
-      <Stack direction="row" gap={2}>
-        <Button component={Link} to="layout" variant="outlined">
-          Go to Page Configure Shelf Layout for Room
-        </Button>
-        <Button component={Link} to="organize" variant="outlined">
-          Organize Games on Shelf
-        </Button>
-      </Stack>
+      <PageHeader headerText="Shelves">{addShelfButton}</PageHeader>
 
-      {
-        //TODO: update the shelf DTO to contain the entire workspace config
-        //TODO: load shelf list from API
-        // Show list of nav links to /layout/:shelfId
-        // replaces the "Configure" link above
-        // also include a /organize/:shelfId link
-      }
+      <Dialog open={newDialogOpen} onClose={handleClose}>
+        <DialogTitle>Add New Room Layout</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Give your new room a name and configure the size.
+          </DialogContentText>
+          <form onSubmit={handleSubmit} id="new-room-form">
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="roomName"
+              name="name"
+              label="Room Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+            />
+
+            <Stack direction="row" gap={2}>
+              <TextField
+                required
+                margin="dense"
+                id="roomWidth"
+                name="width"
+                label="Width (in inches)"
+                type="number"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="start">in</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+
+              <TextField
+                required
+                margin="dense"
+                id="roomHeight"
+                name="height"
+                label="Height (in inches)"
+                type="number"
+                variant="outlined"
+                slotProps={{
+                  htmlInput: { min: 12 },
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="start">in</InputAdornment>
+                    ),
+                  },
+                }}
+              />
+            </Stack>
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button type="submit" form="new-room-form">
+            Add Room
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Outlet />
     </>
