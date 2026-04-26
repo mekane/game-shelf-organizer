@@ -703,54 +703,67 @@
           },
           "versionName": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "collection": {
             "$ref": "#/components/schemas/Collection"
           },
           "yearPublished": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "bggRank": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "bggRating": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "imageUrl": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "thumbnailUrl": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "length": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "width": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "depth": {
             "type": "number",
-            "nullable": true
+            "nullable": true,
+            "default": null
           },
           "owned": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "previouslyOwned": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "plays": {
-            "type": "number"
+            "type": "number",
+            "default": 0
           },
           "rating": {
-            "type": "number"
+            "type": "number",
+            "default": 0
           }
         },
         "required": [
@@ -810,7 +823,8 @@
             "$ref": "#/components/schemas/User"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "games": {
             "type": "array",
@@ -846,9 +860,6 @@
         "properties": {
           "size": {
             "$ref": "#/components/schemas/SizeDto"
-          },
-          "snapIncrement": {
-            "type": "number"
           }
         },
         "required": [
@@ -939,7 +950,8 @@
             "$ref": "#/components/schemas/User"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "roomSerialized": {
             "type": "string"
@@ -961,9 +973,7 @@
           "id",
           "user",
           "name",
-          "roomSerialized",
           "room",
-          "shelvesSerialized",
           "shelves"
         ]
       },
@@ -1041,9 +1051,7 @@
           "id",
           "user",
           "name",
-          "optionsSerialized",
           "options",
-          "dataSerialized",
           "data"
         ]
       },
@@ -1063,13 +1071,15 @@
             "type": "string"
           },
           "bggUserName": {
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "password": {
             "type": "string"
           },
           "isAdmin": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "collections": {
             "type": "array",
@@ -1114,9 +1124,11 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "default": ""
           },
           "games": {
+            "default": [],
             "type": "array",
             "items": {
               "type": "object"

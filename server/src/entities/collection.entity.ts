@@ -21,17 +21,17 @@ import { User } from './User.entity';
 @Entity()
 export class Collection {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => User, (user) => user.collections)
-  user: User;
+  user!: User;
 
   @Column()
-  name: string;
+  name!: string;
 
   @OneToMany(() => Game, (game) => game.collection, {
     cascade: true,
     eager: true,
   })
-  games: Game[];
+  games!: Game[];
 }

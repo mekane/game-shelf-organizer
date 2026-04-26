@@ -4,10 +4,10 @@ import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateListDto {
   @IsNotEmpty()
-  name: string;
+  name: string = '';
 
   @IsOptional()
   @IsArray()
   @Type(() => Game)
-  games: Partial<Game>[];
+  games: Partial<Game>[] = [];
 }

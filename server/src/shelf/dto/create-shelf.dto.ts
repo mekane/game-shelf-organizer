@@ -46,10 +46,6 @@ export class RoomDto {
   @Type(() => SizeDto)
   @ValidateNested()
   size!: SizeDto;
-
-  @IsOptional()
-  @IsInt()
-  snapIncrement?: number;
 }
 
 export class ShelfDto {

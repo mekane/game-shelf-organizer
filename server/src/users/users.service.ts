@@ -13,13 +13,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UsersService implements OnModuleInit {
   private secret: string; // for signing JWT's issued by the API
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly logger: Logger,
     @InjectRepository(User)
     private readonly repository: Repository<User>,
-  ) {}
+  ) {
+    this.secret = '<missing>';
+  }
 
   async onModuleInit() {
     this.secret = this.configService.get('JWT_SECRET') ?? 'default_secret';

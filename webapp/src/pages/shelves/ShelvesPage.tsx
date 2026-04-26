@@ -1,4 +1,7 @@
 import { PageHeader } from "@components/PageHeader";
+import { useApi } from "@context/api";
+import { CreateShelfDto } from "@lib/boardgame.api.client";
+import SaveIcon from "@mui/icons-material/Save";
 import {
   Button,
   Dialog,
@@ -12,8 +15,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { useApi } from "@context/api";
-import SaveIcon from "@mui/icons-material/Save";
 
 export const ShelvesPage = () => {
   const api = useApi();

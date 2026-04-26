@@ -19,32 +19,32 @@ export class Shelf {
   user!: User;
 
   @Column()
-  name!: string;
+  name: string = '';
 
   @Column({ type: 'text', nullable: true })
   @Exclude()
-  roomSerialized!: string;
+  roomSerialized?: string;
 
   room!: RoomDto;
 
   @Column({ type: 'text', nullable: true })
   @Exclude()
-  shelvesSerialized!: string;
+  shelvesSerialized?: string;
 
   shelves!: ShelfDto[];
 
   @AfterLoad()
   deserializeJson() {
-    console.log(`<<< Deserialize Shelf: room`, this.roomSerialized);
-    console.log(`<<< Deserialize Shelf: shelves`, this.shelvesSerialized);
+    // console.log(`<<< Deserialize Shelf: room`, this.roomSerialized);
+    // console.log(`<<< Deserialize Shelf: shelves`, this.shelvesSerialized);
     this.room = JSON.parse(this.roomSerialized ?? '{}');
     this.shelves = JSON.parse(this.shelvesSerialized ?? '[]');
   }
 
   @BeforeInsert()
   serializeJson() {
-    console.log(`>>> Serialize Shelf: room`, this.room);
-    console.log(`>>> Serialize Shelf: shelves`, this.shelves);
+    // console.log(`>>> Serialize Shelf: room`, this.room);
+    // console.log(`>>> Serialize Shelf: shelves`, this.shelves);
     this.roomSerialized = JSON.stringify(this.room);
     this.shelvesSerialized = JSON.stringify(this.shelves);
   }

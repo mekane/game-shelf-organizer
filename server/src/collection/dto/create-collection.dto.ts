@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateCollectionDto {
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsOptional()
   games?: Partial<Game>[];

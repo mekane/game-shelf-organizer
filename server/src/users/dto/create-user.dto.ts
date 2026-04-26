@@ -2,19 +2,19 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
-  email: string;
+  email!: string;
 
   @IsNotEmpty()
-  firstName: string;
+  firstName!: string;
 
   @IsNotEmpty()
-  lastName: string;
+  lastName!: string;
 
   @IsNotEmpty()
-  bggUserName: string;
+  bggUserName!: string;
 
   @IsNotEmpty()
-  password: string;
+  password!: string;
 
   @IsOptional()
   isAdmin?: boolean;

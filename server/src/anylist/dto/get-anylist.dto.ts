@@ -3,19 +3,19 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 
 export class AnylistDto {
-  id: number;
+  id!: number;
 
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsNotEmpty()
   @Type(() => AnylistOptions)
   @ValidateNested()
-  options: AnylistOptions;
+  options!: AnylistOptions;
 
   @IsNotEmpty()
   @IsArray()
   @Type(() => AnylistColumns)
   @ValidateNested()
-  data: AnylistColumns[];
+  data!: AnylistColumns[];
 }

@@ -28,8 +28,6 @@ export class ShelfService {
       user: { id: user.id },
     };
 
-    console.log('create shelf', createObj);
-
     const newEntity = this.repository.create(createObj);
     newEntity.room = createDto.room;
     newEntity.shelves = createDto.shelves;
@@ -67,6 +65,10 @@ export class ShelfService {
         status: ServiceStatus.NotFound,
       };
     }
+
+    delete found.roomSerialized;
+    delete found.shelvesSerialized;
+
     return {
       status: ServiceStatus.Success,
       content: found,

@@ -8,39 +8,39 @@ import { Shelf } from './Shelf.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column()
-  firstName: string;
+  firstName!: string;
 
   @Column()
-  lastName: string;
+  lastName!: string;
 
   @Column()
-  bggUserName: string;
+  bggUserName: string = '';
 
   @Exclude()
   @Column()
-  password: string;
+  password!: string;
 
   @Column({
     nullable: true,
     default: false,
   })
-  isAdmin: boolean;
+  isAdmin: boolean = false;
 
   @OneToMany(() => Collection, (collection) => collection.user)
-  collections: Collection[];
+  collections!: Collection[];
 
   @OneToMany(() => List, (list) => list.user)
-  lists: List[];
+  lists!: List[];
 
   @OneToMany(() => Shelf, (shelf) => shelf.user)
-  shelves: Shelf[];
+  shelves!: Shelf[];
 
   @OneToMany(() => Anylist, (anylist) => anylist.user)
-  anylists: Anylist[];
+  anylists!: Anylist[];
 }

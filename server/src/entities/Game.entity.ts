@@ -18,57 +18,57 @@ import { Collection } from './Collection.entity';
 @Entity()
 export class Game {
   @PrimaryColumn()
-  userId: number;
+  userId!: number;
 
   @PrimaryColumn()
-  bggId: number;
+  bggId!: number;
 
   @PrimaryColumn()
-  versionId: number;
+  versionId!: number;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ type: String, nullable: true })
-  versionName: string | null;
+  versionName: string | null = null;
 
   @ManyToOne(() => Collection, (collection) => collection.games)
-  collection: Collection;
+  collection!: Collection;
 
   @Column({ type: Number, nullable: true })
-  yearPublished: number | null;
+  yearPublished: number | null = null;
 
   @Column({ type: Number, nullable: true })
-  bggRank: number | null;
+  bggRank: number | null = null;
 
   @Column({ type: Number, nullable: true })
-  bggRating: number | null;
+  bggRating: number | null = null;
 
   @Column({ type: String, nullable: true })
-  imageUrl: string | null;
+  imageUrl: string | null = null;
 
   @Column({ type: String, nullable: true })
-  thumbnailUrl: string | null;
+  thumbnailUrl: string | null = null;
 
   @Column({ type: Number, nullable: true })
-  length: number | null;
+  length: number | null = null;
 
   @Column({ type: Number, nullable: true })
-  width: number | null;
+  width: number | null = null;
 
   @Column({ type: Number, nullable: true })
-  depth: number | null;
+  depth: number | null = null;
 
   /*===== These properties are specific to the user that owns it =====*/
   @Column({ default: false })
-  owned: boolean;
+  owned: boolean = false;
 
   @Column({ default: false })
-  previouslyOwned: boolean;
+  previouslyOwned: boolean = false;
 
   @Column({ default: 0 })
-  plays: number;
+  plays: number = 0;
 
   @Column({ default: 0 })
-  rating: number;
+  rating: number = 0;
 }

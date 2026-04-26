@@ -12,51 +12,51 @@ import { User } from './User.entity';
 
 export class AnylistColumns {
   @IsNotEmpty()
-  id: string;
+  id!: string;
 
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsInt()
-  rating: number;
+  rating!: number;
 
   @IsString()
-  notes: string;
+  notes!: string;
 
   @IsString()
-  thumbnail: string; // url
+  thumbnail!: string; // url
 }
 
 export class AnylistOptions {
   @IsNotEmpty()
-  hide: Record<keyof AnylistColumns, boolean>;
+  hide!: Record<keyof AnylistColumns, boolean>;
 
   @IsNotEmpty()
-  ratingMax: number; // default 5
+  ratingMax!: number; // default 5
 }
 
 @Entity()
 export class Anylist {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @ManyToOne(() => User, (user) => user.anylists)
-  user: User;
+  user!: User;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ type: 'text', nullable: true })
   @Exclude()
-  optionsSerialized: string;
+  optionsSerialized?: string;
 
-  options: AnylistOptions;
+  options!: AnylistOptions;
 
   @Column({ type: 'text', nullable: true })
   @Exclude()
-  dataSerialized: string;
+  dataSerialized?: string;
 
-  data: AnylistColumns[];
+  data!: AnylistColumns[];
 
   @AfterLoad()
   deserializeJson() {
