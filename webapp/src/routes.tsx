@@ -1,5 +1,4 @@
 import { AnylistsPage } from "@pages/anylist/AnylistsPage";
-import { EditAnyListPage } from "@pages/anylist/id/";
 import { ShelvesList } from "@pages/shelves/ShelvesList";
 import { ShelfLayout } from "@pages/shelves/layout/ShelfLayout";
 import { Organize } from "@pages/shelves/organize/Organize";
@@ -9,7 +8,6 @@ import { PageContainer } from "./pages/PageContainer";
 import { CollectionPage } from "./pages/collection/CollectionPage";
 import { HomePage } from "./pages/home/HomePage";
 import { ListsPage } from "./pages/lists/ListsPage";
-import { EditListView } from "./pages/lists/id";
 import { ShelvesPage } from "./pages/shelves/ShelvesPage";
 
 const routes: RouteObject[] = [
@@ -33,10 +31,6 @@ const routes: RouteObject[] = [
       {
         path: "/lists",
         element: <ListsPage />,
-      },
-      {
-        path: "/lists/:id",
-        element: <EditListView />,
       },
       {
         path: "/shelves",
@@ -64,7 +58,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "/anylists/:id",
-        element: <EditAnyListPage />,
+        element: <div>TODO: Anylist</div>,
       },
     ],
   },

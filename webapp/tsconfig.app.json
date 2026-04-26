@@ -5,6 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
+    "incremental": true,
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -17,17 +18,17 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": "./",
     "paths": {
-      "@config": ["src/config"],
-      "@components/*": ["src/components/*"],
-      "@context/*": ["src/context/*"],
-      "@lib/*": ["lib/*"],
-      "@pages/*": ["src/pages/*"],
-      "@services/*": ["src/services/*"],
-      "@themes/*": ["src/themes/*"],
-      "@utils/*": ["src/utils/*"]
+      "@config": ["./src/config"],
+      "@components/*": ["./src/components/*"],
+      "@context/*": ["./src/context/*"],
+      "@lib/*": ["./lib/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@services/*": ["./src/services/*"],
+      "@themes/*": ["./src/themes/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "include": ["src"],
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

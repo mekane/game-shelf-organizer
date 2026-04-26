@@ -36,7 +36,7 @@ export const ShelvesList = () => {
             primary={s.name}
             secondary={`${s.shelves.length} shelves`}
           />
-          <Stack direction="row" gap={2}>
+          <Stack direction="row" spacing={2}>
             <Button component={Link} variant="contained" to={`layout/${s.id}`}>
               Edit Shelf Layout
             </Button>

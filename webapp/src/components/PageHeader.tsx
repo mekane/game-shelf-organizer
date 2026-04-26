@@ -8,9 +8,9 @@ export interface PageHeaderProps {
 
 export const PageHeader: FC<PageHeaderProps> = ({ headerText, children }) => {
   return (
-    <Stack mx={2} direction="row" justifyContent={"space-between"}>
+    <Stack direction="row" sx={{ justifyContent: "space-between", mx: 2 }}>
       <h2>{headerText}</h2>
-      <Stack justifyContent={"space-around"}>{children}</Stack>
+      <Stack sx={{ justifyContent: "space-around" }}>{children}</Stack>
     </Stack>
   );
 };

@@ -39,7 +39,7 @@ export const TopBar = () => {
             variant="h6"
             color="inherit"
             noWrap
-            paddingRight="40px"
+            sx={{ pr: 5 }}
           >
             Board Game Organizer
           </Typography>

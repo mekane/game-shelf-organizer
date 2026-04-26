@@ -26,7 +26,7 @@ export const AnylistsPage = () => {
 
   return (
     <Container>
-      <PageHeader>Manage Lists</PageHeader>
+      <PageHeader headerText="Manage Lists"></PageHeader>
       <TableContainer>
         <Table>
           <TableHead>

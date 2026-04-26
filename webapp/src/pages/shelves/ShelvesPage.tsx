@@ -49,53 +49,62 @@ export const ShelvesPage = () => {
             Give your new room a name and configure the size.
           </DialogContentText>
           <form onSubmit={handleSubmit} id="new-room-form">
-            <TextField
-              autoFocus
-              required
-              margin="dense"
-              id="roomName"
-              name="name"
-              label="Room Name"
-              type="text"
-              fullWidth
-              variant="outlined"
-            />
-
-            <Stack direction="row" gap={2}>
+            <Stack spacing={1}>
               <TextField
+                autoFocus
                 required
                 margin="dense"
-                id="roomWidth"
-                name="width"
-                label="Width (in inches)"
-                type="number"
+                id="roomName"
+                name="name"
+                label="Room Name"
+                type="text"
+                fullWidth
                 variant="outlined"
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">in</InputAdornment>
-                    ),
-                  },
-                }}
               />
 
-              <TextField
-                required
-                margin="dense"
-                id="roomHeight"
-                name="height"
-                label="Height (in inches)"
-                type="number"
-                variant="outlined"
-                slotProps={{
-                  htmlInput: { min: 12 },
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="start">in</InputAdornment>
-                    ),
-                  },
-                }}
-              />
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ justifyContent: "space-between" }}
+              >
+                <TextField
+                  required
+                  margin="dense"
+                  id="roomWidth"
+                  name="width"
+                  label="Width (in inches)"
+                  type="number"
+                  variant="outlined"
+                  defaultValue="12"
+                  slotProps={{
+                    input: {
+                      htmlInput: { min: 12, max: 999 },
+                      endAdornment: (
+                        <InputAdornment position="start">in</InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+
+                <TextField
+                  required
+                  margin="dense"
+                  id="roomHeight"
+                  name="height"
+                  label="Height (in inches)"
+                  type="number"
+                  variant="outlined"
+                  defaultValue="12"
+                  slotProps={{
+                    htmlInput: { min: 12, max: 999 },
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="start">in</InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </Stack>
             </Stack>
           </form>
         </DialogContent>
