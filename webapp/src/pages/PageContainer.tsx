@@ -8,8 +8,7 @@ export const PageContainer = () => {
       <TopBar />
       <Stack
         className="page"
-        justifyContent={"flex-end"}
-        sx={{ height: "100%" }}
+        sx={{ height: "100%", justifyContent: "flex-end", minWidth: "700px" }}
       >
         <Outlet />
       </Stack>

@@ -4,7 +4,7 @@ import { Container } from "@mui/material";
 export const ListsPage = () => {
   return (
     <Container>
-      <PageHeader>Manage Lists</PageHeader>
+      <PageHeader headerText="Manage Lists"></PageHeader>
     </Container>
   );
 };

@@ -4,7 +4,7 @@ import { Container } from "@mui/material";
 export const CollectionPage = () => {
   return (
     <Container>
-      <PageHeader>Manage Collection</PageHeader>
+      <PageHeader headerText="Manage Collection"></PageHeader>
     </Container>
   );
 };
