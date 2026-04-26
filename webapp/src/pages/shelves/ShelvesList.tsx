@@ -1,19 +1,10 @@
 import { PageHeader } from "@components/PageHeader";
 import { useApi } from "@context/api";
 import { CreateShelfDto, Shelf } from "@lib/boardgame.api.client";
-import DeleteForever from "@mui/icons-material/DeleteForever";
-import {
-  Button,
-  CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { AddRoomDialog } from "./components";
+import { RoomList } from "./components/RoomList";
 
 export const ShelvesList = () => {
   const api = useApi();
@@ -110,45 +101,11 @@ export const ShelvesList = () => {
         <CircularProgress />
       ) : (
         <>
-          <List sx={{ width: "50%", margin: "auto", minWidth: 800 }}>
-            {shelves.map((s) => (
-              <ListItem key={s.id}>
-                <ListItemText
-                  primary={s.name}
-                  secondary={`${s.room.size.width}" x ${s.room.size.height}"`}
-                />
-                <Stack direction="row" spacing={2}>
-                  <Typography
-                    sx={{ lineHeight: 2.5 }}
-                  >{`${s.shelves.length} shelves`}</Typography>
-                  <Button
-                    component={Link}
-                    variant="contained"
-                    to={`layout/${s.id}`}
-                  >
-                    Edit Shelf Layout
-                  </Button>
-                  <Button
-                    component={Link}
-                    variant="contained"
-                    to={`layout/${s.id}`}
-                  >
-                    Organize Games on Shelves
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => {
-                      deleteRoom(s.id);
-                    }}
-                    loading={isDeleting}
-                  >
-                    <DeleteForever />
-                  </Button>
-                </Stack>
-              </ListItem>
-            ))}
-          </List>
+          <RoomList
+            shelves={shelves}
+            deleteRoom={deleteRoom}
+            isDeleting={isDeleting}
+          />
           <AddRoomDialog
             open={newDialogOpen}
             handleClose={handleClose}
