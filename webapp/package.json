@@ -20,6 +20,7 @@
     "react-router-dom": "^6.21.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -29,6 +30,7 @@
     "eslint": "latest",
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
+    "globals": "^17.5.0",
     "typescript": "^6",
     "vite": "latest"
   }

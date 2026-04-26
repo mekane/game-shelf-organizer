@@ -15,19 +15,32 @@ export interface Game {
   bggId: number;
   versionId: number;
   name: string;
+  /** @default null */
   versionName: string | null;
   collection: Collection;
+  /** @default null */
   yearPublished: number | null;
+  /** @default null */
   bggRank: number | null;
+  /** @default null */
   bggRating: number | null;
+  /** @default null */
   imageUrl: string | null;
+  /** @default null */
   thumbnailUrl: string | null;
+  /** @default null */
   length: number | null;
+  /** @default null */
   width: number | null;
+  /** @default null */
   depth: number | null;
+  /** @default false */
   owned: boolean;
+  /** @default false */
   previouslyOwned: boolean;
+  /** @default 0 */
   plays: number;
+  /** @default 0 */
   rating: number;
 }
 
@@ -41,6 +54,7 @@ export interface Collection {
 export interface List {
   id: number;
   user: User;
+  /** @default "" */
   name: string;
   games: Game[];
 }
@@ -52,7 +66,6 @@ export interface SizeDto {
 
 export interface RoomDto {
   size: SizeDto;
-  snapIncrement?: number;
 }
 
 export interface PositionDto {
@@ -82,10 +95,11 @@ export interface ShelfDto {
 export interface Shelf {
   id: number;
   user: User;
+  /** @default "" */
   name: string;
-  roomSerialized: string;
+  roomSerialized?: string;
   room: RoomDto;
-  shelvesSerialized: string;
+  shelvesSerialized?: string;
   shelves: ShelfDto[];
 }
 
@@ -106,9 +120,9 @@ export interface Anylist {
   id: number;
   user: User;
   name: string;
-  optionsSerialized: string;
+  optionsSerialized?: string;
   options: AnylistOptions;
-  dataSerialized: string;
+  dataSerialized?: string;
   data: AnylistColumns[];
 }
 
@@ -117,8 +131,10 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  /** @default "" */
   bggUserName: string;
   password: string;
+  /** @default false */
   isAdmin: boolean;
   collections: Collection[];
   lists: List[];
@@ -127,7 +143,9 @@ export interface User {
 }
 
 export interface CreateListDto {
+  /** @default "" */
   name: string;
+  /** @default [] */
   games: object[];
 }
 
@@ -221,6 +239,7 @@ type CancelToken = Symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
+  JsonApi = "application/vnd.api+json",
   FormData = "multipart/form-data",
   UrlEncoded = "application/x-www-form-urlencoded",
   Text = "text/plain",
@@ -287,12 +306,20 @@ export class HttpClient<SecurityDataType = unknown> {
       input !== null && (typeof input === "object" || typeof input === "string")
         ? JSON.stringify(input)
         : input,
+    [ContentType.JsonApi]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
     [ContentType.Text]: (input: any) =>
       input !== null && typeof input !== "string"
         ? JSON.stringify(input)
         : input,
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -303,7 +330,8 @@ export class HttpClient<SecurityDataType = unknown> {
               : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
@@ -389,13 +417,14 @@ export class HttpClient<SecurityDataType = unknown> {
             : payloadFormatter(body),
       },
     ).then(async (response) => {
-      const r = response.clone() as HttpResponse<T, E>;
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
+      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await response[responseFormat]()
+        : await responseToParse[responseFormat]()
             .then((data) => {
               if (r.ok) {
                 r.data = data;
