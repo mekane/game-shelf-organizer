@@ -2,11 +2,11 @@ import {
   Button,
   Dialog,
   DialogActions,
-  DialogTitle,
   DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import { FC, ReactNode, useCallback, useRef, useState } from "react";
-import { ConfirmOptions, ConfirmContext } from "./useConfirmContext";
+import { ConfirmContext, ConfirmOptions } from "./useConfirmContext";
 
 export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
@@ -46,7 +46,12 @@ export const ConfirmProvider: FC<{ children: ReactNode }> = ({ children }) => {
         <DialogTitle>{options?.title}</DialogTitle>
         <DialogContent>{options?.description}</DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={loading} variant={"outlined"}>
+          <Button
+            onClick={handleClose}
+            disabled={loading}
+            variant={"outlined"}
+            color="secondary"
+          >
             Cancel
           </Button>
           <Button

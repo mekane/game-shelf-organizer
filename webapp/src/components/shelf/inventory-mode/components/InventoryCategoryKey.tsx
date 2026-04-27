@@ -41,8 +41,9 @@ export function InventoryCategoryKey({ categories }: InventoryCategoryKeyProps) 
         sx={{
           overflow: 'hidden',
           borderRadius: 2,
-          border: '1px solid rgba(88, 64, 42, 0.14)',
-          backgroundColor: 'rgba(255,255,255,0.56)',
+          border: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.paper',
         }}
       >
         <Table
@@ -50,11 +51,11 @@ export function InventoryCategoryKey({ categories }: InventoryCategoryKeyProps) 
           sx={{
             tableLayout: 'fixed',
             '& th, & td': {
-              borderColor: 'rgba(88, 64, 42, 0.12)',
+              borderColor: 'divider',
               py: 0.75,
             },
             '& thead th': {
-              backgroundColor: 'rgba(77, 53, 36, 0.05)',
+              backgroundColor: 'action.hover',
               color: 'text.secondary',
               fontWeight: 700,
             },

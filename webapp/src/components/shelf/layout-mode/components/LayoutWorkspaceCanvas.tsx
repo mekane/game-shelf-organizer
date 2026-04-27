@@ -1,4 +1,5 @@
 import { Alert, Box } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
 import type { CSSProperties } from 'react';
 import { getLayoutWorkspaceGridStyles, SQUARE_SURFACE_RADIUS } from '../../common/styles/surfaces';
 import type { LayoutWorkspaceInput, ShelfId, ShelfInput } from '../../common/types';
@@ -33,6 +34,7 @@ export function LayoutWorkspaceCanvas({
   onSelectShelf,
   onClearSelection,
 }: LayoutWorkspaceCanvasProps) {
+  const theme = useTheme();
   const workspaceWidth = workspace.size.width * scale;
   const workspaceHeight = workspace.size.height * scale;
   const workspaceFrameWidth =
@@ -45,10 +47,11 @@ export function LayoutWorkspaceCanvas({
     boxSizing: 'content-box',
     width: workspaceWidth,
     height: workspaceHeight,
-    border: '1px solid rgba(95, 72, 50, 0.16)',
+    border: `1px solid ${theme.palette.divider}`,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.72)',
+    backgroundColor: theme.palette.background.default,
     backgroundClip: 'padding-box',
+    color: alpha(theme.palette.text.secondary, theme.palette.mode === 'dark' ? 0.34 : 0.4),
     ...getLayoutWorkspaceGridStyles(workspace, scale),
   };
 
@@ -83,9 +86,9 @@ export function LayoutWorkspaceCanvas({
           maxWidth: workspaceFrameWidth,
           overflow: 'auto',
           borderRadius: SQUARE_SURFACE_RADIUS,
-          border: '1px solid rgba(95, 72, 50, 0.2)',
-          background:
-            'linear-gradient(180deg, rgba(250,247,241,0.96), rgba(244,236,225,0.92))',
+          border: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.paper',
           p: 1.5,
         }}
       >
@@ -110,7 +113,7 @@ export function LayoutWorkspaceCanvas({
             >
               <div
                 style={{
-                  color: 'rgba(77, 53, 36, 0.68)',
+                  color: theme.palette.text.secondary,
                   fontSize: 16,
                   lineHeight: 1.5,
                 }}

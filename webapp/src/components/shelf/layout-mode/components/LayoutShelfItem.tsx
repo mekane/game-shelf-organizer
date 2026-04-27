@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import { forwardRef, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import type {
   CSSProperties,
   HTMLAttributes,
@@ -24,9 +25,6 @@ const INVALID_LABEL_BACKGROUND =
 const LABEL_TEXT_COLOR = '#ffffff';
 const SHELF_FRAME_BACKGROUND =
   'linear-gradient(145deg, rgba(126, 95, 63, 0.98), rgba(88, 61, 37, 0.98))';
-const CELL_BACKGROUND =
-  'linear-gradient(180deg, rgba(255,255,255,0.94), rgba(244,238,228,0.96))';
-const CELL_OUTLINE = 'inset 0 0 0 1px rgba(110, 80, 52, 0.18)';
 
 interface LayoutShelfVisualProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onClick'> {
   shelf: ShelfInput;
@@ -77,6 +75,7 @@ export const LayoutShelfVisual = forwardRef<HTMLDivElement, LayoutShelfVisualPro
     },
     ref
   ) {
+    const theme = useTheme();
     const [hovered, setHovered] = useState(false);
     const renderedShelf =
       positionOverride === undefined
@@ -98,6 +97,8 @@ export const LayoutShelfVisual = forwardRef<HTMLDivElement, LayoutShelfVisualPro
       : invalid
         ? INVALID_BORDER_COLOR
         : DEFAULT_BORDER_COLOR;
+    const cellBackground = theme.palette.background.paper;
+    const cellOutline = `inset 0 0 0 1px ${theme.palette.divider}`;
 
     function handleMouseEnter(event: ReactMouseEvent<HTMLDivElement>) {
       onMouseEnter?.(event);
@@ -175,8 +176,8 @@ export const LayoutShelfVisual = forwardRef<HTMLDivElement, LayoutShelfVisualPro
                     top: cellDomRect.y,
                     width: cellDomRect.width,
                     height: cellDomRect.height,
-                    background: CELL_BACKGROUND,
-                    boxShadow: CELL_OUTLINE,
+                    background: cellBackground,
+                    boxShadow: cellOutline,
                     pointerEvents: 'none',
                   }}
                 />

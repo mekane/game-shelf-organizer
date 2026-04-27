@@ -21,8 +21,11 @@ export interface RoomListProps {
 
 export const RoomList = ({ shelves, deleteRoom, isDeleting }) => {
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ margin: "auto", minWidth: 800 }} aria-label="simple table">
+    <TableContainer
+      component={Paper}
+      sx={{ margin: "auto", width: "80%", minWidth: 800 }}
+    >
+      <Table>
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>

@@ -25,9 +25,9 @@ describe('surface tokens', () => {
       )
     ).toMatchObject({
       borderRadius: SQUARE_SURFACE_RADIUS,
-      backgroundPosition: 'left bottom, center center',
-      backgroundRepeat: 'repeat, no-repeat',
-      backgroundSize: '24px 24px, auto',
+      backgroundPosition: 'left bottom',
+      backgroundRepeat: 'repeat',
+      backgroundSize: '24px 24px',
     });
   });
 });

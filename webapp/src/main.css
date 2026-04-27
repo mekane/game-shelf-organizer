@@ -1,10 +1,19 @@
 html,
 body,
 :root {
+    background-color: rgb(245, 240, 220);
     height: 100%;
 }
 
 :root,
 #root {
     font-weight: 400;
+}
+
+/* Dark mode override */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: white;
+    }
 }

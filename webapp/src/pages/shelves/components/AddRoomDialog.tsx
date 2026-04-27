@@ -88,7 +88,7 @@ export const AddRoomDialog = ({
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} variant="outlined">
+        <Button onClick={handleClose} variant="outlined" color="secondary">
           Cancel
         </Button>
         <Button

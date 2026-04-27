@@ -40,9 +40,10 @@ export function LayoutSidebar({
       elevation={0}
       sx={{
         borderRadius: 4,
-        border: '1px solid rgba(88, 64, 42, 0.18)',
+        border: '1px solid',
+        borderColor: 'divider',
         p: 2,
-        backgroundColor: 'rgba(255,255,255,0.76)',
+        backgroundColor: 'background.paper',
       }}
     >
       <Stack spacing={2}>

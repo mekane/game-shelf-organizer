@@ -173,23 +173,23 @@ export function LayoutHeader({
                 '& .MuiOutlinedInput-root': {
                   minHeight: 'unset',
                   borderRadius: 2,
-                  backgroundColor: 'rgba(255,255,255,0.88)',
-                  color: 'rgba(59, 39, 24, 0.94)',
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
                   fontSize: theme.typography.h5.fontSize,
                   fontWeight: 700,
                   lineHeight: theme.typography.h5.lineHeight,
                   letterSpacing: theme.typography.h5.letterSpacing,
                   '& .MuiOutlinedInput-notchedOutline': {
                     borderWidth: '0.75px',
-                    borderColor: 'rgba(88, 64, 42, 0.22)',
+                    borderColor: theme.palette.divider,
                   },
                   '&:hover .MuiOutlinedInput-notchedOutline': {
                     borderWidth: '0.75px',
-                    borderColor: 'rgba(88, 64, 42, 0.32)',
+                    borderColor: theme.palette.text.secondary,
                   },
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderWidth: '0.75px',
-                    borderColor: 'rgba(130, 89, 57, 0.52)',
+                    borderColor: theme.palette.secondary.main,
                   },
                 },
                 '& .MuiInputBase-input': {
@@ -223,7 +223,7 @@ export function LayoutHeader({
               justifyContent: 'flex-start',
               textAlign: 'left',
               '&:hover': {
-                backgroundColor: 'rgba(77, 53, 36, 0.06)',
+                backgroundColor: 'action.hover',
               },
             }}
           >
@@ -233,7 +233,7 @@ export function LayoutHeader({
               data-testid="layout-name-heading"
               sx={{
                 fontWeight: 700,
-                color: 'rgba(59, 39, 24, 0.94)',
+                color: 'text.primary',
               }}
             >
               {name}
@@ -284,7 +284,7 @@ export function LayoutHeader({
                   sx={{
                     fontWeight: 700,
                     letterSpacing: '0.12em',
-                    color: 'rgba(95, 72, 50, 0.72)',
+                    color: 'text.secondary',
                   }}
                 >
                   W
@@ -316,7 +316,7 @@ export function LayoutHeader({
                   sx={{
                     fontWeight: 700,
                     letterSpacing: '0.12em',
-                    color: 'rgba(95, 72, 50, 0.72)',
+                    color: 'text.secondary',
                   }}
                 >
                   H
@@ -364,7 +364,7 @@ export function LayoutHeader({
               justifyContent: 'flex-end',
               textAlign: 'right',
               '&:hover': {
-                backgroundColor: 'rgba(77, 53, 36, 0.06)',
+                backgroundColor: 'action.hover',
               },
             }}
           >
@@ -469,7 +469,7 @@ function HeaderSizeValue({
       spacing={0.5}
       sx={{
         alignItems: 'baseline',
-        color: 'rgba(59, 39, 24, 0.94)',
+        color: 'text.primary',
       }}
     >
       <Typography
@@ -477,7 +477,7 @@ function HeaderSizeValue({
         sx={{
           fontWeight: 700,
           letterSpacing: '0.14em',
-          color: 'rgba(95, 72, 50, 0.72)',
+          color: 'text.secondary',
         }}
       >
         {label}
@@ -532,18 +532,18 @@ const compactNumericFieldSx = {
   '& .MuiOutlinedInput-root': {
     minHeight: 'unset',
     borderRadius: 2.5,
-    backgroundColor: 'rgba(255,255,255,0.88)',
+    backgroundColor: 'background.paper',
     '& .MuiOutlinedInput-notchedOutline': {
       borderWidth: '0.75px',
-      borderColor: 'rgba(88, 64, 42, 0.22)',
+      borderColor: 'divider',
     },
     '&:hover .MuiOutlinedInput-notchedOutline': {
       borderWidth: '0.75px',
-      borderColor: 'rgba(88, 64, 42, 0.32)',
+      borderColor: 'text.secondary',
     },
     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
       borderWidth: '0.75px',
-      borderColor: 'rgba(130, 89, 57, 0.52)',
+      borderColor: 'secondary.main',
     },
   },
   '& .MuiInputBase-input': {
@@ -551,34 +551,36 @@ const compactNumericFieldSx = {
     py: 0.5,
     fontWeight: 700,
     textAlign: 'right',
-    color: 'rgba(59, 39, 24, 0.94)',
+    color: 'text.primary',
   },
 } as const;
 
 const headerCancelButtonSx = {
   width: 40,
   height: 40,
-  border: '1px solid rgba(88, 64, 42, 0.16)',
-  backgroundColor: 'rgba(255,255,255,0.72)',
-  color: 'rgba(77, 53, 36, 0.8)',
+  border: '1px solid',
+  borderColor: 'divider',
+  backgroundColor: 'background.paper',
+  color: 'text.secondary',
   '&:hover': {
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: 'action.hover',
   },
 } as const;
 
 const headerConfirmButtonSx = {
   width: 40,
   height: 40,
-  border: '1px solid rgba(88, 64, 42, 0.18)',
-  backgroundColor: 'rgba(130, 89, 57, 0.12)',
-  color: 'rgba(77, 53, 36, 0.96)',
+  border: '1px solid',
+  borderColor: 'secondary.main',
+  backgroundColor: 'action.hover',
+  color: 'secondary.main',
   '&:hover': {
-    backgroundColor: 'rgba(130, 89, 57, 0.18)',
+    backgroundColor: 'action.selected',
   },
   '&.Mui-disabled': {
-    borderColor: 'rgba(88, 64, 42, 0.14)',
-    backgroundColor: 'rgba(130, 89, 57, 0.06)',
-    color: 'rgba(77, 53, 36, 0.38)',
+    borderColor: 'divider',
+    backgroundColor: 'action.disabledBackground',
+    color: 'action.disabled',
   },
 } as const;
 

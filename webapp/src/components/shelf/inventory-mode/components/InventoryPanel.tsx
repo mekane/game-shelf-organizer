@@ -1,5 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import { Box, Paper, Stack, Typography } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import type { Category, Orientation, ProductInput } from '../../common/types';
 import { InventoryCategoryKey } from './InventoryCategoryKey';
 import { InventoryProductCard } from './InventoryProductCard';
@@ -42,14 +43,15 @@ export function InventoryPanel({
     <Paper
       ref={setNodeRef}
       elevation={0}
-      sx={{
+      sx={(theme) => ({
         p: 2,
         borderRadius: 3,
-        border: '1px solid rgba(88, 64, 42, 0.18)',
-        background: isOver
-          ? 'linear-gradient(145deg, rgba(255,244,220,0.98), rgba(250,227,174,0.82))'
-          : 'linear-gradient(145deg, rgba(255,255,255,0.94), rgba(246,238,227,0.94))',
-      }}
+        border: '1px solid',
+        borderColor: 'divider',
+        backgroundColor: isOver
+          ? alpha(theme.palette.secondary.main, theme.palette.mode === 'dark' ? 0.22 : 0.14)
+          : theme.palette.background.paper,
+      })}
     >
       <Stack spacing={1.5}>
         <Stack
@@ -99,7 +101,8 @@ export function InventoryPanel({
                 display: 'grid',
                 placeItems: 'center',
                 borderRadius: 2,
-                border: '1px dashed rgba(88, 64, 42, 0.18)',
+                border: '1px dashed',
+                borderColor: 'divider',
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>

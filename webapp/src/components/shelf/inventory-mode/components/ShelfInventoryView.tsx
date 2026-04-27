@@ -1,5 +1,6 @@
 import { useDroppable } from '@dnd-kit/core';
 import { Box } from '@mui/material';
+import { alpha, useTheme } from '@mui/material/styles';
 import { ProductVisual } from '../../common/components';
 import {
   getCellRectInShelf,
@@ -21,9 +22,6 @@ import { PlacedProductBox } from './PlacedProductBox';
 import type { MouseEvent as ReactMouseEvent, ReactNode } from 'react';
 const SHELF_FRAME_BACKGROUND =
   'linear-gradient(145deg, rgba(126, 95, 63, 0.98), rgba(88, 61, 37, 0.98))';
-const CELL_BACKGROUND =
-  'linear-gradient(180deg, rgba(255,255,255,0.94), rgba(244,238,228,0.96))';
-const CELL_OUTLINE = 'inset 0 0 0 1px rgba(110, 80, 52, 0.18)';
 
 interface PlacementPreviewState {
   productId: string;
@@ -61,8 +59,19 @@ export function ShelfInventoryView({
   onSelectProduct,
   onClearSelection,
 }: ShelfInventoryViewProps) {
+  const theme = useTheme();
   const workspaceBounds = getInventoryBounds(shelves);
   const productMap = new Map(products.map((product) => [product.id, product]));
+  const cellBackground = theme.palette.background.paper;
+  const cellOutline = `inset 0 0 0 1px ${theme.palette.divider}`;
+  const previewCellBackground = alpha(
+    theme.palette.warning.main,
+    theme.palette.mode === 'dark' ? 0.24 : 0.18
+  );
+  const hoverCellBackground = alpha(
+    theme.palette.success.main,
+    theme.palette.mode === 'dark' ? 0.22 : 0.16
+  );
   const workspaceStyle = {
     position: 'relative',
     width: workspaceBounds.width * scale,
@@ -70,7 +79,7 @@ export function ShelfInventoryView({
     minWidth: '100%',
     minHeight: 320,
     borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.78)',
+    backgroundColor: theme.palette.background.default,
   } as const;
 
   function handleWorkspaceMouseDown(event: ReactMouseEvent<HTMLDivElement>) {
@@ -91,9 +100,9 @@ export function ShelfInventoryView({
       sx={{
         overflow: 'auto',
         borderRadius: 3,
-        border: '1px solid rgba(95, 72, 50, 0.2)',
-        background:
-          'linear-gradient(180deg, rgba(250,248,243,0.98), rgba(244,236,225,0.94))',
+        border: '1px solid',
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
         p: 1.5,
       }}
     >
@@ -168,6 +177,10 @@ export function ShelfInventoryView({
                         }}
                         preview={preview}
                         activeProductId={activeProductId}
+                        cellBackground={cellBackground}
+                        cellOutline={cellOutline}
+                        hoverCellBackground={hoverCellBackground}
+                        previewCellBackground={previewCellBackground}
                       >
                         {placedProducts.map((product) => {
                           const placement = placements[product.id];
@@ -241,7 +254,7 @@ export function ShelfInventoryView({
           >
             <div
               style={{
-                color: 'rgba(0, 0, 0, 0.6)',
+                color: theme.palette.text.secondary,
                 fontSize: 16,
                 lineHeight: 1.5,
               }}
@@ -266,6 +279,10 @@ interface DroppableCellProps {
   };
   preview: PlacementPreviewState | null;
   activeProductId: string | null;
+  cellBackground: string;
+  cellOutline: string;
+  hoverCellBackground: string;
+  previewCellBackground: string;
   children: ReactNode;
 }
 
@@ -275,6 +292,10 @@ function DroppableCell({
   domRect,
   preview,
   activeProductId,
+  cellBackground,
+  cellOutline,
+  hoverCellBackground,
+  previewCellBackground,
   children,
 }: DroppableCellProps) {
   const { setNodeRef, isOver } = useDroppable({
@@ -302,11 +323,11 @@ function DroppableCell({
         height: domRect.height,
         background:
           preview && isPreviewTarget && preview.valid
-            ? 'linear-gradient(180deg, rgba(255, 241, 201, 0.88), rgba(247, 224, 155, 0.9))'
+            ? previewCellBackground
             : isOver && activeProductId
-              ? 'linear-gradient(180deg, rgba(228, 239, 214, 0.88), rgba(207, 226, 181, 0.9))'
-              : CELL_BACKGROUND,
-        boxShadow: CELL_OUTLINE,
+              ? hoverCellBackground
+              : cellBackground,
+        boxShadow: cellOutline,
         overflow: 'hidden',
       }}
     >
