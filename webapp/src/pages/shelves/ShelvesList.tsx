@@ -29,7 +29,6 @@ export const ShelvesList = () => {
     loadShelfList();
   }, [loadShelfList]);
 
-  //TODO: add confirmation step
   const deleteRoom = async (roomId, name: string) => {
     const confirmDelete = await confirm({
       title: "Confirm Delete",

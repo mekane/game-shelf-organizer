@@ -2,10 +2,13 @@ import { Shelf } from "@lib/boardgame.api.client";
 import DeleteForever from "@mui/icons-material/DeleteForever";
 import {
   Button,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -18,36 +21,61 @@ export interface RoomListProps {
 
 export const RoomList = ({ shelves, deleteRoom, isDeleting }) => {
   return (
-    <List sx={{ width: "50%", margin: "auto", minWidth: 800 }}>
-      {shelves.map((s) => (
-        <ListItem key={s.id}>
-          <ListItemText
-            primary={s.name}
-            secondary={`${s.room.size.width}" x ${s.room.size.height}"`}
-          />
-          <Stack direction="row" spacing={2}>
-            <Typography
-              sx={{ lineHeight: 2.5 }}
-            >{`${s.shelves.length} shelves`}</Typography>
-            <Button component={Link} variant="contained" to={`layout/${s.id}`}>
-              Edit Shelf Layout
-            </Button>
-            <Button component={Link} variant="contained" to={`layout/${s.id}`}>
-              Organize Games on Shelves
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={() => {
-                deleteRoom(s.id, s.name);
-              }}
-              loading={isDeleting}
+    <TableContainer component={Paper}>
+      <Table sx={{ margin: "auto", minWidth: 800 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell align="right">Size</TableCell>
+            <TableCell align="right">Shelves</TableCell>
+            <TableCell>Actions</TableCell>
+            <TableCell>Delete</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {shelves.map((s) => (
+            <TableRow
+              key={s.id}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
             >
-              <DeleteForever />
-            </Button>
-          </Stack>
-        </ListItem>
-      ))}
-    </List>
+              <TableCell component="th" scope="row">
+                <Typography sx={{ fontWeight: 700 }}>{s.name}</Typography>
+              </TableCell>
+              <TableCell align="right">{`${s.room.size.width}" x ${s.room.size.height}"`}</TableCell>
+              <TableCell align="right">{s.shelves.length}</TableCell>
+              <TableCell>
+                <Button
+                  component={Link}
+                  variant="contained"
+                  to={`layout/${s.id}`}
+                  sx={{ mr: 2 }}
+                >
+                  Edit Shelf Layout
+                </Button>
+                <Button
+                  component={Link}
+                  variant="contained"
+                  to={`layout/${s.id}`}
+                >
+                  Organize Games
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    deleteRoom(s.id, s.name);
+                  }}
+                  loading={isDeleting}
+                >
+                  <DeleteForever />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
