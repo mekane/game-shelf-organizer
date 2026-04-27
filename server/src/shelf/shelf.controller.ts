@@ -26,7 +26,11 @@ export class ShelfController {
     @AuthUser() user: UserAuthRecord,
     @Body() createShelfDto: CreateShelfDto,
   ) {
-    return this.shelfService.create(user, createShelfDto);
+    const result = await this.shelfService.create(user, createShelfDto);
+
+    checkServiceResults(result);
+
+    return result.content?.id;
   }
 
   @Get()

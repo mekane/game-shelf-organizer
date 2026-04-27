@@ -56,12 +56,15 @@ export class ShelfDto {
   @IsString()
   label?: string;
 
+  @IsNotEmpty()
   @Type(() => PositionDto)
   position!: PositionDto;
 
+  @IsNotEmpty()
   @Type(() => GridDto)
   grid!: GridDto;
 
+  @IsNotEmpty()
   @Type(() => SizeDto)
   cellSize!: SizeDto;
 
