@@ -8,14 +8,17 @@ import { RouterProvider } from "react-router-dom";
 import "./main.css";
 import { router } from "./routes";
 import theme from "./theme";
+import { ConfirmProvider } from "./context/useConfirm/useConfirmProvider";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <AuthProvider>
         <ApiProvider>
-          <RouterProvider router={router} />
-          <CssBaseline />
+          <ConfirmProvider>
+            <RouterProvider router={router} />
+            <CssBaseline />
+          </ConfirmProvider>
         </ApiProvider>
       </AuthProvider>
     </ThemeProvider>

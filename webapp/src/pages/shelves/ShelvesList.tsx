@@ -1,45 +1,65 @@
 import { PageHeader } from "@components/PageHeader";
 import { useApi } from "@context/api";
+import { useConfirm } from "@context/useConfirm/useConfirm";
 import { CreateShelfDto, Shelf } from "@lib/boardgame.api.client";
+import AddIcon from "@mui/icons-material/Add";
 import { Button, CircularProgress } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AddRoomDialog } from "./components";
 import { RoomList } from "./components/RoomList";
 
 export const ShelvesList = () => {
   const api = useApi();
+  const { confirm, setLoading, close: closeConfirm } = useConfirm();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [shelves, setShelves] = useState<Shelf[]>([]);
 
-  const loadShelfList = () => {
+  const loadShelfList = useCallback(() => {
     setIsLoading(true);
     api.shelf.shelfControllerFindAll().then((res) => {
       console.log("api result for shelves fetch", res.data);
       setShelves(res.data);
       setIsLoading(false);
     });
-  };
+  }, [api]);
 
   useEffect(() => {
     loadShelfList();
-  }, [api]);
+  }, [loadShelfList]);
 
   //TODO: add confirmation step
-  const deleteRoom = (roomId) => {
-    api.shelf
-      .shelfControllerRemove(roomId)
-      .then((res) => {
-        console.log("deleted");
-        loadShelfList();
-      })
-      .catch((err) => {
-        console.log("error deleting", err);
-      })
-      .finally(() => {
-        setIsDeleting(false);
-      });
+  const deleteRoom = async (roomId, name: string) => {
+    const confirmDelete = await confirm({
+      title: "Confirm Delete",
+      description: `Are you sure you want to delete ${name}?`,
+      actionText: "Delete",
+      color: "error",
+    });
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      api.shelf
+        .shelfControllerRemove(roomId)
+        .then((res) => {
+          console.log("deleted");
+          loadShelfList();
+        })
+        .catch((err) => {
+          console.log("error deleting", err);
+        })
+        .finally(() => {
+          setIsDeleting(false);
+        });
+    } catch (err) {
+      setLoading(false);
+    } finally {
+      closeConfirm();
+    }
   };
 
   const [newDialogOpen, setNewDialogOpen] = useState(false);
@@ -56,16 +76,16 @@ export const ShelvesList = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const formJson = Object.fromEntries((formData as any).entries());
+    const formJson = Object.fromEntries(formData.entries());
 
     setIsSubmittingForm(true);
 
     const createDto: CreateShelfDto = {
-      name: formJson.name,
+      name: formJson.name as string,
       room: {
         size: {
-          width: formJson.width,
-          height: formJson.height,
+          width: Number(formJson.width),
+          height: Number(formJson.height),
         },
       },
       shelves: [],
@@ -73,7 +93,7 @@ export const ShelvesList = () => {
 
     console.log("submitting form", createDto);
 
-    const apiRes = await api.shelf
+    await api.shelf
       .shelfControllerCreate(createDto)
       .then((res) => {
         console.log("success");
@@ -88,15 +108,17 @@ export const ShelvesList = () => {
       });
   };
 
-  const addShelfButton = (
-    <Button variant="contained" onClick={openNewDialog}>
-      Add New Room
-    </Button>
-  );
-
   return (
     <>
-      <PageHeader headerText="Shelves">{addShelfButton}</PageHeader>
+      <PageHeader headerText="Shelves">
+        <Button
+          variant="contained"
+          onClick={openNewDialog}
+          startIcon={<AddIcon />}
+        >
+          Add New Room
+        </Button>
+      </PageHeader>
       {isLoading ? (
         <CircularProgress />
       ) : (

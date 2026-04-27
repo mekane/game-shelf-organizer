@@ -39,7 +39,7 @@ export const RoomList = ({ shelves, deleteRoom, isDeleting }) => {
               variant="outlined"
               color="error"
               onClick={() => {
-                deleteRoom(s.id);
+                deleteRoom(s.id, s.name);
               }}
               loading={isDeleting}
             >

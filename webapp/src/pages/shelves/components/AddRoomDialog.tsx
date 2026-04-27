@@ -99,7 +99,7 @@ export const AddRoomDialog = ({
           startIcon={<SaveIcon />}
           variant="contained"
         >
-          Add Room
+          Save
         </Button>
       </DialogActions>
     </Dialog>

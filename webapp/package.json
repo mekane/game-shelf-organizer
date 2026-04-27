@@ -20,6 +20,7 @@
     "react-router-dom": "^6.21.0"
   },
   "devDependencies": {
+    "@eslint-react/eslint-plugin": "^4.2.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^25",
     "@types/react": "^19",
@@ -27,11 +28,9 @@
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
     "@vitejs/plugin-react": "latest",
-    "eslint": "latest",
-    "eslint-plugin-react-hooks": "latest",
-    "eslint-plugin-react-refresh": "latest",
-    "globals": "^17.5.0",
+    "eslint": "^10.2.1",
     "typescript": "^6",
+    "typescript-eslint": "^8.59.0",
     "vite": "latest"
   }
 }

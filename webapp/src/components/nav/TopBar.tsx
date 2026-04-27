@@ -1,4 +1,3 @@
-import { useTheme } from "@emotion/react";
 import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { NavLink } from "react-router-dom";
@@ -10,15 +9,13 @@ const MenuButton = styled(Button)({
 });
 
 const NavButton = ({ label, path }: { label: string; path: string }) => {
-  const theme = useTheme();
-
   return (
     <MenuButton color="inherit">
       <NavLink
         to={path}
         style={({ isActive, isPending }) => {
           return {
-            color: isActive ? "#112" : "inherit",
+            color: isActive ? "#aa9" : "inherit",
             textDecoration: "none",
           };
         }}

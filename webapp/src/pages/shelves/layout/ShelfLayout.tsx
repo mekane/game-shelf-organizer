@@ -6,9 +6,10 @@ import {
 } from "@components/shelf";
 import { useApi } from "@context/api";
 import { UpdateShelfDto } from "@lib/boardgame.api.client";
-import { CircularProgress, Paper } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { defaultRoom, defaultShelves } from "../../../MyGameRoomData";
 
 interface LayoutConfig {
   name: string;
@@ -39,7 +40,7 @@ export const ShelfLayout = () => {
               height: config.room.size?.height ?? 96,
               width: config.room.size?.width ?? 96,
             },
-            snapIncrement: config.room.snapIncrement ?? 2,
+            snapIncrement: 2,
           },
           shelves: config.shelves,
         });
@@ -63,11 +64,19 @@ export const ShelfLayout = () => {
 
     // TODO: push to a history array to enable undo
 
+    // const updateShelfDto: UpdateShelfDto = {
+    //   name: layoutConfig.name,
+    //   room: layoutConfig.room,
+    //   shelves: nextShelves,
+    // };
+
     const updateShelfDto: UpdateShelfDto = {
       name: layoutConfig.name,
-      room: layoutConfig.room,
-      shelves: nextShelves,
+      room: defaultRoom,
+      shelves: defaultShelves,
     };
+
+    console.log(JSON.stringify(updateShelfDto));
 
     // TODO: debounce API requests in case user spams actions / undo
     const res = await api.shelf.shelfControllerUpdate(id, updateShelfDto);
@@ -83,13 +92,11 @@ export const ShelfLayout = () => {
   return isLoading ? (
     <CircularProgress />
   ) : (
-    <Paper elevation={0} sx={{ p: 2 }}>
-      <LayoutModeScreen
-        name={layoutConfig.name}
-        workspace={layoutConfig.room}
-        shelves={layoutConfig.shelves}
-        onShelvesChange={handleShelvesChange}
-      />
-    </Paper>
+    <LayoutModeScreen
+      name={layoutConfig.name}
+      workspace={layoutConfig.room}
+      shelves={layoutConfig.shelves}
+      onShelvesChange={handleShelvesChange}
+    />
   );
 };
