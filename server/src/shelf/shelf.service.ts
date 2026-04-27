@@ -32,6 +32,8 @@ export class ShelfService {
     newEntity.room = createDto.room;
     newEntity.shelves = createDto.shelves;
 
+    console.log('Room to create', newEntity);
+
     try {
       const repoResult = await this.repository.save(newEntity);
 
@@ -66,8 +68,8 @@ export class ShelfService {
       };
     }
 
-    delete found.roomSerialized;
-    delete found.shelvesSerialized;
+    // delete found.roomSerialized;
+    // delete found.shelvesSerialized;
 
     return {
       status: ServiceStatus.Success,
@@ -88,15 +90,22 @@ export class ShelfService {
       };
     }
 
-    const updated: UpdateShelfDto = {
-      ...existing,
-      ...updateDto,
-    };
+    if (updateDto.name) {
+      existing.name = updateDto.name;
+    }
 
-    console.log('updated', updated);
+    if (updateDto.room) {
+      existing.room = updateDto.room;
+      existing.roomSerialized = 'reserialize'; // touch the data to make sure the @BeforeUpdate fires
+    }
+
+    if (updateDto.shelves) {
+      existing.shelves = updateDto.shelves;
+      existing.roomSerialized = 'reserialize'; // touch the data to make sure the @BeforeUpdate fires
+    }
 
     try {
-      await this.repository.save(updated);
+      await this.repository.save(existing);
 
       return {
         status: ServiceStatus.Success,

@@ -3,6 +3,7 @@ import { Exclude } from 'class-transformer';
 import {
   AfterLoad,
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   ManyToOne,
@@ -42,6 +43,7 @@ export class Shelf {
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   serializeJson() {
     // console.log(`>>> Serialize Shelf: room`, this.room);
     // console.log(`>>> Serialize Shelf: shelves`, this.shelves);

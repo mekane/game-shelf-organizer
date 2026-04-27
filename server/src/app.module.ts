@@ -39,4 +39,9 @@ import { UsersModule } from './users/users.module';
     Logger,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  //implements NestModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer.apply(ConsoleLogger).exclude('/health').forRoutes('*');
+  // }
+}

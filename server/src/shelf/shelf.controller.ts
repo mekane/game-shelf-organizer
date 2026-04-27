@@ -60,8 +60,6 @@ export class ShelfController {
     const result = await this.shelfService.update(user, +id, updateShelfDto);
 
     checkServiceResults(result);
-
-    return result.content;
   }
 
   @Delete(':id')
@@ -69,7 +67,5 @@ export class ShelfController {
     const result = await this.shelfService.remove(user, +id);
 
     checkServiceResults(result);
-
-    return result.content;
   }
 }

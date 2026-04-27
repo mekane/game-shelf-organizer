@@ -9,7 +9,6 @@ import { UpdateShelfDto } from "@lib/boardgame.api.client";
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { defaultRoom, defaultShelves } from "../../../MyGameRoomData";
 
 interface LayoutConfig {
   name: string;
@@ -64,16 +63,10 @@ export const ShelfLayout = () => {
 
     // TODO: push to a history array to enable undo
 
-    // const updateShelfDto: UpdateShelfDto = {
-    //   name: layoutConfig.name,
-    //   room: layoutConfig.room,
-    //   shelves: nextShelves,
-    // };
-
     const updateShelfDto: UpdateShelfDto = {
       name: layoutConfig.name,
-      room: defaultRoom,
-      shelves: defaultShelves,
+      room: layoutConfig.room,
+      shelves: nextShelves,
     };
 
     console.log(JSON.stringify(updateShelfDto));

@@ -599,12 +599,13 @@ export class Api<
      * @secure
      */
     shelfControllerCreate: (data: CreateShelfDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<number, any>({
         path: `/shelf`,
         method: "POST",
         body: data,
         secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 

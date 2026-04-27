@@ -5,4 +5,8 @@ dist/
 # sqlLite DB file
 server/database.sqlite
 
+server/boardgame.api.client.d.ts
+server/boardgame.api.client.js
+server/boardgame.api.client.js.map
+
 .env
