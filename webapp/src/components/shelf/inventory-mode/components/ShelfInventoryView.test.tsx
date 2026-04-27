@@ -53,6 +53,34 @@ const placements: PlacementOutput = {
 };
 
 describe('ShelfInventoryView', () => {
+  it('does not render shelf or invalid placement summary chips', () => {
+    render(
+      <ThemeProvider theme={demoTheme}>
+        <DndContext>
+          <ShelfInventoryView
+            shelves={shelves}
+            products={products}
+            placements={placements}
+            categoryColorByProductId={{
+              a: 'rgb(215, 232, 177)',
+              b: 'rgb(215, 232, 177)',
+            }}
+            selectedProductId={null}
+            activeProductId={null}
+            invalidProductIds={new Set(['b'])}
+            preview={null}
+            scale={12}
+            onSelectProduct={vi.fn()}
+            onClearSelection={vi.fn()}
+          />
+        </DndContext>
+      </ThemeProvider>
+    );
+
+    expect(screen.queryByText('1 shelf')).toBeNull();
+    expect(screen.queryByText('1 invalid placement')).toBeNull();
+  });
+
   it('renders drag previews with the same flat dense styling as placed shelf boxes', () => {
     render(
       <ThemeProvider theme={demoTheme}>

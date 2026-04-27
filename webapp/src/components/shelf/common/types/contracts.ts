@@ -1,3 +1,5 @@
+import type { SxProps, Theme } from '@mui/material/styles';
+
 export type Inches = number;
 export type ShelfId = number;
 export type ProductId = string;
@@ -70,12 +72,15 @@ export type PlacementOutput = Record<ProductId, ProductPlacement>;
 
 export type LayoutChangeReason =
   | 'add-shelf'
+  | 'update-layout'
   | 'update-shelf'
   | 'move-shelf'
   | 'remove-shelf';
 
 export interface LayoutChangeMeta {
   reason: LayoutChangeReason;
+  name: string;
+  size: Size2D;
   shelfId?: ShelfId;
 }
 
@@ -91,6 +96,12 @@ export interface InventoryChangeMeta {
   productId?: ProductId;
 }
 
+export interface InventoryModeCopy {
+  holdingAreaTitle?: string;
+  holdingAreaDescription?: string;
+  productDetailsTitle?: string;
+}
+
 export type OnShelvesChange = (
   nextShelves: ShelfInput[],
   meta: LayoutChangeMeta
@@ -103,6 +114,7 @@ export type OnPlacementsChange = (
 
 export interface LayoutModeProps {
   name: string;
+  sx?: SxProps<Theme>;
   workspace: LayoutWorkspaceInput;
   shelves: ShelfInput[];
   onShelvesChange: OnShelvesChange;
@@ -110,6 +122,8 @@ export interface LayoutModeProps {
 
 export interface InventoryModeProps {
   name: string;
+  sx?: SxProps<Theme>;
+  copy?: InventoryModeCopy;
   shelves: ShelfInput[];
   categories: CategoryMap;
   products: ProductInput[];

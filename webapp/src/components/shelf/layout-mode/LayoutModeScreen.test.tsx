@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { LayoutWorkspaceInput, ShelfInput } from '../common/types';
+import type { LayoutModeProps, LayoutWorkspaceInput, ShelfInput } from '../common/types';
 import { getLayoutWorkspaceGridStyles, SQUARE_SURFACE_RADIUS } from '../common/styles/surfaces';
 import { demoTheme } from '../demo/theme';
 import { LayoutModeScreen } from './LayoutModeScreen';
@@ -14,12 +15,14 @@ const workspace: LayoutWorkspaceInput = {
 function renderLayoutScreen(
   shelves: ShelfInput[],
   onShelvesChange = vi.fn(),
-  name = 'Shelf Arrangement'
+  name = 'Shelf Arrangement',
+  sx?: LayoutModeProps['sx']
 ) {
   return render(
     <ThemeProvider theme={demoTheme}>
       <LayoutModeScreen
         name={name}
+        sx={sx}
         workspace={workspace}
         shelves={shelves}
         onShelvesChange={onShelvesChange}
@@ -28,14 +31,79 @@ function renderLayoutScreen(
   );
 }
 
+function renderControlledLayoutScreen(
+  initialShelves: ShelfInput[],
+  onShelvesChange = vi.fn(),
+  initialName = 'Shelf Arrangement',
+  sx?: LayoutModeProps['sx']
+) {
+  function LayoutScreenHarness() {
+    const [name, setName] = useState(initialName);
+    const [workspaceState, setWorkspaceState] = useState(workspace);
+    const [shelves, setShelves] = useState(initialShelves);
+
+    return (
+      <ThemeProvider theme={demoTheme}>
+        <LayoutModeScreen
+          name={name}
+          sx={sx}
+          workspace={workspaceState}
+          shelves={shelves}
+          onShelvesChange={(nextShelves, meta) => {
+            setShelves(nextShelves);
+            setName(meta.name);
+            setWorkspaceState((current) => ({
+              ...current,
+              size: meta.size,
+            }));
+            onShelvesChange(nextShelves, meta);
+          }}
+        />
+      </ThemeProvider>
+    );
+  }
+
+  return render(<LayoutScreenHarness />);
+}
+
 describe('LayoutModeScreen', () => {
-  it('renders the screen title from the name prop', () => {
+  it('renders the layout name as the workspace header when no shelf is selected', () => {
     renderLayoutScreen([], vi.fn(), 'Front Room Shelves');
 
-    expect(
-      screen.getByRole('heading', { name: 'Front Room Shelves', level: 4 })
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Shelf Arrangement', level: 4 })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Front Room Shelves', level: 2 })).toBeVisible();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+  });
+
+  it('keeps the layout name in the workspace header when the selected shelf changes', async () => {
+    const user = userEvent.setup();
+
+    renderLayoutScreen(
+      [
+        {
+          id: 1,
+          label: 'Entry Wall',
+          position: { x: 0, y: 0 },
+          grid: { rows: 4, columns: 1 },
+          cellSize: { width: 12, height: 12 },
+        },
+        {
+          id: 2,
+          label: 'Back Corner',
+          position: { x: 18, y: 0 },
+          grid: { rows: 4, columns: 1 },
+          cellSize: { width: 12, height: 12 },
+        },
+      ],
+      vi.fn(),
+      'Front Room Shelves'
+    );
+
+    expect(screen.getByRole('heading', { name: 'Front Room Shelves', level: 2 })).toBeVisible();
+
+    await user.click(screen.getByTestId('shelf-2'));
+
+    expect(screen.getByRole('heading', { name: 'Front Room Shelves', level: 2 })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: 'Back Corner', level: 2 })).toBeNull();
   });
 
   it('adds a shelf using the documented defaults', async () => {
@@ -59,6 +127,8 @@ describe('LayoutModeScreen', () => {
       ],
       {
         reason: 'add-shelf',
+        name: 'Shelf Arrangement',
+        size: workspace.size,
         shelfId: 1,
       }
     );
@@ -90,7 +160,7 @@ describe('LayoutModeScreen', () => {
     expect(screen.getByTestId('layout-workspace-frame')).toHaveStyle({
       width: '100%',
       maxWidth: '748px',
-      overflow: 'scroll',
+      overflow: 'auto',
     });
     expect(screen.getByTestId('layout-workspace')).toHaveStyle({
       width: '720px',
@@ -98,7 +168,7 @@ describe('LayoutModeScreen', () => {
     });
   });
 
-  it('renders the layout summary chips in the header above the workspace', () => {
+  it('does not render the workspace summary chips in the header', () => {
     renderLayoutScreen([
       {
         id: 1,
@@ -116,14 +186,16 @@ describe('LayoutModeScreen', () => {
       },
     ]);
 
-    const headerSupplement = screen.getByTestId('screen-layout-header-supplement');
-    const summaryChips = screen.getByTestId('layout-summary-chips');
+    expect(screen.queryByTestId('screen-layout-header-supplement')).toBeNull();
+    expect(screen.queryByTestId('layout-summary-chips')).toBeNull();
+  });
 
-    expect(headerSupplement).toContainElement(summaryChips);
-    expect(summaryChips).toHaveTextContent('Workspace 60" × 60"');
-    expect(summaryChips).toHaveTextContent('Grid 2" snap');
-    expect(summaryChips).toHaveTextContent('2 shelves');
-    expect(screen.getByTestId('layout-workspace-frame')).not.toContainElement(summaryChips);
+  it('forwards sx to the outer workspace container', () => {
+    renderLayoutScreen([], vi.fn(), 'Shelf Arrangement', { margin: 2 });
+
+    expect(window.getComputedStyle(screen.getByTestId('screen-layout-root')).marginTop).toBe(
+      '16px'
+    );
   });
 
   it('shows shelf labels only for the selected shelf by default', () => {
@@ -177,9 +249,259 @@ describe('LayoutModeScreen', () => {
     expect(
       screen.getByText(/select a shelf to edit its grid, borders, cell size, and coordinates/i)
     ).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Shelf Arrangement', level: 2 })).toBeVisible();
     expect(screen.getByTestId('shelf-label-1')).toHaveStyle({
       opacity: '0',
     });
+  });
+
+  it('renames the layout from the workspace header using the confirm button', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Front Display');
+    await user.click(screen.getByTestId('layout-name-confirm'));
+
+    expect(onShelvesChange).toHaveBeenCalledWith([], {
+      reason: 'update-layout',
+      name: 'Front Display',
+      size: workspace.size,
+    });
+    expect(screen.getByRole('heading', { name: 'Front Display', level: 2 })).toBeVisible();
+  });
+
+  it('confirms a layout header rename on enter', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack{Enter}');
+
+    expect(onShelvesChange).toHaveBeenCalledWith([], {
+      reason: 'update-layout',
+      name: 'Receiving Rack',
+      size: workspace.size,
+    });
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+  });
+
+  it('cancels a layout header rename on escape', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack{Escape}');
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Entry Layout', level: 2 })).toBeVisible();
+  });
+
+  it('cancels a layout header rename from the cancel button', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack');
+    await user.click(screen.getByTestId('layout-name-cancel'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Entry Layout', level: 2 })).toBeVisible();
+  });
+
+  it('cancels a layout header rename when the workspace background is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack');
+    await user.click(screen.getByTestId('layout-workspace'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Entry Layout', level: 2 })).toBeVisible();
+  });
+
+  it('cancels a layout header rename when another header control is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack');
+    await user.click(screen.getByTestId('layout-size-trigger'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-width-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-height-field')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Entry Layout', level: 2 })).toBeVisible();
+  });
+
+  it('cancels a layout header rename when the header spacer is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-name-trigger'));
+    const nameInput = within(screen.getByTestId('layout-name-field')).getByRole('textbox');
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Receiving Rack');
+    await user.click(screen.getByTestId('layout-header-spacer'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Entry Layout', level: 2 })).toBeVisible();
+  });
+
+  it('renders the workspace width and height in the header', () => {
+    renderLayoutScreen([]);
+
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('60"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('60"');
+  });
+
+  it('updates the workspace size from the header using the shared confirm button', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-size-trigger'));
+    const widthInput = screen.getByRole('spinbutton', { name: 'Workspace Width' });
+    const heightInput = screen.getByRole('spinbutton', { name: 'Workspace Height' });
+    await user.clear(widthInput);
+    await user.type(widthInput, '72');
+    await user.clear(heightInput);
+    await user.type(heightInput, '48');
+    await user.click(screen.getByTestId('layout-size-confirm'));
+
+    expect(onShelvesChange).toHaveBeenCalledWith([], {
+      reason: 'update-layout',
+      name: 'Entry Layout',
+      size: { width: 72, height: 48 },
+    });
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('72"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('48"');
+    expect(screen.getByTestId('layout-workspace')).toHaveStyle({
+      width: '864px',
+      height: '576px',
+    });
+  });
+
+  it('cancels a workspace size edit from the shared cancel button', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-size-trigger'));
+    const widthInput = screen.getByRole('spinbutton', { name: 'Workspace Width' });
+    const heightInput = screen.getByRole('spinbutton', { name: 'Workspace Height' });
+    await user.clear(widthInput);
+    await user.type(widthInput, '72');
+    await user.clear(heightInput);
+    await user.type(heightInput, '48');
+    await user.click(screen.getByTestId('layout-size-cancel'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('60"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('60"');
+    expect(screen.queryByTestId('layout-size-width-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-height-field')).toBeNull();
+  });
+
+  it('cancels a workspace size edit when the workspace background is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-size-trigger'));
+    const widthInput = screen.getByRole('spinbutton', { name: 'Workspace Width' });
+    const heightInput = screen.getByRole('spinbutton', { name: 'Workspace Height' });
+    await user.clear(widthInput);
+    await user.type(widthInput, '72');
+    await user.clear(heightInput);
+    await user.type(heightInput, '48');
+    await user.click(screen.getByTestId('layout-workspace'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('60"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('60"');
+    expect(screen.queryByTestId('layout-size-width-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-height-field')).toBeNull();
+  });
+
+  it('cancels a workspace size edit when another header control is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-size-trigger'));
+    const widthInput = screen.getByRole('spinbutton', { name: 'Workspace Width' });
+    const heightInput = screen.getByRole('spinbutton', { name: 'Workspace Height' });
+    await user.clear(widthInput);
+    await user.type(widthInput, '72');
+    await user.clear(heightInput);
+    await user.type(heightInput, '48');
+    await user.click(screen.getByTestId('layout-name-trigger'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-name-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-width-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-height-field')).toBeNull();
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('60"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('60"');
+  });
+
+  it('cancels a workspace size edit when the header spacer is clicked', async () => {
+    const user = userEvent.setup();
+    const onShelvesChange = vi.fn();
+
+    renderControlledLayoutScreen([], onShelvesChange, 'Entry Layout');
+
+    await user.click(screen.getByTestId('layout-size-trigger'));
+    const widthInput = screen.getByRole('spinbutton', { name: 'Workspace Width' });
+    const heightInput = screen.getByRole('spinbutton', { name: 'Workspace Height' });
+    await user.clear(widthInput);
+    await user.type(widthInput, '72');
+    await user.clear(heightInput);
+    await user.type(heightInput, '48');
+    await user.click(screen.getByTestId('layout-header-spacer'));
+
+    expect(onShelvesChange).not.toHaveBeenCalled();
+    expect(screen.queryByTestId('layout-size-width-field')).toBeNull();
+    expect(screen.queryByTestId('layout-size-height-field')).toBeNull();
+    expect(screen.getByTestId('layout-size-width-value')).toHaveTextContent('60"');
+    expect(screen.getByTestId('layout-size-height-value')).toHaveTextContent('60"');
   });
 
   it('updates border thicknesses in quarter-inch increments', () => {
@@ -215,6 +537,8 @@ describe('LayoutModeScreen', () => {
       ],
       {
         reason: 'update-shelf',
+        name: 'Shelf Arrangement',
+        size: workspace.size,
         shelfId: 1,
       }
     );
@@ -236,6 +560,8 @@ describe('LayoutModeScreen', () => {
       ],
       {
         reason: 'update-shelf',
+        name: 'Shelf Arrangement',
+        size: workspace.size,
         shelfId: 1,
       }
     );
@@ -297,6 +623,8 @@ describe('LayoutModeScreen', () => {
 
     expect(onShelvesChange).toHaveBeenCalledWith([], {
       reason: 'remove-shelf',
+      name: 'Shelf Arrangement',
+      size: workspace.size,
       shelfId: 1,
     });
   });

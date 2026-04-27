@@ -16,7 +16,6 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Chip,
   Stack,
 } from '@mui/material';
 import { ScreenLayout } from '../common/components';
@@ -34,27 +33,38 @@ import type {
   Point2D,
   ShelfId,
   ShelfInput,
+  Size2D,
 } from '../common/types';
 import { LayoutSidebar } from './components/LayoutSidebar';
+import { LayoutHeader } from './components/LayoutShelfNameHeader';
 import { LayoutWorkspaceCanvas } from './components/LayoutWorkspaceCanvas';
 
 export function LayoutModeScreen({
   name,
+  sx,
   workspace,
   shelves,
   onShelvesChange,
 }: LayoutModeProps) {
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 5 } }));
+  const [draftWorkspace, setDraftWorkspace] = useState(workspace);
   const [draftShelves, setDraftShelves] = useState(shelves);
   const [selectedShelfId, setSelectedShelfId] = useState<ShelfId | null>(
     shelves[0]?.id ?? null
   );
+  const [headerResetSignal, setHeaderResetSignal] = useState(0);
   const [activeShelfId, setActiveShelfId] = useState<ShelfId | null>(null);
   const [dragPreviewPosition, setDragPreviewPosition] = useState<Point2D | null>(null);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const dragOriginRef = useRef<ShelfInput | null>(null);
   const dragPreviewRef = useRef<Point2D | null>(null);
+  const draftWorkspaceRef = useRef(workspace);
   const draftShelvesRef = useRef(shelves);
+
+  useEffect(() => {
+    setDraftWorkspace(workspace);
+    draftWorkspaceRef.current = workspace;
+  }, [workspace]);
 
   useEffect(() => {
     setDraftShelves(shelves);
@@ -86,8 +96,8 @@ export function LayoutModeScreen({
     }));
   }, [activeShelfId, dragPreviewPosition, draftShelves]);
   const invalidShelfIds = useMemo(
-    () => getInvalidShelfIds(presentedShelves, workspace),
-    [presentedShelves, workspace]
+    () => getInvalidShelfIds(presentedShelves, draftWorkspace),
+    [draftWorkspace, presentedShelves]
   );
   const selectedShelf = useMemo(
     () => presentedShelves.find((shelf) => shelf.id === selectedShelfId),
@@ -123,6 +133,20 @@ export function LayoutModeScreen({
     setActiveShelfId(null);
   }
 
+  function buildChangeMeta(
+    reason: LayoutChangeReason,
+    nextName: string,
+    nextSize: Size2D,
+    shelfId?: ShelfId
+  ) {
+    return {
+      reason,
+      name: nextName,
+      size: nextSize,
+      ...(shelfId === undefined ? {} : { shelfId }),
+    };
+  }
+
   function commitShelves(
     nextShelves: ShelfInput[],
     reason: LayoutChangeReason,
@@ -131,11 +155,11 @@ export function LayoutModeScreen({
     draftShelvesRef.current = nextShelves;
     setDraftShelves(nextShelves);
 
-    if (getInvalidShelfIds(nextShelves, workspace).size === 0) {
-      onShelvesChange(nextShelves, {
-        reason,
-        shelfId,
-      });
+    if (getInvalidShelfIds(nextShelves, draftWorkspaceRef.current).size === 0) {
+      onShelvesChange(
+        nextShelves,
+        buildChangeMeta(reason, name, draftWorkspaceRef.current.size, shelfId)
+      );
     }
   }
 
@@ -149,6 +173,40 @@ export function LayoutModeScreen({
       'update-shelf',
       selectedShelfId
     );
+  }
+
+  function handleConfirmLayoutName(nextName: string) {
+    // Keep invalid local drafts out of the callback while still allowing layout-name edits.
+    const callbackShelves =
+      getInvalidShelfIds(draftShelvesRef.current, draftWorkspaceRef.current).size === 0
+        ? draftShelvesRef.current
+        : getInvalidShelfIds(shelves, draftWorkspaceRef.current).size === 0
+          ? shelves
+          : null;
+
+    if (callbackShelves) {
+      onShelvesChange(
+        callbackShelves,
+        buildChangeMeta('update-layout', nextName, draftWorkspaceRef.current.size)
+      );
+    }
+  }
+
+  function handleConfirmLayoutSize(nextSize: Size2D) {
+    const nextWorkspace = {
+      ...draftWorkspaceRef.current,
+      size: nextSize,
+    };
+
+    draftWorkspaceRef.current = nextWorkspace;
+    setDraftWorkspace(nextWorkspace);
+
+    if (getInvalidShelfIds(draftShelvesRef.current, nextWorkspace).size === 0) {
+      onShelvesChange(
+        draftShelvesRef.current,
+        buildChangeMeta('update-layout', name, nextSize)
+      );
+    }
   }
 
   function handleAddShelf() {
@@ -204,7 +262,7 @@ export function LayoutModeScreen({
     }
 
     const thresholdInches = LAYOUT_SNAP_THRESHOLD_PX / WORKSPACE_SCALE;
-    const releaseThresholdInches = thresholdInches + workspace.snapIncrement / 2;
+    const releaseThresholdInches = thresholdInches + draftWorkspace.snapIncrement / 2;
     const rawPosition = {
       x: dragOriginRef.current.position.x + event.delta.x / WORKSPACE_SCALE,
       y: dragOriginRef.current.position.y - event.delta.y / WORKSPACE_SCALE,
@@ -213,7 +271,7 @@ export function LayoutModeScreen({
       rawPosition,
       currentShelf,
       currentShelves,
-      workspace,
+      draftWorkspace,
       thresholdInches,
       {
         previousPosition: dragPreviewRef.current ?? currentShelf.position,
@@ -249,37 +307,15 @@ export function LayoutModeScreen({
     clearDragPreviewState();
   }
 
+  function handleClearSelection() {
+    setSelectedShelfId(null);
+    setHeaderResetSignal((current) => current + 1);
+  }
+
   return (
     <>
       <ScreenLayout
-        eyebrow="Layout Mode"
-        title={name}
-        subtitle="Configure and position shelves"
-        headerSupplement={
-          <Stack
-            data-testid="layout-summary-chips"
-            direction="row"
-            spacing={1}
-            useFlexGap
-            sx={{ flexWrap: 'wrap' }}
-          >
-            <Chip
-              label={`Workspace ${workspace.size.width}" × ${workspace.size.height}"`}
-              variant="outlined"
-            />
-            <Chip
-              label={`Grid ${workspace.snapIncrement}" snap`}
-              variant="outlined"
-              color="secondary"
-            />
-            <Chip
-              label={`${
-                draftShelves.length
-              } shel${draftShelves.length === 1 ? 'f' : 'ves'}`}
-              variant="outlined"
-            />
-          </Stack>
-        }
+        sx={sx}
         sidebar={
           <LayoutSidebar
             selectedShelf={selectedShelf}
@@ -290,26 +326,36 @@ export function LayoutModeScreen({
           />
         }
       >
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragMove={handleDragMove}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
-        >
-          <LayoutWorkspaceCanvas
-            workspace={workspace}
-            shelves={draftShelves}
-            previewShelf={previewShelf}
-            selectedShelfId={selectedShelfId}
-            invalidShelfIds={invalidShelfIds}
-            activeShelfId={activeShelfId}
-            scale={WORKSPACE_SCALE}
-            warningMessage={workspaceWarningMessage}
-            onSelectShelf={setSelectedShelfId}
-            onClearSelection={() => setSelectedShelfId(null)}
+        <Stack spacing={1.5}>
+          <LayoutHeader
+            name={name}
+            size={draftWorkspace.size}
+            resetSignal={headerResetSignal}
+            onConfirmName={handleConfirmLayoutName}
+            onConfirmSize={handleConfirmLayoutSize}
           />
-        </DndContext>
+
+          <DndContext
+            sensors={sensors}
+            onDragStart={handleDragStart}
+            onDragMove={handleDragMove}
+            onDragEnd={handleDragEnd}
+            onDragCancel={handleDragCancel}
+          >
+            <LayoutWorkspaceCanvas
+              workspace={draftWorkspace}
+              shelves={draftShelves}
+              previewShelf={previewShelf}
+              selectedShelfId={selectedShelfId}
+              invalidShelfIds={invalidShelfIds}
+              activeShelfId={activeShelfId}
+              scale={WORKSPACE_SCALE}
+              warningMessage={workspaceWarningMessage}
+              onSelectShelf={setSelectedShelfId}
+              onClearSelection={handleClearSelection}
+            />
+          </DndContext>
+        </Stack>
       </ScreenLayout>
 
       <Dialog open={showRemoveDialog} onClose={() => setShowRemoveDialog(false)}>

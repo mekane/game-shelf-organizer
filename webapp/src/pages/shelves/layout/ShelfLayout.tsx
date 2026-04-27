@@ -57,15 +57,18 @@ export const ShelfLayout = () => {
     meta: LayoutChangeMeta,
   ) => {
     console.log({
-      action: meta.reason,
+      meta: meta,
       payload: JSON.stringify(nextShelves),
     });
 
     // TODO: push to a history array to enable undo
 
     const updateShelfDto: UpdateShelfDto = {
-      name: layoutConfig.name,
-      room: layoutConfig.room,
+      name: meta.name,
+      room: {
+        ...layoutConfig.room,
+        size: meta.size,
+      },
       shelves: nextShelves,
     };
 
@@ -76,8 +79,11 @@ export const ShelfLayout = () => {
     console.log("updated shelves", res);
 
     setLayoutConfig((prev) => ({
-      name: prev.name,
-      room: prev.room,
+      name: meta.name,
+      room: {
+        ...prev.room,
+        size: meta.size,
+      },
       shelves: nextShelves,
     }));
   };

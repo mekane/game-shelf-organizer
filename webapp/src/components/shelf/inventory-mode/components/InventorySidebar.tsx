@@ -12,6 +12,7 @@ import { WarningNotice } from '../../common/components';
 import type { Orientation, ProductInput, ProductPlacement } from '../../common/types';
 
 interface InventorySidebarProps {
+  productDetailsTitle: string;
   selectedProduct: ProductInput | undefined;
   selectedPlacement: ProductPlacement | undefined;
   invalid: boolean;
@@ -21,6 +22,7 @@ interface InventorySidebarProps {
 }
 
 export function InventorySidebar({
+  productDetailsTitle,
   selectedProduct,
   selectedPlacement,
   invalid,
@@ -40,7 +42,7 @@ export function InventorySidebar({
     >
       <Stack spacing={2}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Product Details
+          {productDetailsTitle}
         </Typography>
 
         <WarningNotice message={warningMessage} />

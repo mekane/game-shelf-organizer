@@ -81,7 +81,7 @@ export function LayoutWorkspaceCanvas({
           gridArea: '1 / 1',
           width: '100%',
           maxWidth: workspaceFrameWidth,
-          overflow: 'scroll',
+          overflow: 'auto',
           borderRadius: SQUARE_SURFACE_RADIUS,
           border: '1px solid rgba(95, 72, 50, 0.2)',
           background:
@@ -105,6 +105,7 @@ export function LayoutWorkspaceCanvas({
                 inset: 0,
                 display: 'grid',
                 placeItems: 'center',
+                pointerEvents: 'none',
               }}
             >
               <div

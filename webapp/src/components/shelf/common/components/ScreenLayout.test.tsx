@@ -2,14 +2,21 @@ import { render, screen } from '@testing-library/react';
 import { ScreenLayout } from './';
 
 describe('ScreenLayout', () => {
-  it('stacks the sidebar underneath the main content area', () => {
+  it('renders without an outer paper wrapper or header', () => {
+    const { container } = render(
+      <ScreenLayout sidebar={<div>Sidebar panel</div>}>
+        <div>Main workspace</div>
+      </ScreenLayout>
+    );
+
+    expect(screen.getByTestId('screen-layout-root')).toBeInTheDocument();
+    expect(screen.queryByTestId('screen-layout-header')).toBeNull();
+    expect(container.querySelector('.MuiPaper-root')).toBeNull();
+  });
+
+  it('stacks the sidebar underneath the main content area without default spacing', () => {
     render(
-      <ScreenLayout
-        eyebrow="Layout"
-        title="Workspace"
-        subtitle="Shared panel layout."
-        sidebar={<div>Sidebar panel</div>}
-      >
+      <ScreenLayout sidebar={<div>Sidebar panel</div>}>
         <div>Main workspace</div>
       </ScreenLayout>
     );
@@ -25,22 +32,15 @@ describe('ScreenLayout', () => {
     expect(sidebar).toHaveStyle({ width: '100%' });
   });
 
-  it('renders optional header supplement content alongside the header copy', () => {
+  it('forwards sx to the outer container', () => {
     render(
-      <ScreenLayout
-        eyebrow="Layout"
-        title="Workspace"
-        subtitle="Shared panel layout."
-        headerSupplement={<div>Header supplement</div>}
-        sidebar={<div>Sidebar panel</div>}
-      >
+      <ScreenLayout sx={{ margin: 2, padding: 0 }} sidebar={<div>Sidebar panel</div>}>
         <div>Main workspace</div>
       </ScreenLayout>
     );
 
-    expect(screen.getByTestId('screen-layout-header')).toBeInTheDocument();
-    expect(screen.getByTestId('screen-layout-header-supplement')).toHaveTextContent(
-      'Header supplement'
-    );
+    const root = screen.getByTestId('screen-layout-root');
+
+    expect(window.getComputedStyle(root).marginTop).toBe('16px');
   });
 });

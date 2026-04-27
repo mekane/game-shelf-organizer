@@ -9,6 +9,8 @@ interface InventoryPanelProps {
   products: ProductInput[];
   orientationByProductId: Record<string, Orientation>;
   categoryColorByProductId: Record<string, string | undefined>;
+  holdingAreaTitle: string;
+  holdingAreaDescription: string;
   selectedProductId: string | null;
   activeProductId: string | null;
   invalidProductIds: Set<string>;
@@ -21,6 +23,8 @@ export function InventoryPanel({
   products,
   orientationByProductId,
   categoryColorByProductId,
+  holdingAreaTitle,
+  holdingAreaDescription,
   selectedProductId,
   activeProductId,
   invalidProductIds,
@@ -58,10 +62,10 @@ export function InventoryPanel({
         >
           <Stack spacing={0.5} sx={{ minWidth: 0, flex: 1 }}>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Inventory Holding Area
+              {holdingAreaTitle}
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 520 }}>
-              Drag products to a shelf cell, or drag placed products back here.
+              {holdingAreaDescription}
             </Typography>
           </Stack>
 

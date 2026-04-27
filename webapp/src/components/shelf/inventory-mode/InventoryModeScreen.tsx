@@ -57,7 +57,9 @@ interface PlacementPreviewState {
 }
 
 export function InventoryModeScreen({
-  name,
+  name: _name,
+  sx,
+  copy,
   shelves,
   categories,
   products,
@@ -124,6 +126,11 @@ export function InventoryModeScreen({
   const unplacedProducts = products.filter(
     (product) => !normalizedPlacements[product.id]?.address
   );
+  const holdingAreaTitle = copy?.holdingAreaTitle ?? 'Inventory Holding Area';
+  const holdingAreaDescription =
+    copy?.holdingAreaDescription ??
+    'Drag products to a shelf cell, or drag placed products back here.';
+  const productDetailsTitle = copy?.productDetailsTitle ?? 'Product Details';
 
   useEffect(() => {
     const reconciled = reconcilePlacementOutput({
@@ -399,11 +406,10 @@ export function InventoryModeScreen({
 
   return (
     <ScreenLayout
-      eyebrow="Inventory Mode"
-      title={name}
-      subtitle="Drag boxes into shelf cells, snap them against cell or product edges, and persist the committed orientation and coordinates for each placement."
+      sx={sx}
       sidebar={
         <InventorySidebar
+          productDetailsTitle={productDetailsTitle}
           selectedProduct={selectedProduct}
           selectedPlacement={selectedPlacement}
           invalid={selectedInvalid}
@@ -435,6 +441,8 @@ export function InventoryModeScreen({
             products={unplacedProducts}
             orientationByProductId={orientationByProductId}
             categoryColorByProductId={categoryColorByProductId}
+            holdingAreaTitle={holdingAreaTitle}
+            holdingAreaDescription={holdingAreaDescription}
             selectedProductId={selectedProductId}
             activeProductId={activeProductId}
             invalidProductIds={invalidProductIds}

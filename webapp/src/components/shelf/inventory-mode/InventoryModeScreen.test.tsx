@@ -5,6 +5,7 @@ import { DEFAULT_PRODUCT_SURFACE_COLOR } from '../common/components';
 import { InventoryModeScreen } from './InventoryModeScreen';
 import type {
   CategoryMap,
+  InventoryModeProps,
   PlacementOutput,
   ProductInput,
   ShelfInput,
@@ -76,12 +77,16 @@ function renderInventoryScreen(
   nextPlacements = placements,
   onPlacementsChange = vi.fn(),
   nextCategories = categories,
-  name = 'Product Placement'
+  name = 'Product Placement',
+  sx?: InventoryModeProps['sx'],
+  copy?: InventoryModeProps['copy']
 ) {
   return render(
     <ThemeProvider theme={demoTheme}>
       <InventoryModeScreen
         name={name}
+        sx={sx}
+        copy={copy}
         shelves={shelves}
         categories={nextCategories}
         products={nextProducts}
@@ -102,19 +107,52 @@ function hexToRgbString(hex: string): string {
 }
 
 describe('InventoryModeScreen', () => {
-  it('renders the screen title from the name prop', () => {
+  it('does not render the screen title or header copy', () => {
     renderInventoryScreen(products, placements, vi.fn(), categories, 'Floor Inventory');
 
-    expect(
-      screen.getByRole('heading', { name: 'Floor Inventory', level: 4 })
-    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Floor Inventory', level: 4 })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Product Placement', level: 4 })).toBeNull();
+    expect(screen.queryByTestId('screen-layout-header')).toBeNull();
   });
 
   it('does not render shelf labels inside inventory shelves', () => {
     renderInventoryScreen();
 
     expect(screen.queryByText('Shelf 1')).not.toBeInTheDocument();
+  });
+
+  it('renders customizable inventory workspace copy', () => {
+    renderInventoryScreen(
+      products,
+      placements,
+      vi.fn(),
+      categories,
+      'Product Placement',
+      undefined,
+      {
+        holdingAreaTitle: 'Overflow Staging',
+        holdingAreaDescription: 'Move unplaced boxes here before assigning a shelf.',
+        productDetailsTitle: 'Selected Product',
+      }
+    );
+
+    expect(screen.getByText('Overflow Staging')).toBeInTheDocument();
+    expect(
+      screen.getByText('Move unplaced boxes here before assigning a shelf.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Selected Product')).toBeInTheDocument();
+    expect(screen.queryByText('Inventory Holding Area')).toBeNull();
+    expect(screen.queryByText('Product Details')).toBeNull();
+  });
+
+  it('forwards sx to the outer workspace container', () => {
+    renderInventoryScreen(products, placements, vi.fn(), categories, 'Product Placement', {
+      margin: 2,
+    });
+
+    expect(window.getComputedStyle(screen.getByTestId('screen-layout-root')).marginTop).toBe(
+      '16px'
+    );
   });
 
   it('shows the selected product in the sidebar', async () => {
