@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { RouterProvider } from "react-router-dom";
 import { ConfirmProvider } from "./context/useConfirm/useConfirmProvider";
 import { router } from "./routes";
-import { palette } from "./theme";
+import { darkPalette, lightPalette } from "./theme";
 
 export const App = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -16,7 +16,7 @@ export const App = () => {
       createTheme({
         palette: {
           mode: prefersDarkMode ? "dark" : "light",
-          ...palette,
+          ...(prefersDarkMode ? darkPalette : lightPalette),
         },
       }),
     [prefersDarkMode],
