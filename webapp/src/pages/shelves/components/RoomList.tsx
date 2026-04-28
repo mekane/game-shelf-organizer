@@ -58,7 +58,7 @@ export const RoomList = ({ shelves, deleteRoom, isDeleting }) => {
                 <Button
                   component={Link}
                   variant="contained"
-                  to={`layout/${s.id}`}
+                  to={`organize/${s.id}`}
                 >
                   Organize Games
                 </Button>

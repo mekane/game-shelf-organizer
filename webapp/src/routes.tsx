@@ -2,7 +2,8 @@ import { AnylistsPage } from "@pages/anylist/AnylistsPage";
 import { ShelvesList } from "@pages/shelves/ShelvesList";
 import { ShelfLayout } from "@pages/shelves/layout/ShelfLayout";
 import { Organize } from "@pages/shelves/organize/Organize";
-import { Navigate, RouteObject, createBrowserRouter } from "react-router-dom";
+import { RouteObject, createBrowserRouter } from "react-router-dom";
+import { ErrorPage } from "./pages/ErrorPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PageContainer } from "./pages/PageContainer";
 import { CollectionPage } from "./pages/collection/CollectionPage";
@@ -14,7 +15,7 @@ const routes: RouteObject[] = [
   {
     path: "/",
     element: <PageContainer />,
-    errorElement: <Navigate replace to="/404" />,
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
