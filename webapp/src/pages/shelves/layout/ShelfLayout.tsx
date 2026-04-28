@@ -9,6 +9,7 @@ import { UpdateShelfDto } from "@lib/boardgame.api.client";
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface LayoutConfig {
   name: string;
@@ -72,20 +73,25 @@ export const ShelfLayout = () => {
       shelves: nextShelves,
     };
 
-    console.log(JSON.stringify(updateShelfDto));
-
     // TODO: debounce API requests in case user spams actions / undo
-    const res = await api.shelf.shelfControllerUpdate(id, updateShelfDto);
-    console.log("updated shelves", res);
+    try {
+      await api.shelf.shelfControllerUpdate(id, updateShelfDto);
 
-    setLayoutConfig((prev) => ({
-      name: meta.name,
-      room: {
-        ...prev.room,
-        size: meta.size,
-      },
-      shelves: nextShelves,
-    }));
+      setLayoutConfig((prev) => ({
+        name: meta.name,
+        room: {
+          ...prev.room,
+          size: meta.size,
+        },
+        shelves: nextShelves,
+      }));
+
+      toast.dismiss();
+      toast.info("Saved");
+    } catch (err) {
+      console.error("error saving shelf state", err);
+      toast.error(`Could not save shelves: ${err.message}`);
+    }
   };
 
   return isLoading ? (

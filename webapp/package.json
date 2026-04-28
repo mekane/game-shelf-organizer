@@ -17,7 +17,8 @@
     "@mui/material": "9",
     "react": "^19",
     "react-dom": "^19",
-    "react-router-dom": "^6.21.0"
+    "react-router-dom": "^6.21.0",
+    "react-toastify": "^11.1.0"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^4.2.3",

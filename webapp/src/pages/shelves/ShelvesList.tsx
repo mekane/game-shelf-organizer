@@ -5,6 +5,7 @@ import { CreateShelfDto, Shelf } from "@lib/boardgame.api.client";
 import AddIcon from "@mui/icons-material/Add";
 import { Button, CircularProgress } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { AddRoomDialog } from "./components";
 import { RoomList } from "./components/RoomList";
 
@@ -42,21 +43,15 @@ export const ShelvesList = () => {
     }
 
     try {
-      api.shelf
-        .shelfControllerRemove(roomId)
-        .then((res) => {
-          console.log("deleted");
-          loadShelfList();
-        })
-        .catch((err) => {
-          console.log("error deleting", err);
-        })
-        .finally(() => {
-          setIsDeleting(false);
-        });
+      await api.shelf.shelfControllerRemove(roomId);
+      loadShelfList();
+      toast.success(`${name} was deleted`);
     } catch (err) {
-      setLoading(false);
+      toast.error(`Could not delete ${name}: ${err.message}`);
+      console.error("error deleting", err);
     } finally {
+      setLoading(false);
+      setIsDeleting(false);
       closeConfirm();
     }
   };
@@ -90,21 +85,17 @@ export const ShelvesList = () => {
       shelves: [],
     };
 
-    console.log("submitting form", createDto);
-
-    await api.shelf
-      .shelfControllerCreate(createDto)
-      .then((res) => {
-        console.log("success");
-        handleClose();
-        loadShelfList();
-      })
-      .catch((err) => {
-        console.log("error submitting form", err);
-      })
-      .finally(() => {
-        setIsSubmittingForm(false);
-      });
+    try {
+      await api.shelf.shelfControllerCreate(createDto);
+      handleClose();
+      loadShelfList();
+      toast.success(`${createDto.name} was added`);
+    } catch (err) {
+      console.log("error submitting add room form", err);
+      toast.error(`Could not add room ${createDto.name}: ${err.message}}`);
+    } finally {
+      setIsSubmittingForm(false);
+    }
   };
 
   return (
