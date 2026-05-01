@@ -52,12 +52,22 @@ export interface Collection {
   games: Game[];
 }
 
+export interface ListColumnConfig {
+  id: string;
+  type: string;
+  field: string;
+  header: string;
+  width?: number;
+}
+
 export interface List {
   id: number;
   user: User;
   /** @default "" */
   name: string;
   games: Game[];
+  configSerialized?: string;
+  config: ListColumnConfig[];
 }
 
 export interface SizeDto {
@@ -104,29 +114,6 @@ export interface Shelf {
   shelves: ShelfDto[];
 }
 
-export interface AnylistOptions {
-  hide: object;
-  ratingMax: number;
-}
-
-export interface AnylistColumns {
-  id: string;
-  name: string;
-  rating: number;
-  notes: string;
-  thumbnail: string;
-}
-
-export interface Anylist {
-  id: number;
-  user: User;
-  name: string;
-  optionsSerialized?: string;
-  options: AnylistOptions;
-  dataSerialized?: string;
-  data: AnylistColumns[];
-}
-
 export interface User {
   id: number;
   email: string;
@@ -140,7 +127,6 @@ export interface User {
   collections: Collection[];
   lists: List[];
   shelves: Shelf[];
-  anylists: Anylist[];
 }
 
 export interface CreateListDto {
@@ -172,27 +158,6 @@ export interface CreateUserDto {
 }
 
 export type UpdateUserDto = object;
-
-export interface CreateAnylistDto {
-  id: number;
-  name: string;
-  options: AnylistOptions;
-  data: AnylistColumns[];
-}
-
-export interface AnylistDto {
-  id: number;
-  name: string;
-  options: AnylistOptions;
-  data: AnylistColumns[];
-}
-
-export interface UpdateAnylistDto {
-  id: number;
-  name: string;
-  options: AnylistOptions;
-  data: AnylistColumns[];
-}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -515,13 +480,16 @@ export class Api<
      * @tags List
      * @name ListControllerCreate
      * @request POST:/list
+     * @secure
      */
     listControllerCreate: (data: CreateListDto, params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<List, any>({
         path: `/list`,
         method: "POST",
         body: data,
+        secure: true,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -531,11 +499,14 @@ export class Api<
      * @tags List
      * @name ListControllerFindAll
      * @request GET:/list
+     * @secure
      */
     listControllerFindAll: (params: RequestParams = {}) =>
-      this.request<void, any>({
+      this.request<List[], any>({
         path: `/list`,
         method: "GET",
+        secure: true,
+        format: "json",
         ...params,
       }),
 
@@ -545,11 +516,13 @@ export class Api<
      * @tags List
      * @name ListControllerFindOne
      * @request GET:/list/{id}
+     * @secure
      */
     listControllerFindOne: (id: string, params: RequestParams = {}) =>
       this.request<List, any>({
         path: `/list/${id}`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -560,6 +533,7 @@ export class Api<
      * @tags List
      * @name ListControllerUpdate
      * @request PATCH:/list/{id}
+     * @secure
      */
     listControllerUpdate: (
       id: string,
@@ -570,6 +544,7 @@ export class Api<
         path: `/list/${id}`,
         method: "PATCH",
         body: data,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
@@ -581,11 +556,13 @@ export class Api<
      * @tags List
      * @name ListControllerRemove
      * @request DELETE:/list/{id}
+     * @secure
      */
     listControllerRemove: (id: string, params: RequestParams = {}) =>
       this.request<number, any>({
         path: `/list/${id}`,
         method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -775,103 +752,6 @@ export class Api<
       this.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
-        ...params,
-      }),
-  };
-  anylist = {
-    /**
-     * No description
-     *
-     * @tags Anylist
-     * @name AnylistControllerCreate
-     * @request POST:/anylist
-     * @secure
-     */
-    anylistControllerCreate: (
-      data: CreateAnylistDto,
-      params: RequestParams = {},
-    ) =>
-      this.request<AnylistDto, any>({
-        path: `/anylist`,
-        method: "POST",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Anylist
-     * @name AnylistControllerFindAll
-     * @request GET:/anylist
-     * @secure
-     */
-    anylistControllerFindAll: (params: RequestParams = {}) =>
-      this.request<AnylistDto[], any>({
-        path: `/anylist`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Anylist
-     * @name AnylistControllerFindOne
-     * @request GET:/anylist/{id}
-     * @secure
-     */
-    anylistControllerFindOne: (id: string, params: RequestParams = {}) =>
-      this.request<AnylistDto, any>({
-        path: `/anylist/${id}`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Anylist
-     * @name AnylistControllerUpdate
-     * @request PATCH:/anylist/{id}
-     * @secure
-     */
-    anylistControllerUpdate: (
-      id: string,
-      data: UpdateAnylistDto,
-      params: RequestParams = {},
-    ) =>
-      this.request<AnylistDto, any>({
-        path: `/anylist/${id}`,
-        method: "PATCH",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Anylist
-     * @name AnylistControllerRemove
-     * @request DELETE:/anylist/{id}
-     * @secure
-     */
-    anylistControllerRemove: (id: string, params: RequestParams = {}) =>
-      this.request<string, any>({
-        path: `/anylist/${id}`,
-        method: "DELETE",
-        secure: true,
-        format: "json",
         ...params,
       }),
   };

@@ -48,8 +48,11 @@ export const ShelfLayout = () => {
         setIsLoading(false);
       })
       .catch((err) => {
+        console.error(err);
+        toast.error(`No room found for id ${id}`);
+      })
+      .finally(() => {
         setIsLoading(false);
-        // TODO: show 404 error
       });
   }, [api, id]);
 

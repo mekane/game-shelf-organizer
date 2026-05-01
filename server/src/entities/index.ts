@@ -1,4 +1,3 @@
-import { Anylist } from './Anylist.entity';
 import { Collection } from './Collection.entity';
 import { Game } from './Game.entity';
 import { List } from './List.entity';
@@ -21,5 +20,4 @@ export const allEntities = [
   ...allListEntities,
   ...allShelfEntities,
   ...allUserEntities,
-  Anylist,
 ];

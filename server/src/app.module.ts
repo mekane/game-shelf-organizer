@@ -4,7 +4,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import 'reflect-metadata';
-import { AnylistModule } from './anylist/anylist.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
@@ -26,7 +25,6 @@ import { UsersModule } from './users/users.module';
     TypeOrmModule.forRoot(sqlLiteOptions),
     UsersModule,
     GamesModule,
-    AnylistModule,
   ],
   controllers: [AppController],
   providers: [

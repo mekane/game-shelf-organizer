@@ -1,6 +1,5 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Anylist } from './Anylist.entity';
 import { Collection } from './Collection.entity';
 import { List } from './List.entity';
 import { Shelf } from './Shelf.entity';
@@ -40,7 +39,4 @@ export class User {
 
   @OneToMany(() => Shelf, (shelf) => shelf.user)
   shelves!: Shelf[];
-
-  @OneToMany(() => Anylist, (anylist) => anylist.user)
-  anylists!: Anylist[];
 }

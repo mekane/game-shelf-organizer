@@ -1,4 +1,5 @@
-import { AnylistsPage } from "@pages/anylist/AnylistsPage";
+import { ListView } from "@pages/lists/ListView";
+import { ListsPage } from "@pages/lists/ListsPage";
 import { ShelvesList } from "@pages/shelves/ShelvesList";
 import { ShelfLayout } from "@pages/shelves/layout/ShelfLayout";
 import { Organize } from "@pages/shelves/organize/Organize";
@@ -8,7 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { PageContainer } from "./pages/PageContainer";
 import { CollectionPage } from "./pages/collection/CollectionPage";
 import { HomePage } from "./pages/home/HomePage";
-import { ListsPage } from "./pages/lists/ListsPage";
+import { ListsList } from "./pages/lists/ListsList";
 import { ShelvesPage } from "./pages/shelves/ShelvesPage";
 
 const routes: RouteObject[] = [
@@ -32,6 +33,17 @@ const routes: RouteObject[] = [
       {
         path: "/lists",
         element: <ListsPage />,
+        children: [
+          {
+            path: "",
+            index: true,
+            element: <ListsList />,
+          },
+          {
+            path: ":id",
+            element: <ListView />,
+          },
+        ],
       },
       {
         path: "/shelves",
@@ -52,14 +64,6 @@ const routes: RouteObject[] = [
             element: <Organize />,
           },
         ],
-      },
-      {
-        path: "/anylists",
-        element: <AnylistsPage />,
-      },
-      {
-        path: "/anylists/:id",
-        element: <div>TODO: Anylist</div>,
       },
     ],
   },

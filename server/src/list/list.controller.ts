@@ -8,13 +8,16 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ServiceStatus } from '@src/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { checkServiceResults, ServiceStatus } from '@src/common';
 import { UserAuthRecord } from '../auth/index';
 import { AuthUser } from '../auth/user.decorator';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { ListService } from './list.service';
 
+@ApiBearerAuth()
+@ApiTags('List')
 @Controller('list')
 export class ListController {
   constructor(private readonly listService: ListService) {}
@@ -24,12 +27,16 @@ export class ListController {
     @AuthUser() user: UserAuthRecord,
     @Body() createListDto: CreateListDto,
   ) {
-    return this.listService.create(user, createListDto);
+    const result = await this.listService.create(user, createListDto);
+    checkServiceResults(result);
+    return result.content;
   }
 
   @Get()
   async findAll(@AuthUser() user: UserAuthRecord) {
-    return this.listService.findAll(user);
+    const result = await this.listService.findAll(user);
+    checkServiceResults(result);
+    return result.content;
   }
 
   @Get(':id')
