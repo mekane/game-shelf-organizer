@@ -29,6 +29,9 @@ export class Collection {
   @Column()
   name!: string;
 
+  @Column({ type: 'text', nullable: true })
+  lastSyncDate?: string;
+
   @OneToMany(() => Game, (game) => game.collection, {
     cascade: true,
     eager: true,

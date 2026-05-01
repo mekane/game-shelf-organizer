@@ -48,6 +48,7 @@ export interface Collection {
   id: number;
   user: User;
   name: string;
+  lastSyncDate?: string;
   games: Game[];
 }
 

@@ -37,6 +37,7 @@ export class BggService {
     retries: number = 3,
     delay: number = 2000,
   ): Promise<BggResult> {
+    // change return to ServiceResult<BggGameData[]>
     let attempt = 1;
 
     let bggRes = await fetchCollectionData(bggUsername);
@@ -92,6 +93,7 @@ export class BggService {
     const updateDto = {
       ...userCollection,
       games: [...newGames, ...updatedGames],
+      lastSyncDate: new Date().toISOString(),
     };
 
     if (removedGames.length) {

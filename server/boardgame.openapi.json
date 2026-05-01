@@ -806,6 +806,9 @@
           "name": {
             "type": "string"
           },
+          "lastSyncDate": {
+            "type": "string"
+          },
           "games": {
             "type": "array",
             "items": {

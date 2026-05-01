@@ -19,11 +19,17 @@ export const ShelvesList = () => {
 
   const loadShelfList = useCallback(() => {
     setIsLoading(true);
-    api.shelf.shelfControllerFindAll().then((res) => {
-      console.log("api result for shelves fetch", res.data);
-      setShelves(res.data);
-      setIsLoading(false);
-    });
+    api.shelf
+      .shelfControllerFindAll()
+      .then((res) => {
+        setShelves(res.data);
+      })
+      .catch((err) => {
+        toast.error(`Error loading room data: ${err.message}`);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, [api]);
 
   useEffect(() => {
