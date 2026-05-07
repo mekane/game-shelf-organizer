@@ -1,13 +1,16 @@
 import { PageHeader } from "@components/PageHeader";
 import { useApi } from "@context/api";
-import { Collection } from "@lib/boardgame.api.client";
+import { useEditDimensions } from "@context/useEditDimensions/useEditDimensions";
+import { Collection, Game } from "@lib/boardgame.api.client";
 import { Sync } from "@mui/icons-material";
 import { Button, CircularProgress, Container, Typography } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { CollectionList } from "./components/CollectionList";
 
 export const CollectionPage = () => {
   const api = useApi();
+  const { showEditor } = useEditDimensions();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -48,6 +51,28 @@ export const CollectionPage = () => {
     }
   };
 
+  const refreshGame = async (game: Game) => {
+    const { data: updated } = await api.games.gamesControllerFindOne(
+      game.bggId,
+      game.versionId,
+    );
+
+    const targetIndex = collection.games.findIndex(
+      (g) => g.bggId === updated.bggId && g.versionId === updated.versionId,
+    );
+
+    const newGames = collection.games.map((g, i) =>
+      i === targetIndex ? { ...g, ...updated } : g,
+    );
+
+    if (targetIndex !== -1) {
+      setCollection((prev) => ({
+        ...prev,
+        games: newGames,
+      }));
+    }
+  };
+
   return (
     <Container>
       <PageHeader headerText="Manage Collection">
@@ -67,7 +92,11 @@ export const CollectionPage = () => {
       {isLoading ? (
         <CircularProgress />
       ) : (
-        <div>{JSON.stringify(collection)}</div>
+        <CollectionList
+          games={collection.games}
+          editDimensions={showEditor}
+          refreshGame={refreshGame}
+        />
       )}
     </Container>
   );

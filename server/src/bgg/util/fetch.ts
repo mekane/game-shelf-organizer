@@ -8,11 +8,17 @@ import { BggDataFetchResult } from '../types';
  * Note that the BGG api returns status 200 with an error message in case
  * something went wrong, so we have to check for that and parse it specially.
  * @param bggUsername required
+ * @param bggAuthToken required - API key generated in the BGG API Console
  */
 export async function fetchCollectionData(
   bggUsername: string,
+  bggAuthToken: string,
 ): Promise<BggDataFetchResult> {
-  const response = await fetch(getBggCollectionUrl(bggUsername));
+  const response = await fetch(getBggCollectionUrl(bggUsername), {
+    headers: {
+      Authorization: `Bearer ${bggAuthToken}`,
+    },
+  });
 
   if (response.status === 200) {
     const xml = await response.text();

@@ -1,5 +1,6 @@
 import { ApiProvider } from "@context/api";
 import { AuthProvider } from "@context/auth";
+import { UseEditDimensionsProvider } from "@context/useEditDimensions";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme, CssBaseline, useMediaQuery } from "@mui/material";
 import { useMemo } from "react";
@@ -29,8 +30,10 @@ export const App = () => {
       <AuthProvider>
         <ApiProvider>
           <ConfirmProvider>
-            <RouterProvider router={router} />
-            <CssBaseline />
+            <UseEditDimensionsProvider>
+              <RouterProvider router={router} />
+              <CssBaseline />
+            </UseEditDimensionsProvider>
           </ConfirmProvider>
         </ApiProvider>
       </AuthProvider>

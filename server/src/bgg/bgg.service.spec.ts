@@ -1,5 +1,8 @@
 import { createMock } from '@golevelup/ts-jest';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { GamesService } from '@src/games/games.service';
 import { CollectionService } from '../collection/collection.service';
 import { BggService } from './bgg.service';
 import { BggDataFetchResult } from './types';
@@ -16,6 +19,9 @@ jest.mock('./util/parse', () => ({
   parseCollectionData: jest.fn(),
 }));
 
+const mockConfigService = createMock<ConfigService>();
+mockConfigService.get = jest.fn().mockResolvedValue('BGG_TOKEN');
+
 describe('BggService', () => {
   let service: BggService;
 
@@ -27,8 +33,19 @@ describe('BggService', () => {
           provide: CollectionService,
           useValue: createMock<CollectionService>(),
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: GamesService,
+          useValue: createMock<GamesService>(),
+        },
       ],
-    }).compile();
+    })
+      .setLogger(createMock<Logger>())
+      .useMocker(createMock)
+      .compile();
 
     service = module.get<BggService>(BggService);
   });

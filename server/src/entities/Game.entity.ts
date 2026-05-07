@@ -50,25 +50,48 @@ export class Game {
   @Column({ type: String, nullable: true })
   thumbnailUrl: string | null = null;
 
+  // pulled from BGG version data
   @Column({ type: Number, nullable: true })
   length: number | null = null;
 
+  // pulled from BGG version data
   @Column({ type: Number, nullable: true })
   width: number | null = null;
 
+  // pulled from BGG version data
   @Column({ type: Number, nullable: true })
   depth: number | null = null;
 
   /*===== These properties are specific to the user that owns it =====*/
+  // user defined
+  @Column({ type: Number, nullable: true })
+  customLength: number | null = null;
+
+  // user defined
+  @Column({ type: Number, nullable: true })
+  customWidth: number | null = null;
+
+  // user defined
+  @Column({ type: Number, nullable: true })
+  customDepth: number | null = null;
+
+  // user defined
+  @Column({ default: true })
+  showInCollection?: boolean = true;
+
+  // pulled from BGG data
   @Column({ default: false })
   owned: boolean = false;
 
+  // pulled from BGG data
   @Column({ default: false })
   previouslyOwned: boolean = false;
 
+  // pulled from BGG data
   @Column({ default: 0 })
   plays: number = 0;
 
+  // pulled from BGG data
   @Column({ default: 0 })
   rating: number = 0;
 }

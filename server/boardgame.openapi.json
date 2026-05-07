@@ -542,6 +542,93 @@
           "Users"
         ]
       }
+    },
+    "/games/{bggId}/{versionId}": {
+      "get": {
+        "operationId": "GamesController_findOne",
+        "parameters": [
+          {
+            "name": "bggId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
+      },
+      "patch": {
+        "operationId": "GamesController_update",
+        "parameters": [
+          {
+            "name": "bggId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
+      }
     }
   },
   "info": {
@@ -624,6 +711,25 @@
             "nullable": true,
             "default": null
           },
+          "customLength": {
+            "type": "number",
+            "nullable": true,
+            "default": null
+          },
+          "customWidth": {
+            "type": "number",
+            "nullable": true,
+            "default": null
+          },
+          "customDepth": {
+            "type": "number",
+            "nullable": true,
+            "default": null
+          },
+          "showInCollection": {
+            "type": "boolean",
+            "default": true
+          },
           "owned": {
             "type": "boolean",
             "default": false
@@ -656,6 +762,9 @@
           "length",
           "width",
           "depth",
+          "customLength",
+          "customWidth",
+          "customDepth",
           "owned",
           "previouslyOwned",
           "plays",
@@ -1036,6 +1145,29 @@
       "UpdateUserDto": {
         "type": "object",
         "properties": {}
+      },
+      "UpdateGameDto": {
+        "type": "object",
+        "properties": {
+          "customLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "customWidth": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "customDepth": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "showInCollection": {
+            "type": "boolean"
+          }
+        }
       }
     }
   }

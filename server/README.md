@@ -4,6 +4,14 @@
 $ npm install
 ```
 
+## Set up ENV Vars
+
+Copy .env.example to .env
+Fill in these values:
+ * JWT_SECRET=`a value used to hash the JWT tokens handed out by the API`
+ * BGG_AUTH_TOKEN=`a token you generated in the BGG API console, for authenticating requests to get Game collections from the BGG API`
+
+
 ## Running the app
 
 ```bash

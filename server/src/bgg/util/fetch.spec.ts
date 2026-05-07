@@ -14,7 +14,7 @@ describe('fetch bgg xml data', () => {
   it('calls the bgg api and a status if accepted', async () => {
     mockFetch.mockResolvedValueOnce(acceptedResponse);
 
-    const result = await fetchCollectionData('testBggName');
+    const result = await fetchCollectionData('testBggName', 'testToken');
 
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('testBggName'),
@@ -29,7 +29,7 @@ describe('fetch bgg xml data', () => {
   it('calls the bgg api and returns the xml results as text', async () => {
     mockFetch.mockResolvedValueOnce(successfulResponse);
 
-    const result = await fetchCollectionData('testBggName');
+    const result = await fetchCollectionData('testBggName', 'testToken');
 
     expect(result).toEqual({
       status: 200,
@@ -41,7 +41,7 @@ describe('fetch bgg xml data', () => {
   it('returns error results if the request was invalid', async () => {
     mockFetch.mockResolvedValueOnce(invalidUsernameResponse);
 
-    const result = await fetchCollectionData('invalid');
+    const result = await fetchCollectionData('invalid', 'testToken');
 
     expect(result).toEqual({
       status: 400,

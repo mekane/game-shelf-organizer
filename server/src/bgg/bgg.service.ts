@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ServiceStatus } from '@src/common';
 import { GamesService } from '@src/games/games.service';
 import { UserAuthRecord } from '../auth';
@@ -25,12 +26,20 @@ export interface SyncResult {
 }
 
 @Injectable()
-export class BggService {
+export class BggService implements OnModuleInit {
+  private bggAuthToken!: string;
+
   constructor(
+    private readonly configService: ConfigService,
     private readonly collectionService: CollectionService,
     private readonly gamesService: GamesService,
     private readonly logger: Logger,
   ) {}
+
+  async onModuleInit() {
+    this.bggAuthToken =
+      (await this.configService.get('BGG_AUTH_TOKEN')) ?? '<missing>';
+  }
 
   public async getCollection(
     bggUsername: string,
@@ -40,7 +49,7 @@ export class BggService {
     // change return to ServiceResult<BggGameData[]>
     let attempt = 1;
 
-    let bggRes = await fetchCollectionData(bggUsername);
+    let bggRes = await fetchCollectionData(bggUsername, this.bggAuthToken);
     this.logger.log(
       `Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`,
     );
@@ -55,7 +64,7 @@ export class BggService {
     while (bggRes.status === 202 && attempt <= retries) {
       attempt++;
       await new Promise((r) => setTimeout(r, delay));
-      bggRes = await fetchCollectionData(bggUsername);
+      bggRes = await fetchCollectionData(bggUsername, this.bggAuthToken);
       this.logger.log(
         `Fetch BGG Collection attempt ${attempt}: ${bggRes.message}`,
       );

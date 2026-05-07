@@ -1,13 +1,15 @@
 import { createMock } from '@golevelup/ts-jest';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ServiceStatus } from '@src/common';
 import { Repository } from 'typeorm';
 import { mockAuthUser } from '../../test/utils';
 import { User } from '../entities';
 import { CreateUserDto, UpdateUserDto, UserLoginDto } from './dto';
-import { Result, UsersService } from './users.service';
+import { UsersService } from './users.service';
 
 const repositoryKey = getRepositoryToken(User);
 const mockRepository = createMock<Repository<User>>({
@@ -40,10 +42,6 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: repositoryKey,
-          useValue: mockRepository,
-        },
-        {
           provide: ConfigService,
           useValue: createMock<ConfigService>(),
         },
@@ -51,8 +49,15 @@ describe('UsersService', () => {
           provide: JwtService,
           useValue: mockJwtService,
         },
+        {
+          provide: repositoryKey,
+          useValue: mockRepository,
+        },
       ],
-    }).compile();
+    })
+      .setLogger(createMock<Logger>())
+      .useMocker(createMock)
+      .compile();
 
     service = module.get<UsersService>(UsersService);
   });
@@ -67,7 +72,7 @@ describe('UsersService', () => {
       mockRepository.findOneBy.mockResolvedValueOnce(existingUser);
 
       const result = await service.create(createDto);
-      expect(result).toEqual(Result.EMAIL_IN_USE);
+      expect(result.status).toEqual(ServiceStatus.EmailInUse);
     });
   });
 
@@ -87,7 +92,7 @@ describe('UsersService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.findOne(99);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result.status).toEqual(ServiceStatus.NotFound);
     });
   });
 
@@ -113,7 +118,7 @@ describe('UsersService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.update(99, updateDto);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result.status).toEqual(ServiceStatus.NotFound);
     });
 
     it('should return EMAIL_IN_USE for existing email', async () => {
@@ -131,7 +136,7 @@ describe('UsersService', () => {
       };
 
       const result = await service.update(existingUser.id, updateExisting);
-      expect(result).toEqual(Result.EMAIL_IN_USE);
+      expect(result.status).toEqual(ServiceStatus.EmailInUse);
     });
 
     it('should not return an error if not changing existing email', async () => {
@@ -161,7 +166,7 @@ describe('UsersService', () => {
     it('should return NOT_FOUND result for non-existant ids', async () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
       const result = await service.remove(user, 99);
-      expect(result).toEqual(Result.NOT_FOUND);
+      expect(result.status).toEqual(ServiceStatus.NotFound);
     });
 
     it('should return an error if trying to delete own user', async () => {
@@ -170,7 +175,7 @@ describe('UsersService', () => {
       mockRepository.findOneBy.mockResolvedValueOnce(existingUser);
 
       const result = await service.remove(user, 99);
-      expect(result).toEqual(Result.OWN_USER);
+      expect(result.status).toEqual(ServiceStatus.OwnUser);
     });
   });
 
@@ -183,7 +188,7 @@ describe('UsersService', () => {
       mockRepository.findOneBy.mockResolvedValueOnce(null);
 
       const result = await service.login(loginNoUser);
-      expect(result).toEqual(Result.INVALID_CREDENTIALS);
+      expect(result.status).toEqual(ServiceStatus.InvalidCredentials);
     });
 
     it('returns error if password does not match', async () => {
@@ -194,7 +199,7 @@ describe('UsersService', () => {
       mockRepository.findOneBy.mockResolvedValueOnce(existingUser);
 
       const result = await service.login(loginBadPass);
-      expect(result).toEqual(Result.INVALID_CREDENTIALS);
+      expect(result.status).toEqual(ServiceStatus.InvalidCredentials);
     });
 
     it('returns jwt access token', async () => {
@@ -217,7 +222,8 @@ describe('UsersService', () => {
       mockJwtService.signAsync.mockResolvedValueOnce(token);
 
       const result = await service.login(loginOk);
-      expect(result).toEqual({ access_token: token });
+      expect(result.status).toEqual(ServiceStatus.Success);
+      expect(result.content).toEqual(token);
     });
   });
 });

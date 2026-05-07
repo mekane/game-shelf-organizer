@@ -107,6 +107,9 @@ export function bggDataToGame(
     previouslyOwned: Boolean(previouslyOwned),
     plays: numeric(data.plays) ?? 0,
     rating: numeric(data.rating) ?? 0,
+    customLength: numeric(data.length) ?? null,
+    customWidth: numeric(data.width) ?? null,
+    customDepth: numeric(data.depth) ?? null,
   };
 
   return game;

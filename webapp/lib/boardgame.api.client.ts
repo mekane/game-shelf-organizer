@@ -34,6 +34,14 @@ export interface Game {
   width: number | null;
   /** @default null */
   depth: number | null;
+  /** @default null */
+  customLength: number | null;
+  /** @default null */
+  customWidth: number | null;
+  /** @default null */
+  customDepth: number | null;
+  /** @default true */
+  showInCollection?: boolean;
   /** @default false */
   owned: boolean;
   /** @default false */
@@ -158,6 +166,25 @@ export interface CreateUserDto {
 }
 
 export type UpdateUserDto = object;
+
+export interface UpdateGameDto {
+  /**
+   * @min 1
+   * @max 99
+   */
+  customLength?: number;
+  /**
+   * @min 1
+   * @max 99
+   */
+  customWidth?: number;
+  /**
+   * @min 1
+   * @max 99
+   */
+  customDepth?: number;
+  showInCollection?: boolean;
+}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -752,6 +779,51 @@ export class Api<
       this.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
+        ...params,
+      }),
+  };
+  games = {
+    /**
+     * No description
+     *
+     * @tags Games
+     * @name GamesControllerFindOne
+     * @request GET:/games/{bggId}/{versionId}
+     * @secure
+     */
+    gamesControllerFindOne: (
+      bggId: number,
+      versionId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<Game, any>({
+        path: `/games/${bggId}/${versionId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Games
+     * @name GamesControllerUpdate
+     * @request PATCH:/games/{bggId}/{versionId}
+     * @secure
+     */
+    gamesControllerUpdate: (
+      bggId: number,
+      versionId: number,
+      data: UpdateGameDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/games/${bggId}/${versionId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };
