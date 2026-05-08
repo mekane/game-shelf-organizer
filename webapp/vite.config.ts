@@ -14,7 +14,7 @@ export default defineConfig((configEnv) => ({
       "@config": path.resolve(__dirname, "src/config"),
       "@components": path.resolve(__dirname, "src/components"),
       "@context": path.resolve(__dirname, "src/context"),
-      "@hooks": path.resolve(__dirname, "hooks"),
+      "@hooks": path.resolve(__dirname, "src/hooks"),
       "@lib": path.resolve(__dirname, "lib"),
       "@pages": path.resolve(__dirname, "src/pages"),
       "@services": path.resolve(__dirname, "src/services"),

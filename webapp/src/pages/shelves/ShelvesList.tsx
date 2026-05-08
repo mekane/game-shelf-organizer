@@ -1,47 +1,28 @@
-import { PageHeader } from "@components/PageHeader";
-import { useApi } from "@context/api";
-import { useConfirm } from "@context/useConfirm/useConfirm";
-import { CreateShelfDto, Shelf } from "@lib/boardgame.api.client";
-import AddIcon from "@mui/icons-material/Add";
-import { Button, CircularProgress } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { AddRoomDialog } from "./components";
-import { RoomList } from "./components/RoomList";
+import { PageHeader } from '@components/PageHeader';
+import { useApi } from '@context/api';
+import { useConfirm } from '@context/useConfirm/useConfirm';
+import { useShelfData } from '@hooks/useShelfData';
+import { CreateShelfDto } from '@lib/boardgame.api.client';
+import AddIcon from '@mui/icons-material/Add';
+import { Alert, Button, CircularProgress } from '@mui/material';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { AddRoomDialog } from './components';
+import { RoomList } from './components/RoomList';
 
 export const ShelvesList = () => {
   const api = useApi();
   const { confirm, setLoading, close: closeConfirm } = useConfirm();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading, isError, refreshShelves, shelves } = useShelfData();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [shelves, setShelves] = useState<Shelf[]>([]);
-
-  const loadShelfList = useCallback(() => {
-    setIsLoading(true);
-    api.shelf
-      .shelfControllerFindAll()
-      .then((res) => {
-        setShelves(res.data);
-      })
-      .catch((err) => {
-        toast.error(`Error loading room data: ${err.message}`);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [api]);
-
-  useEffect(() => {
-    loadShelfList();
-  }, [loadShelfList]);
 
   const deleteRoom = async (roomId, name: string) => {
     const confirmDelete = await confirm({
-      title: "Confirm Delete",
+      title: 'Confirm Delete',
       description: `Are you sure you want to delete ${name}?`,
-      actionText: "Delete",
-      color: "error",
+      actionText: 'Delete',
+      color: 'error',
     });
 
     if (!confirmDelete) {
@@ -50,11 +31,11 @@ export const ShelvesList = () => {
 
     try {
       await api.shelf.shelfControllerRemove(roomId);
-      loadShelfList();
+      refreshShelves();
       toast.success(`${name} was deleted`);
     } catch (err) {
       toast.error(`Could not delete ${name}: ${err.message}`);
-      console.error("error deleting", err);
+      console.error('error deleting', err);
     } finally {
       setLoading(false);
       setIsDeleting(false);
@@ -94,10 +75,10 @@ export const ShelvesList = () => {
     try {
       await api.shelf.shelfControllerCreate(createDto);
       handleClose();
-      loadShelfList();
+      refreshShelves();
       toast.success(`${createDto.name} was added`);
     } catch (err) {
-      console.log("error submitting add room form", err);
+      console.log('error submitting add room form', err);
       toast.error(`Could not add room ${createDto.name}: ${err.message}}`);
     } finally {
       setIsSubmittingForm(false);
@@ -107,23 +88,18 @@ export const ShelvesList = () => {
   return (
     <>
       <PageHeader headerText="Shelves">
-        <Button
-          variant="contained"
-          onClick={openNewDialog}
-          startIcon={<AddIcon />}
-        >
+        <Button variant="contained" onClick={openNewDialog} startIcon={<AddIcon />}>
           Add New Room
         </Button>
       </PageHeader>
+
+      {isError && <Alert color="error">Error loading list of rooms</Alert>}
+
       {isLoading ? (
         <CircularProgress />
       ) : (
         <>
-          <RoomList
-            shelves={shelves}
-            deleteRoom={deleteRoom}
-            isDeleting={isDeleting}
-          />
+          <RoomList shelves={shelves} deleteRoom={deleteRoom} isDeleting={isDeleting} />
           <AddRoomDialog
             open={newDialogOpen}
             handleClose={handleClose}

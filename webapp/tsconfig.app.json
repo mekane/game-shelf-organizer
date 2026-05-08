@@ -22,7 +22,7 @@
       "@config": ["./src/config"],
       "@components/*": ["./src/components/*"],
       "@context/*": ["./src/context/*"],
-      "@hooks/*": ["./hooks/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@lib/*": ["./lib/*"],
       "@pages/*": ["./src/pages/*"],
       "@services/*": ["./src/services/*"],

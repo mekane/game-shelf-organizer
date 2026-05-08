@@ -1,7 +1,8 @@
 import { PageHeader } from "@components/PageHeader";
-import { useApi } from "@context/api";
+import { useListsData } from "@hooks/useListData";
 import { List } from "@lib/boardgame.api.client";
 import {
+  Alert,
   Button,
   CircularProgress,
   Container,
@@ -12,21 +13,10 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export const ListsList = () => {
-  const api = useApi();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [myLists, setMyLists] = useState<List[]>([]);
-
-  useEffect(() => {
-    api.list.listControllerFindAll().then((res) => {
-      setMyLists(res.data);
-      setIsLoading(false);
-    });
-  }, [api]);
+  const { isLoading, isError, refreshLists, lists } = useListsData();
 
   return (
     <Container>
@@ -35,6 +25,8 @@ export const ListsList = () => {
           New List
         </Button>
       </PageHeader>
+
+      {isError && <Alert color="error">Error loading Lists</Alert>}
 
       {isLoading ? (
         <CircularProgress />
@@ -48,7 +40,7 @@ export const ListsList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {myLists.map((list) => (
+              {lists.map((list: List) => (
                 <TableRow key={list.id}>
                   <TableCell>{list.name}</TableCell>
                   <TableCell>

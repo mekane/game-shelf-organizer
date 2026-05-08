@@ -21,17 +21,25 @@
     "react-toastify": "^11.1.0"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^4.2.3",
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.19",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "latest",
-    "@typescript-eslint/parser": "latest",
     "@vitejs/plugin-react": "latest",
-    "eslint": "^10.2.1",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "eslint-plugin-storybook": "^10.1.4",
     "typescript": "^6",
-    "typescript-eslint": "^8.59.0",
+    "typescript-eslint": "^8.22.0",
     "vite": "latest"
+  },
+  "prettier": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "endOfLine": "lf"
   }
 }

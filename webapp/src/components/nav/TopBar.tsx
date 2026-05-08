@@ -1,11 +1,11 @@
-import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { NavLink } from "react-router-dom";
+import { AppBar, Button, Container, Toolbar, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { NavLink } from 'react-router-dom';
 
 const MenuButton = styled(Button)({
   my: 2,
-  color: "white",
-  display: "block",
+  color: 'white',
+  display: 'block',
 });
 
 const NavButton = ({ label, path }: { label: string; path: string }) => {
@@ -15,8 +15,8 @@ const NavButton = ({ label, path }: { label: string; path: string }) => {
         to={path}
         style={({ isActive, isPending }) => {
           return {
-            color: isActive ? "#aa9" : "inherit",
-            textDecoration: "none",
+            color: isActive ? '#aa9' : 'inherit',
+            textDecoration: 'none',
           };
         }}
       >
@@ -28,16 +28,10 @@ const NavButton = ({ label, path }: { label: string; path: string }) => {
 
 export const TopBar = () => {
   return (
-    <AppBar position="static" className={"appBar"}>
+    <AppBar position="static" className={'appBar'}>
       <Container>
         <Toolbar disableGutters>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ pr: 5 }}
-          >
+          <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ pr: 5 }}>
             Board Game Organizer
           </Typography>
 
@@ -45,7 +39,6 @@ export const TopBar = () => {
           <NavButton label="Collection" path="/collection" />
           <NavButton label="Lists" path="/lists" />
           <NavButton label="Shelves" path="/shelves" />
-          <NavButton label="Anylists" path="/anylists" />
         </Toolbar>
       </Container>
     </AppBar>
