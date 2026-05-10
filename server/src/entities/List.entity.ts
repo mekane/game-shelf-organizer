@@ -58,14 +58,12 @@ export class List {
 
   @AfterLoad()
   deserializeJson() {
-    console.log(`<<< Deserialize List config`, this.configSerialized);
     this.config = JSON.parse(this.configSerialized ?? '{}');
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   serializeJson() {
-    console.log(`>>> Serialize List config`, this.config);
     this.configSerialized = JSON.stringify(this.config);
   }
 }

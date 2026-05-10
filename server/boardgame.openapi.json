@@ -241,6 +241,93 @@
         ]
       }
     },
+    "/games/{bggId}/{versionId}": {
+      "get": {
+        "operationId": "GamesController_findOne",
+        "parameters": [
+          {
+            "name": "bggId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Game"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
+      },
+      "patch": {
+        "operationId": "GamesController_update",
+        "parameters": [
+          {
+            "name": "bggId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGameDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Games"
+        ]
+      }
+    },
     "/shelf": {
       "post": {
         "operationId": "ShelfController_create",
@@ -540,93 +627,6 @@
         },
         "tags": [
           "Users"
-        ]
-      }
-    },
-    "/games/{bggId}/{versionId}": {
-      "get": {
-        "operationId": "GamesController_findOne",
-        "parameters": [
-          {
-            "name": "bggId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "versionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Game"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Games"
-        ]
-      },
-      "patch": {
-        "operationId": "GamesController_update",
-        "parameters": [
-          {
-            "name": "bggId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "versionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateGameDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Games"
         ]
       }
     }
@@ -1058,29 +1058,68 @@
           "shelves"
         ]
       },
-      "CreateListDto": {
+      "GameId": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "default": ""
+          "bggId": {
+            "type": "number"
           },
-          "games": {
-            "default": [],
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
+          "versionId": {
+            "type": "number"
           }
         },
         "required": [
-          "name",
-          "games"
+          "bggId",
+          "versionId"
+        ]
+      },
+      "CreateListDto": {
+        "type": "object",
+        "properties": {
+          "games": {
+            "default": [],
+            "description": "Ids of games to link for inclusion in the list",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GameId"
+            }
+          },
+          "name": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "required": [
+          "games",
+          "name"
         ]
       },
       "UpdateListDto": {
         "type": "object",
         "properties": {}
+      },
+      "UpdateGameDto": {
+        "type": "object",
+        "properties": {
+          "customLength": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "customWidth": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "customDepth": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99
+          },
+          "showInCollection": {
+            "type": "boolean"
+          }
+        }
       },
       "CreateShelfDto": {
         "type": "object",
@@ -1145,29 +1184,6 @@
       "UpdateUserDto": {
         "type": "object",
         "properties": {}
-      },
-      "UpdateGameDto": {
-        "type": "object",
-        "properties": {
-          "customLength": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 99
-          },
-          "customWidth": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 99
-          },
-          "customDepth": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 99
-          },
-          "showInCollection": {
-            "type": "boolean"
-          }
-        }
       }
     }
   }

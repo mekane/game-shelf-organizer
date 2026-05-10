@@ -47,18 +47,20 @@ export const useTop100ListData = (): UseListsDataResult => {
       }
 
       const collRes = await api.collection.collectionControllerGet();
+      console.log('got collection', collRes.data);
+
       const include = collRes?.data?.games.filter((g) => g.showInCollection);
+      console.log('including games', include);
+
       const played = include.filter((g) => g.plays > 0);
+      console.log('filtering to games with plays', played);
+
       const games = played.map((g) => ({
         bggId: g.bggId,
         versionId: g.versionId,
-        userId: g.userId,
       }));
 
-      console.log(
-        'Initialize top 100 from games',
-        played.map((g) => g.name),
-      );
+      console.log('Initialize top 100 from games', games);
 
       // Create list and initialize it from collection
       // any game with at least one play

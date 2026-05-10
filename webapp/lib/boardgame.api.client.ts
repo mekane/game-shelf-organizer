@@ -137,14 +137,41 @@ export interface User {
   shelves: Shelf[];
 }
 
+export interface GameId {
+  bggId: number;
+  versionId: number;
+}
+
 export interface CreateListDto {
+  /**
+   * Ids of games to link for inclusion in the list
+   * @default []
+   */
+  games: GameId[];
   /** @default "" */
   name: string;
-  /** @default [] */
-  games: object[];
 }
 
 export type UpdateListDto = object;
+
+export interface UpdateGameDto {
+  /**
+   * @min 1
+   * @max 99
+   */
+  customLength?: number;
+  /**
+   * @min 1
+   * @max 99
+   */
+  customWidth?: number;
+  /**
+   * @min 1
+   * @max 99
+   */
+  customDepth?: number;
+  showInCollection?: boolean;
+}
 
 export interface CreateShelfDto {
   name: string;
@@ -166,25 +193,6 @@ export interface CreateUserDto {
 }
 
 export type UpdateUserDto = object;
-
-export interface UpdateGameDto {
-  /**
-   * @min 1
-   * @max 99
-   */
-  customLength?: number;
-  /**
-   * @min 1
-   * @max 99
-   */
-  customWidth?: number;
-  /**
-   * @min 1
-   * @max 99
-   */
-  customDepth?: number;
-  showInCollection?: boolean;
-}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -545,7 +553,7 @@ export class Api<
      * @request GET:/list/{id}
      * @secure
      */
-    listControllerFindOne: (id: string, params: RequestParams = {}) =>
+    listControllerFindOne: (id: number, params: RequestParams = {}) =>
       this.request<List, any>({
         path: `/list/${id}`,
         method: "GET",
@@ -563,7 +571,7 @@ export class Api<
      * @secure
      */
     listControllerUpdate: (
-      id: string,
+      id: number,
       data: UpdateListDto,
       params: RequestParams = {},
     ) =>
@@ -585,12 +593,57 @@ export class Api<
      * @request DELETE:/list/{id}
      * @secure
      */
-    listControllerRemove: (id: string, params: RequestParams = {}) =>
+    listControllerRemove: (id: number, params: RequestParams = {}) =>
       this.request<number, any>({
         path: `/list/${id}`,
         method: "DELETE",
         secure: true,
         format: "json",
+        ...params,
+      }),
+  };
+  games = {
+    /**
+     * No description
+     *
+     * @tags Games
+     * @name GamesControllerFindOne
+     * @request GET:/games/{bggId}/{versionId}
+     * @secure
+     */
+    gamesControllerFindOne: (
+      bggId: number,
+      versionId: number,
+      params: RequestParams = {},
+    ) =>
+      this.request<Game, any>({
+        path: `/games/${bggId}/${versionId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Games
+     * @name GamesControllerUpdate
+     * @request PATCH:/games/{bggId}/{versionId}
+     * @secure
+     */
+    gamesControllerUpdate: (
+      bggId: number,
+      versionId: number,
+      data: UpdateGameDto,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/games/${bggId}/${versionId}`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
         ...params,
       }),
   };
@@ -779,51 +832,6 @@ export class Api<
       this.request<void, any>({
         path: `/users/${id}`,
         method: "DELETE",
-        ...params,
-      }),
-  };
-  games = {
-    /**
-     * No description
-     *
-     * @tags Games
-     * @name GamesControllerFindOne
-     * @request GET:/games/{bggId}/{versionId}
-     * @secure
-     */
-    gamesControllerFindOne: (
-      bggId: number,
-      versionId: number,
-      params: RequestParams = {},
-    ) =>
-      this.request<Game, any>({
-        path: `/games/${bggId}/${versionId}`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Games
-     * @name GamesControllerUpdate
-     * @request PATCH:/games/{bggId}/{versionId}
-     * @secure
-     */
-    gamesControllerUpdate: (
-      bggId: number,
-      versionId: number,
-      data: UpdateGameDto,
-      params: RequestParams = {},
-    ) =>
-      this.request<void, any>({
-        path: `/games/${bggId}/${versionId}`,
-        method: "PATCH",
-        body: data,
-        secure: true,
-        type: ContentType.Json,
         ...params,
       }),
   };

@@ -5,28 +5,42 @@ import { ServiceResult } from '@src/common/ServiceResult';
 import { Repository } from 'typeorm';
 import { UserAuthRecord } from '../auth/index';
 import { List } from '../entities';
+import { GamesService } from '../games/games.service';
 import { forUser, idForUser } from '../util';
 import { CreateListDto } from './dto/create-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 
 @Injectable()
 export class ListService {
+  private readonly logger: Logger;
+
   constructor(
-    private readonly logger: Logger,
     @InjectRepository(List)
     private repository: Repository<List>,
-  ) {}
+    private gamesService: GamesService,
+  ) {
+    this.logger = new Logger(ListService.name);
+  }
 
   async create(
     user: UserAuthRecord,
     createDto: CreateListDto,
   ): Promise<ServiceResult<List>> {
-    this.logger.log('[ListService] create', createDto);
+    const { games, ...listData } = createDto;
+
+    console.log('New list, look up linked games:', games);
+    const { content: hydratedGames } = await this.gamesService.findMany(
+      games,
+      user,
+    );
+
+    console.log('Got games by id', hydratedGames);
 
     try {
       const repoResult = await this.repository.save({
-        ...createDto,
+        ...listData,
         user: { id: user.sub },
+        games: hydratedGames,
       });
 
       return {
@@ -34,6 +48,7 @@ export class ListService {
         content: repoResult,
       };
     } catch (err) {
+      this.logger.error('Error creating new list', err);
       return {
         status: ServiceStatus.DatabaseError,
       };

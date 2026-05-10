@@ -32,8 +32,6 @@ export class ShelfService {
     newEntity.room = createDto.room;
     newEntity.shelves = createDto.shelves;
 
-    console.log('Room to create', newEntity);
-
     try {
       const repoResult = await this.repository.save(newEntity);
 

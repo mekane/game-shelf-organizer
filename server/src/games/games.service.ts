@@ -40,6 +40,32 @@ export class GamesService {
     };
   }
 
+  async findMany(
+    ids: { bggId: number; versionId: number }[],
+    user: UserAuthRecord,
+  ): Promise<ServiceResult<Game[]>> {
+    try {
+      const result = await this.repository.find({
+        where: ids.map((o) => ({
+          userId: user.id,
+          bggId: o.bggId,
+          versionId: o.versionId,
+        })),
+      });
+
+      return {
+        status: ServiceStatus.Success,
+        content: result,
+      };
+    } catch (err) {
+      this.logger.error(`Error fetching ${ids.length} games: `, err);
+
+      return {
+        status: ServiceStatus.DatabaseError,
+      };
+    }
+  }
+
   async updateById(
     bggId: number,
     versionId: number,

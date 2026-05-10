@@ -1,6 +1,12 @@
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Collection } from './Collection.entity';
 
+export class GameId {
+  bggId!: number;
+
+  versionId!: number;
+}
+
 /**
  * Represents one instance of a game owned by one user
  * Primary key is composed of:
