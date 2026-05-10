@@ -1,20 +1,19 @@
-import { ListView } from "@pages/lists/ListView";
-import { ListsPage } from "@pages/lists/ListsPage";
-import { ShelvesList } from "@pages/shelves/ShelvesList";
-import { ShelfLayout } from "@pages/shelves/layout/ShelfLayout";
-import { Organize } from "@pages/shelves/organize/Organize";
-import { RouteObject, createBrowserRouter } from "react-router-dom";
-import { ErrorPage } from "./pages/ErrorPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { PageContainer } from "./pages/PageContainer";
-import { CollectionPage } from "./pages/collection/CollectionPage";
-import { HomePage } from "./pages/home/HomePage";
-import { ListsList } from "./pages/lists/ListsList";
-import { ShelvesPage } from "./pages/shelves/ShelvesPage";
+import { ListsPage } from '@pages/lists/ListsPage';
+import { Top100List } from '@pages/lists/Top100List';
+import { ShelvesList } from '@pages/shelves/ShelvesList';
+import { ShelfLayout } from '@pages/shelves/layout/ShelfLayout';
+import { Organize } from '@pages/shelves/organize/Organize';
+import { RouteObject, createBrowserRouter } from 'react-router-dom';
+import { ErrorPage } from './pages/ErrorPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { PageContainer } from './pages/PageContainer';
+import { CollectionPage } from './pages/collection/CollectionPage';
+import { HomePage } from './pages/home/HomePage';
+import { ShelvesPage } from './pages/shelves/ShelvesPage';
 
 const routes: RouteObject[] = [
   {
-    path: "/",
+    path: '/',
     element: <PageContainer />,
     errorElement: <ErrorPage />,
     children: [
@@ -23,44 +22,40 @@ const routes: RouteObject[] = [
         element: <HomePage />,
       },
       {
-        path: "/404",
+        path: '/404',
         element: <NotFoundPage />,
       },
       {
-        path: "/collection",
+        path: '/collection',
         element: <CollectionPage />,
       },
       {
-        path: "/lists",
+        path: '/lists',
         element: <ListsPage />,
         children: [
           {
-            path: "",
+            path: '',
             index: true,
-            element: <ListsList />,
-          },
-          {
-            path: ":id",
-            element: <ListView />,
+            element: <Top100List />,
           },
         ],
       },
       {
-        path: "/shelves",
+        path: '/shelves',
         element: <ShelvesPage />,
         children: [
           {
-            path: "",
+            path: '',
             index: true,
             element: <ShelvesList />,
           },
           {
-            path: "layout/:id",
+            path: 'layout/:id',
             element: <ShelfLayout />,
             index: true,
           },
           {
-            path: "organize/:id",
+            path: 'organize/:id',
             element: <Organize />,
           },
         ],

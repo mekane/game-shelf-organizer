@@ -1,4 +1,4 @@
-import SaveIcon from "@mui/icons-material/Save";
+import SaveIcon from '@mui/icons-material/Save';
 import {
   Button,
   Dialog,
@@ -9,7 +9,7 @@ import {
   InputAdornment,
   Stack,
   TextField,
-} from "@mui/material";
+} from '@mui/material';
 
 export interface AddRoomDialogProps {
   isSubmitting: boolean;
@@ -18,19 +18,12 @@ export interface AddRoomDialogProps {
   handleSubmit: () => void;
 }
 
-export const AddRoomDialog = ({
-  open,
-  handleClose,
-  handleSubmit,
-  isSubmitting,
-}) => {
+export const AddRoomDialog = ({ open, handleClose, handleSubmit, isSubmitting }) => {
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add New Room Layout</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Give your new room a name and configure the size.
-        </DialogContentText>
+        <DialogContentText>Give your new room a name and configure the size.</DialogContentText>
         <form onSubmit={handleSubmit} id="new-room-form">
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
@@ -58,9 +51,7 @@ export const AddRoomDialog = ({
                 slotProps={{
                   htmlInput: { min: 12, max: 999 },
                   input: {
-                    endAdornment: (
-                      <InputAdornment position="end">in</InputAdornment>
-                    ),
+                    endAdornment: <InputAdornment position="end">in</InputAdornment>,
                   },
                 }}
               />
@@ -77,9 +68,7 @@ export const AddRoomDialog = ({
                 slotProps={{
                   htmlInput: { min: 12, max: 999 },
                   input: {
-                    endAdornment: (
-                      <InputAdornment position="end">in</InputAdornment>
-                    ),
+                    endAdornment: <InputAdornment position="end">in</InputAdornment>,
                   },
                 }}
               />

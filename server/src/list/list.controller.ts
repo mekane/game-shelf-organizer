@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -40,7 +41,10 @@ export class ListController {
   }
 
   @Get(':id')
-  async findOne(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+  async findOne(
+    @AuthUser() user: UserAuthRecord,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     const ser = await this.listService.findOne(user, +id);
 
     if (ser.status === ServiceStatus.NotFound) {
@@ -53,7 +57,7 @@ export class ListController {
   @Patch(':id')
   async update(
     @AuthUser() user: UserAuthRecord,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateListDto: UpdateListDto,
   ) {
     const ser = await this.listService.update(user, +id, updateListDto);
@@ -66,7 +70,10 @@ export class ListController {
   }
 
   @Delete(':id')
-  async remove(@AuthUser() user: UserAuthRecord, @Param('id') id: string) {
+  async remove(
+    @AuthUser() user: UserAuthRecord,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
     const ser = await this.listService.remove(user, +id);
 
     if (ser.status === ServiceStatus.NotFound) {

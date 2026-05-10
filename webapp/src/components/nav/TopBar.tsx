@@ -37,7 +37,7 @@ export const TopBar = () => {
 
           <NavButton label="Home" path="/" />
           <NavButton label="Collection" path="/collection" />
-          <NavButton label="Lists" path="/lists" />
+          <NavButton label="Top 100 List" path="/lists" />
           <NavButton label="Shelves" path="/shelves" />
         </Toolbar>
       </Container>
