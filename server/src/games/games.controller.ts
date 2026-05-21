@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
@@ -17,7 +18,11 @@ import { GamesService } from './games.service';
 @ApiTags('Games')
 @Controller('games')
 export class GamesController {
-  constructor(private readonly gamesService: GamesService) {}
+  private readonly logger: Logger;
+
+  constructor(private readonly gamesService: GamesService) {
+    this.logger = new Logger(GamesController.name);
+  }
 
   @Get(':bggId/:versionId')
   async findOne(
@@ -39,6 +44,8 @@ export class GamesController {
     @Param('versionId', ParseIntPipe) versionId: number,
     @Body() updateGameDto: UpdateGameDto,
   ) {
+    this.logger.log(`Patch Game bggId: ${bggId}/${versionId}`, updateGameDto);
+
     const result = await this.gamesService.updateById(
       bggId,
       versionId,
@@ -47,5 +54,7 @@ export class GamesController {
     );
 
     checkServiceResults(result);
+
+    return 'OK';
   }
 }

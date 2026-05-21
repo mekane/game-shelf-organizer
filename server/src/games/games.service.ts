@@ -84,19 +84,19 @@ export class GamesService {
       };
     }
 
-    if (update.customDepth) {
-      existing.customDepth = update.customDepth;
+    if ('customDepth' in update) {
+      existing.customDepth = update.customDepth ?? null;
     }
 
-    if (update.customLength) {
-      existing.customLength = update.customLength;
+    if ('customLength' in update) {
+      existing.customLength = update.customLength ?? null;
     }
 
-    if (update.customWidth) {
-      existing.customWidth = update.customWidth;
+    if ('customWidth' in update) {
+      existing.customWidth = update.customWidth ?? null;
     }
 
-    if (update.showInCollection) {
+    if ('showInCollection' in update) {
       existing.showInCollection = update.showInCollection;
     }
 

@@ -2,8 +2,13 @@ import { useApi } from '@context/api';
 import { Dimensions } from '@context/useEditDimensions';
 import { EditDimensionsContextType } from '@context/useEditDimensions/useEditDimensionsContext';
 import { Game } from '@lib/boardgame.api.client';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Box,
+  Button,
   Paper,
   Table,
   TableBody,
@@ -14,6 +19,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useState } from 'react';
+import { byName } from '../../../util';
 
 export interface CollectionListProps {
   games: Game[];
@@ -23,6 +30,8 @@ export interface CollectionListProps {
 
 export const CollectionList = ({ games, editDimensions, refreshGame }: CollectionListProps) => {
   const api = useApi();
+  const [hiding, setHiding] = useState<number>(0);
+  const [showing, setShowing] = useState<number>(0);
 
   const showEditor = async (game: Game) => {
     console.log('edit game', game.bggId);
@@ -42,26 +51,52 @@ export const CollectionList = ({ games, editDimensions, refreshGame }: Collectio
     refreshGame(game);
   };
 
-  console.log('render collection list', games);
+  const hideGame = async (game: Game) => {
+    setHiding(game.bggId);
+    try {
+      await api.games.gamesControllerUpdate(game.bggId, game.versionId, { showInCollection: false });
+      refreshGame(game);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setHiding(0);
+    }
+  };
+
+  const showGame = async (game: Game) => {
+    setShowing(game.bggId);
+    try {
+      await api.games.gamesControllerUpdate(game.bggId, game.versionId, { showInCollection: true });
+      refreshGame(game);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowing(0);
+    }
+  };
+
+  const owned = games.filter((g) => g.owned);
+  const shown = owned.filter((g) => g.showInCollection).sort(byName);
+  const hidden = owned.filter((g) => !g.showInCollection).sort(byName);
 
   return (
-    <TableContainer component={Paper} sx={{ margin: 'auto', minWidth: 800 }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Cover</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell align="right">Year</TableCell>
-            <TableCell align="right">Size</TableCell>
-            <TableCell align="right">Plays</TableCell>
-            <TableCell align="right">Rating</TableCell>
-            <TableCell align="right">BGG Rating</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {games
-            .filter((g: Game) => g.owned)
-            .map((g: Game) => (
+    <>
+      <TableContainer component={Paper} sx={{ margin: 'auto', minWidth: 800 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell align="right">Year</TableCell>
+              <TableCell align="right">Size</TableCell>
+              <TableCell align="right">Plays</TableCell>
+              <TableCell align="right">Rating</TableCell>
+              <TableCell align="right">BGG Rating</TableCell>
+              <TableCell align="right">Hide</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {shown.map((g: Game) => (
               <TableRow key={`${g.bggId}-${g.versionId}`} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
                   <img src={g.thumbnailUrl} />
@@ -83,10 +118,69 @@ export const CollectionList = ({ games, editDimensions, refreshGame }: Collectio
                 <TableCell align="right">{g.plays}</TableCell>
                 <TableCell align="right">{g.rating}</TableCell>
                 <TableCell align="right">{g.bggRating}</TableCell>
+                <TableCell align="right">
+                  <Button
+                    loading={hiding === g.bggId}
+                    onClick={() => {
+                      hideGame(g);
+                    }}
+                  >
+                    Hide
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Box sx={{ my: 2 }} />
+
+      <Accordion disableGutters>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography component="span">Hidden Games</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <TableContainer component={Paper} sx={{ margin: 'auto', minWidth: 800 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Cover</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Show</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {hidden.map((g: Game) => (
+                  <TableRow
+                    key={`${g.bggId}-${g.versionId}`}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell>
+                      <img src={g.thumbnailUrl} />
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      <Typography
+                        sx={{ fontWeight: 700 }}
+                      >{`${g.name}${g.versionName ? ' (' + g.versionName + ')' : ''}`}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        loading={showing === g.bggId}
+                        onClick={() => {
+                          showGame(g);
+                        }}
+                      >
+                        Show
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </AccordionDetails>
+      </Accordion>
+    </>
   );
 };

@@ -14,9 +14,12 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { byName } from '../../util';
 
 export const Top100List = () => {
   const { isLoading, isError, resetList, top100List } = useTop100ListData();
+
+  const games = top100List?.games?.filter((g) => g.owned && g.showInCollection).sort(byName);
 
   return isLoading ? (
     <CircularProgress />
@@ -40,7 +43,7 @@ export const Top100List = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {top100List.games.map((g: Game) => (
+            {games.map((g: Game) => (
               <TableRow key={`${g.bggId}-${g.versionId}`} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
                   <img src={g.thumbnailUrl} />
@@ -62,7 +65,7 @@ export const Top100List = () => {
             ))}
           </TableBody>
         </Table>
-      </TableContainer>{' '}
+      </TableContainer>
     </>
   );
 };
